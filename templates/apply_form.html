@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply | {{ job.job_title }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background-color: #f3f2ef; font-family: system-ui, -apple-system, sans-serif; }
+        .card { background: white; border-radius: 8px; border: 1px solid #e0e0e0; }
+        .btn-submit { background-color: #f97316; color: white; transition: 0.3s; font-weight: bold; }
+        .btn-submit:hover { background-color: #ea580c; }
+    </style>
+</head>
+<body>
+    <nav class="bg-white border-b sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 flex justify-between items-center h-14">
+            <div class="flex items-center space-x-2">
+                <div class="bg-orange-600 text-white font-bold px-2 py-1 rounded text-sm">FN</div>
+                <div class="hidden md:block text-xs font-bold text-gray-500 uppercase tracking-tight">Logistic Hub</div>
+            </div>
+            
+            <div class="flex space-x-8 text-gray-500 text-xs">
+                <a href="{% url 'home' %}" class="flex flex-col items-center ...">
+                    <i class="fa-solid fa-house text-lg"></i>
+                    <span>Home</span>
+                </a>
+
+                <a href="{% url 'job_list' %}" class="flex flex-col items-center ...">
+                    <i class="fa-solid fa-briefcase text-lg"></i>
+                    <span>Jobs</span>
+                </a>
+
+                {% if request.user.role == 'worker' %}
+                    <a href="{% url 'worker_dashboard' %}" class="flex flex-col items-center transition-all {% if '/my-dashboard/' in request.path %} text-black border-b-2 border-black pb-1 {% else %} hover:text-black {% endif %}">
+                        <i class="fa-solid fa-user text-lg"></i>
+                        <span>Me</span>
+                    </a>
+                {% elif request.user.role == 'vendor' %}
+                    <a href="{% url 'vendor_dashboard' %}" class="flex flex-col items-center transition-all {% if '/vendor-dashboard/' in request.path %} text-orange-600 border-b-2 border-orange-600 pb-1 {% else %} hover:text-orange-600 {% endif %}">
+                        <i class="fa-solid fa-chart-simple text-lg mb-1"></i>
+                        <span class="text-[10px] font-bold">Vendor Panel</span>
+                    </a>
+                {% endif %}
+                
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-6xl mx-auto px-4 mt-6 grid grid-cols-12 gap-5">
+        <div class="col-span-12 md:col-span-3">
+            <div class="card p-4 text-center">
+                <img src="https://ui-avatars.com/api/?name=Hitesh+K&background=f97316&color=fff" class="w-16 h-16 rounded-full mx-auto mb-2 border">
+                <h2 class="font-bold text-gray-800">Hitesh Kashyap</h2>
+                <p class="text-gray-500 text-[10px] mt-1 font-bold uppercase">Founder, FN Logistic Hub</p>
+            </div>
+        </div>
+
+        <div class="col-span-12 md:col-span-6">
+            <div class="card overflow-hidden">
+                <div class="p-6 border-b">
+                    <h1 class="text-lg font-bold text-gray-800">Easy Apply</h1>
+                    <div class="flex items-center space-x-3 mt-4">
+                        <div class="w-12 h-12 bg-orange-100 flex items-center justify-center font-bold text-orange-600 rounded">
+                            {{ job.company_name|slice:":1" }}
+                        </div>
+                        <div>
+                            <p class="font-bold text-gray-900 leading-tight">{{ job.job_title }}</p>
+                            <p class="text-xs text-gray-500">{{ job.company_name }} • Farukhnagar Hub</p>
+                        </div>
+                    </div>
+                </div>
+
+                <form method="POST" class="p-6 space-y-5">
+                    {% csrf_token %}
+                    <div>
+                        <label class="block text-sm font-bold text-gray-600 mb-1">Full Name</label>
+                        <input type="text" name="worker_name" required 
+                               class="w-full px-3 py-2 border rounded text-sm focus:border-orange-500 outline-none"
+                               placeholder="e.g. Rahul Kumar">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-600 mb-1">Mobile Number</label>
+                        <input type="tel" name="worker_phone" required 
+                               class="w-full px-3 py-2 border rounded text-sm focus:border-orange-500 outline-none"
+                               placeholder="10-digit number">
+                        <p class="text-[10px] text-gray-400 mt-2">Vendors will contact you on this number.</p>
+                    </div>
+
+                    <div class="pt-4 border-t flex justify-between items-center">
+                        <a href="/" class="text-gray-500 font-bold text-sm hover:underline">Cancel</a>
+                        <button type="submit" class="btn-submit px-8 py-2 rounded-full text-sm">
+                            Submit Application
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if show_modal %}
+            <div id="successModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 px-4">
+                <div class="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl transform transition-all scale-100">
+                    <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Application Sent!</h3>
+                    <p class="text-gray-600 text-sm mb-6">Hitesh, your details have been shared with {{ job.company_name }}.</p>
+                    <a href="/" class="block w-full bg-orange-600 text-white font-bold py-3 rounded-full hover:bg-orange-700 transition">
+                        Great, thanks!
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="col-span-12 md:col-span-3">
+            <div class="card p-3">
+                <h3 class="font-bold text-gray-700 text-sm mb-3 uppercase text-[11px] tracking-wider">Logistic Insights</h3>
+                <p class="text-xs text-gray-500">• Apply daily to get picked fast.</p>
+                <p class="text-xs text-gray-500 mt-2">• 100% Free for workers.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

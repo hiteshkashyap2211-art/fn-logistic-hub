@@ -1,0 +1,715 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>{% block title %}WH Logistic Hub | Search Farukhnagar Jobs{% endblock %}</title>
+    <meta name="description" content="Find the best logistics and warehouse jobs in Farukhnagar. Join WH Logistic Hub.">
+
+    <meta property="og:title" content="WH Logistic Hub - Farukhnagar Job Portal">
+    <meta property="og:description" content="Hiring Pickers, Packers, and Warehouse Executives in Farukhnagar. Apply now!">
+    <meta property="og:image" content="{% static 'images/logo-share.png' %}"> 
+    <meta property="og:url" content="https://pgease.pythonanywhere.com/">
+    <meta property="og:type" content="website">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <style>
+        body > main { margin-top: 0 !important; padding-top: 0 !important; }
+
+        /* 1. Base Styles & LinkedIn Theme */
+        body { background-color: #f3f2ef; font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Fira Sans", Ubuntu, Oxygen, "Oxygen Sans", Cantarell, "Droid Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Lucida Grande", Helvetica, Arial, sans-serif; }
+        .card { background: white; border-radius: 8px; border: 1px solid #e0e0e0; box-shadow: 0 0 0 1px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.1); }
+        
+        .groups-sidebar {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            width: 100%;
+            max-width: 300px;
+        }
+        .group-item {
+            padding: 10px;
+            border-bottom: 1px solid #f3f2ef;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        .group-item:hover {
+            background-color: #f3f2ef;
+            border-radius: 4px;
+        }
+        .group-item p {
+            margin: 0;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+        .group-header {
+            font-weight: bold;
+            color: #5f5f5f;
+            margin-bottom: 10px;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        /* Toast Notification Style */
+        #toast-box {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: #333;
+            color: white;
+            border-radius: 8px;
+            display: none; 
+            z-index: 1000;
+        }
+
+        /* 2. Buttons Style */
+        .btn-apply { transition: 0.3s; font-weight: bold; }
+        .btn-apply:hover { transform: translateY(-1px); opacity: 0.95; }
+        
+        /* 3. Professional Scrollbar Logic */
+        .custom-scrollbar {
+            scrollbar-width: thin; 
+            scrollbar-color: #cfcfcf transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cfcfcf; 
+            border-radius: 10px;
+            border: 1px solid transparent;
+            background-clip: content-box;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #004182;
+        }
+
+        /* 4. Animations */
+        .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .animate-scale-in { animation: scaleIn 0.15s cubic-bezier(0, 0, 0.2, 1); transform-origin: top right; }
+        @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        /* 5. Dropdown & Bubble Fixes */
+        .delete-menu {
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        .comment-bubble:hover {
+            background-color: #ebebeb !important;
+            transition: background-color 0.2s ease;
+        }
+
+        textarea:focus {
+            border-color: rgba(0,0,0,0.4) !important;
+            box-shadow: 0 0 0 1px rgba(0,0,0,0.4) !important;
+        }
+
+        /* Hide horizontal scrollbar for clean navigation layer */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* 🧠 Ultra Responsive Viewport Overrides */
+        @media (max-width: 767px) {
+            .mobile-bottom-nav {
+                box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+            }
+
+            nav .flex.items-center.space-x-4,
+            nav a.flex.flex-col,
+            nav #meDropdownContainer button {
+                display: none !important;
+            }
+
+            nav .max-w-6xl {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                width: 100% !important;
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+            }
+
+            nav #meDropdownContainer {
+                display: flex !important;
+                align-items: center !important;
+            }
+
+            nav #meDropdownContainer a {
+                display: block !important;
+                width: 2rem !important;
+                height: 2rem !important;
+                border-radius: 9999px !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    {% if not is_onboarding %}
+    <!-- 📱 Responsive Dual-Layer Navigation Grid -->
+    <nav class="bg-white border-b sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-3 sm:px-4 flex justify-between items-center h-14 gap-2">
+            
+            <!-- Brand Logo & LinkedIn-Style Search System -->
+            <div class="flex items-center space-x-2 md:space-x-3 shrink-0 flex-1 md:flex-initial">
+                <!-- Brand Button -->
+                <div class="bg-orange-600 text-white font-black px-2.5 py-1 rounded text-base sm:text-lg italic tracking-tighter shrink-0 cursor-pointer">WH</div>
+                
+                <!-- 🖥️ Desktop Search -->
+                <div class="hidden md:flex items-center bg-[#edf3f8] px-3 py-1.5 rounded-md border border-transparent focus-within:bg-white focus-within:border-gray-500 focus-within:ring-1 focus-within:ring-gray-500 transition-all w-72">
+                    <i class="fa-solid fa-magnifying-glass text-gray-600 text-sm mr-2"></i>
+                    <input type="text" id="searchInput" placeholder="Search Farukhnagar Jobs..." class="bg-transparent border-none outline-none text-sm w-full text-gray-900 placeholder-gray-500 font-normal">
+                </div>
+
+                <!-- 📱 Mobile Search Bar -->
+                <div class="flex md:hidden flex-1 items-center bg-[#edf3f8] px-2.5 py-1.5 rounded border border-transparent focus-within:bg-white focus-within:border-gray-500 transition-all max-w-[220px]">
+                    <i class="fa-solid fa-magnifying-glass text-gray-500 text-xs mr-2"></i>
+                    <input type="text" placeholder="Search..." class="bg-transparent border-none outline-none text-xs w-full text-gray-900 placeholder-gray-500 font-normal">
+                </div>
+            </div>
+
+            <!-- 🖥️ Desktop Navigation Links Row -->
+            <div class="hidden md:flex items-center justify-end space-x-4 md:space-x-8 flex-1 py-1">
+                <a href="{% url 'community_hub' %}" class="flex flex-col items-center text-slate-500 hover:text-indigo-600 transition shrink-0">
+                    <i class="fa-solid fa-comments text-lg sm:text-xl"></i>
+                    <span class="text-[10px] font-bold mt-1">Hub</span>
+                </a>
+                
+                <a href="{% url 'home' %}" class="flex flex-col items-center group text-gray-500 hover:text-black transition-all shrink-0">
+                    <i class="fa-solid fa-house text-lg sm:text-xl"></i>
+                    <span class="text-[10px] font-bold mt-1">Home</span>
+                </a>
+
+                {% if request.user.role == 'vendor' %}
+                <a href="{% url 'find_worker' %}" class="flex flex-col items-center group text-gray-500 hover:text-black transition-all shrink-0">
+                    <i class="fa-solid fa-user-group text-lg sm:text-xl"></i>
+                    <span class="text-[10px] font-bold mt-1">Find Workers</span>
+                </a>
+                {% endif %}
+
+                <a href="{% url 'job_list' %}" class="flex flex-col items-center group text-gray-500 hover:text-black transition-all shrink-0">
+                    <i class="fa-solid fa-briefcase text-lg sm:text-xl"></i>
+                    <span class="text-[10px] font-bold mt-1">Jobs</span>
+                </a>
+
+                <a href="{% url 'messages' %}" class="flex flex-col items-center group text-gray-500 hover:text-black relative transition-all shrink-0">
+                    <div class="relative">
+                        <i class="fa-solid fa-comment-dots text-lg sm:text-xl"></i>
+                        {% if msg_count > 0 %}
+                        <span class="absolute -top-1.5 -right-2 bg-red-600 text-white text-[8px] px-1 rounded-full border border-white font-bold">{{ msg_count }}</span>
+                        {% endif %}
+                    </div>
+                    <span class="text-[10px] font-bold mt-1">Messaging</span>
+                </a>
+
+                <a href="{% url 'notifications' %}" class="flex flex-col items-center group text-gray-500 hover:text-black relative transition-all shrink-0">
+                    <div class="relative">
+                        <i class="fa-solid fa-bell text-lg sm:text-xl"></i>
+                        {% if notif_count and notif_count > 0 %}
+                        <span class="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[8px] px-1 rounded-full border border-white font-bold">{{ notif_count }}</span>
+                        {% endif %}
+                    </div>
+                    <span class="text-[10px] font-bold mt-1">Notifications</span>
+                </a>
+
+                <!-- Desktop Custom Dropdown Container -->
+                <div class="relative flex items-center shrink-0 desktopMeContainer" id="meDropdownContainer">
+                    <div class="flex flex-col items-center">
+                        <a href="{% if request.user.role == 'vendor' %}{% url 'vendor_dashboard' %}{% else %}{% url 'worker_dashboard' %}{% endif %}" class="w-6 h-6 rounded-full overflow-hidden border border-gray-200 hover:border-black transition-all">
+                            {% if request.user.role == 'vendor' and user_profile.company_logo %}
+                                <img src="{{ user_profile.company_logo.url }}" class="w-full h-full object-cover">
+                            {% elif request.user.worker_profile.photo %}
+                                <img src="{{ request.user.worker_profile.photo.url }}" class="w-full h-full object-cover">
+                            {% else %}
+                                <img src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=0a66c2&color=fff" class="w-full h-full object-cover">
+                            {% endif %}
+                        </a>
+                        <button onclick="toggleMeMenu(event, 'meMenu')" class="flex items-center gap-0.5 mt-0.5 group focus:outline-none cursor-pointer bg-transparent border-none p-0">
+                            <span class="text-[11px] text-gray-500 font-medium group-hover:text-black">Me</span>
+                            <i class="fa-solid fa-caret-down text-[9px] text-gray-500 group-hover:text-black"></i>
+                        </button>
+                    </div>
+
+                    <!-- Profile Dropdown Menu Overlay -->
+                    <div id="meMenu" class="hidden absolute right-0 mt-2 top-12 w-[280px] bg-white rounded-lg shadow-xl border border-[#e0e0e0] z-[100] overflow-hidden transition-all duration-150 origin-top-right animate-fade-in text-left">
+                        <div class="p-3 flex gap-3 border-b border-[#f3f2ef]">
+                            <div class="w-12 h-12 rounded-full overflow-hidden shrink-0 border border-gray-200">
+                                {% if request.user.role == 'vendor' and user_profile.company_logo %}
+                                    <img src="{{ user_profile.company_logo.url }}" class="w-full h-full object-cover">
+                                {% elif request.user.role == 'worker' and user_profile.photo %}
+                                    <img src="{{ user_profile.photo.url }}" class="w-full h-full object-cover">
+                                {% else %}
+                                    <img src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=0a66c2&color=fff&bold=true" class="w-full h-full object-cover">
+                                {% endif %}
+                            </div>
+                            <div class="flex flex-col justify-center overflow-hidden flex-1">
+                                <p class="font-semibold text-[14px] text-gray-900 leading-tight truncate">
+                                    {% if request.user.role == 'vendor' %}{{ user_profile.company_name|default:request.user.username }}{% else %}{{ user_profile.full_name|default:request.user.username }}{% endif %}
+                                </p>
+                                <p class="text-[12px] text-gray-600 mt-0.5 truncate font-normal">
+                                    {% if request.user.role == 'vendor' %}Logistics Vendor{% else %}{{ user_profile.work_category|default:"Logistics" }} Specialist{% endif %} at WH Hub
+                                </p>
+                            </div>
+                        </div>
+                        <div class="p-2 border-b border-[#f3f2ef]">
+                            {% if request.user.role == 'vendor' %}
+                                <a href="{% url 'vendor_dashboard' %}" class="block w-full text-center py-1 border border-[#0a66c2] text-[#0a66c2] font-semibold rounded-full text-[14px] hover:bg-blue-50 transition-all mb-1.5">Manage Dashboard</a>
+                                <a href="{% url 'create_profile' %}" class="block w-full text-center py-1 border border-orange-600 text-orange-600 font-semibold rounded-full text-[14px] hover:bg-orange-50 transition-all">Edit Company Profile</a>
+                            {% else %}
+                                <a href="{% url 'worker_detail' request.user.worker_profile.pk|default:user_profile.id %}" class="block w-full text-center py-1 border border-[#0a66c2] text-[#0a66c2] font-semibold rounded-full text-[14px] hover:bg-blue-50 transition-all mb-1.5">View Profile</a>
+                                <a href="{% url 'create_profile' %}" class="block w-full text-center py-1 border border-orange-600 text-orange-600 font-semibold rounded-full text-[14px] hover:bg-orange-50 transition-all">Edit Resume Info</a>
+                            {% endif %}
+                        </div>
+                        <div class="py-1 border-b border-[#f3f2ef]">
+                            <p class="px-3 pt-1 text-[13px] font-semibold text-gray-900">Account</p>
+                            <a href="#" class="block px-3 py-1 text-[12px] text-orange-600 font-semibold hover:underline"> Try Premium for Free</a>
+                            <a href="{% if request.user.role == 'vendor' %}{% url 'vendor_dashboard' %}{% else %}{% url 'worker_dashboard' %}{% endif %}" class="block px-3 py-1 text-[12px] text-gray-500 hover:bg-gray-100 transition-colors">Settings & Privacy</a>
+                            <a href="#" class="block px-3 py-1 text-[12px] text-gray-500 hover:bg-gray-100 transition-colors">Help & Language</a>
+                        </div>
+                        <div class="p-1 bg-white">
+                            <form action="{% url 'logout' %}" method="post" class="m-0 p-0">
+                                {% csrf_token %}
+                                <button type="submit" class="block w-full text-left px-3 py-1.5 text-[12px] text-gray-500 hover:bg-gray-100 font-normal transition-colors border-0 bg-transparent cursor-pointer outline-none">Sign Out</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 📱 Mobile Layout Avatar Layer -->
+            <div class="flex md:hidden items-center space-x-2 shrink-0 relative mobileMeContainer">
+                <button onclick="toggleMeMenu(event, 'meMenuMobile')" class="w-7 h-7 rounded-full overflow-hidden border border-gray-300 focus:outline-none">
+                    {% if request.user.role == 'vendor' and user_profile.company_logo %}
+                        <img src="{{ user_profile.company_logo.url }}" class="w-full h-full object-cover">
+                    {% elif request.user.worker_profile.photo %}
+                        <img src="{{ request.user.worker_profile.photo.url }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <img src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=0a66c2&color=fff" class="w-full h-full object-cover">
+                    {% endif %}
+                </button>
+
+                <!-- Mobile Dropdown Portal Component -->
+                <div id="meMenuMobile" class="hidden absolute right-0 mt-2 top-10 w-[260px] bg-white rounded-lg shadow-xl border border-[#e0e0e0] z-[100] text-left overflow-hidden animate-fade-in">
+                    <div class="p-3 flex gap-2 border-b border-[#f3f2ef] bg-gray-50">
+                        <div class="flex flex-col justify-center overflow-hidden flex-1">
+                            <p class="font-bold text-xs text-gray-900 leading-tight truncate">
+                                {% if request.user.role == 'vendor' %}{{ user_profile.company_name|default:request.user.username }}{% else %}{{ user_profile.full_name|default:request.user.username }}{% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="p-2 border-b border-[#f3f2ef] flex flex-col gap-1">
+                        {% if request.user.role == 'vendor' %}
+                            <a href="{% url 'vendor_dashboard' %}" class="block text-center w-full py-1 text-xs border border-[#0a66c2] text-[#0a66c2] font-bold rounded-full hover:bg-blue-50">Dashboard</a>
+                            <a href="{% url 'create_profile' %}" class="block text-center w-full py-1 text-xs border border-orange-600 text-orange-600 font-bold rounded-full hover:bg-orange-50">Edit Profile</a>
+                        {% else %}
+                            <a href="{% url 'worker_detail' request.user.worker_profile.pk|default:user_profile.id %}" class="block text-center w-full py-1 text-xs border border-[#0a66c2] text-[#0a66c2] font-bold rounded-full hover:bg-blue-50">View Profile</a>
+                            <a href="{% url 'create_profile' %}" class="block text-center w-full py-1 text-xs border border-orange-600 text-orange-600 font-bold rounded-full hover:bg-orange-50">Edit Resume</a>
+                        {% endif %}
+                    </div>
+                    <div class="p-1 bg-white">
+                        <form action="{% url 'logout' %}" method="post" class="m-0 p-0">
+                            {% csrf_token %}
+                            <button type="submit" class="block w-full text-left px-3 py-1.5 text-xs text-gray-500 hover:bg-gray-100 border-0 bg-transparent cursor-pointer">Sign Out</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 📱 Mobile Sub-Nav WhatsApp Style Bar -->
+        <div class="block md:hidden bg-white border-b overflow-x-auto no-scrollbar whitespace-nowrap px-3 py-2">
+            <div class="flex items-center space-x-2 text-xs">
+                <button onclick="location.href='#'" class="bg-indigo-50 text-indigo-700 font-bold px-3 py-1.5 rounded-full border border-indigo-200 flex items-center gap-1.5 shrink-0 active:scale-95 transition-all">
+                    <i class="fa-solid fa-circle-plus text-sm"></i>
+                    <span>Create Group</span>
+                </button>
+                <div class="h-4 w-[1px] bg-gray-300 shrink-0"></div>
+                
+                <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
+                    <i class="fa-solid fa-user-group text-orange-600"></i>
+                    <span>Dishu Group PVT</span>
+                </a>
+                <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
+                    <i class="fa-solid fa-warehouse text-blue-600"></i>
+                    <span>Logistics Hub</span>
+                </a>
+                
+                {% for group in vendor_groups %}
+                    {% if group.name != "Dishu Group PVT" and group.name != "Logistics Hub" %}
+                    <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
+                        <i class="fa-solid fa-user-group text-slate-500"></i>
+                        <span>{{ group.name }} {% if group.member_count %}({{ group.member_count }}){% endif %}</span>
+                    </a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    
+    
+
+    <!-- AI Modal Layout -->
+    <div id="aiModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full border border-slate-100 shadow-2xl animate-scale-in mx-2">
+            <div class="flex justify-between items-start mb-6">
+                <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-200">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2a5 5 0 0 0-5 5v1a3 3 0 0 0-3 3v5a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3v-5a3 3 0 0 0-3-3H17a5 5 0 0 0-5-5Z" fill="white" fill-opacity="0.2"/>
+                        <circle cx="9" cy="11" r="1" fill="white"/>
+                        <circle cx="15" cy="11" r="1" fill="white"/>
+                        <path d="M9 16h6" stroke-width="2"/>
+                    </svg>
+                </div>
+                <button onclick="document.getElementById('aiModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-900 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <h3 class="font-black text-xl sm:text-2xl text-slate-900">AI Analysis Report</h3>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">Personalized insights based on your profile.</p>
+            
+            <div id="aiContent" class="mt-6 space-y-4">
+                <div class="h-4 bg-slate-100 rounded animate-pulse w-3/4"></div>
+                <div class="h-4 bg-slate-100 rounded animate-pulse w-full"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Structural Layout -->
+    <main class="max-w-6xl mx-auto px-2 sm:px-4 mt-4 sm:mt-6 grid grid-cols-12 gap-4 sm:gap-5 pb-20">
+        
+        <!-- Left Sidebar (Desktop Only) -->
+        
+
+        <!-- Dynamic Content / Main Feed Stream Container -->
+        <div class="col-span-12 md:col-span-8 lg:col-span-6 space-y-4">
+            {% block content %}{% endblock %}
+        </div>
+
+        <!-- Right Sidebar (Tablet/Desktop Layer) -->
+        <div class="hidden md:block col-span-4 lg:col-span-3 space-y-4">
+            <div class="bg-white p-4 rounded-xl border shadow-sm">
+                <h3 class="font-bold text-slate-800 text-sm mb-4">Recommended Workers</h3>
+                
+                <div class="space-y-5">
+                    {% for worker in recent_workers %}
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full overflow-hidden border shrink-0 bg-slate-50">
+                            {% if worker.photo %}
+                                <img src="{{ worker.photo.url }}" class="w-full h-full object-cover">
+                            {% else %}
+                                <img src="https://ui-avatars.com/api/?name={{ worker.full_name }}&background=f3f4f6&color=6b7280" class="w-full h-full">
+                            {% endif %}
+                        </div>
+                        
+                        <div class="min-w-0">
+                            <a href="{% url 'worker_detail' worker.pk %}" class="text-sm font-bold text-slate-900 hover:text-blue-600 truncate block">
+                                {{ worker.full_name }}
+                            </a>
+                            <p class="text-[10px] text-gray-500 truncate uppercase tracking-tighter">{{ worker.work_category }}</p>
+                            <a href="{% url 'worker_detail' worker.pk %}" class="mt-1 inline-block border border-gray-400 px-3 py-0.5 rounded-full text-[10px] font-bold text-gray-600 hover:bg-slate-50 hover:border-black transition">
+                                View Profile
+                            </a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-xs text-gray-400 italic">No new workers today.</p>
+                    {% endfor %}
+                </div>
+                
+                <a href="{% url 'worker_list' %}" class="block text-center text-blue-600 text-xs font-bold mt-6 hover:bg-blue-50 py-2 rounded-lg transition border border-transparent hover:border-blue-100">
+                    Show All Workers <i class="fa-solid fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+
+            <div class="bg-white p-4 rounded-xl border shadow-sm">
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="font-bold text-xs text-slate-800">Hub News</h4>
+                    <p class="text-[10px] text-gray-400 uppercase">Live •••</p>
+                </div>
+                <ul class="text-[11px] space-y-2 text-slate-600">
+                    <li>• Flipkart hiring 500+ workers soon.</li>
+                    <li>• New Warehouse opening near KMP.</li>
+                    <li>• Rain alert: Protect open cargo.</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <!-- 📱 Sticky Mobile Bottom Bar Layer -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 h-14 mobile-bottom-nav">
+        <div class="grid grid-cols-5 h-full max-w-xl mx-auto items-center justify-center text-center">
+            
+            <a href="{% url 'home' %}" class="flex flex-col items-center justify-center group text-gray-500 hover:text-[#0a66c2] transition-colors">
+                <i class="fa-solid fa-house text-lg"></i>
+                <span class="text-[9px] font-medium mt-0.5">Home</span>
+            </a>
+
+            {% if request.user.role == 'vendor' %}
+            <a href="{% url 'find_worker' %}" class="flex flex-col items-center justify-center group text-gray-500 hover:text-[#0a66c2] transition-colors">
+                <i class="fa-solid fa-user-group text-lg"></i>
+                <span class="text-[9px] font-medium mt-0.5">Workers</span>
+            </a>
+            {% else %}
+            <a href="{% url 'community_hub' %}" class="flex flex-col items-center justify-center group text-gray-500 hover:text-[#0a66c2] transition-colors">
+                <i class="fa-solid fa-comments text-lg"></i>
+                <span class="text-[9px] font-medium mt-0.5">Hub</span>
+            </a>
+            {% endif %}
+
+            <a href="{% url 'job_list' %}" class="flex flex-col items-center justify-center group text-gray-500 hover:text-[#0a66c2] transition-colors">
+                <i class="fa-solid fa-briefcase text-lg"></i>
+                <span class="text-[9px] font-medium mt-0.5">Jobs</span>
+            </a>
+
+            <a href="{% url 'messages' %}" class="flex flex-col items-center justify-center group text-gray-500 hover:text-[#0a66c2] relative transition-colors">
+                <div class="relative">
+                    <i class="fa-solid fa-comment-dots text-lg"></i>
+                    {% if msg_count > 0 %}
+                    <span class="absolute -top-1.5 -right-2 bg-red-600 text-white text-[7px] px-1 rounded-full font-bold">{{ msg_count }}</span>
+                    {% endif %}
+                </div>
+                <span class="text-[9px] font-medium mt-0.5">Messaging</span>
+            </a>
+
+            <a href="{% url 'notifications' %}" class="flex flex-col items-center justify-center group text-gray-500 hover:text-[#0a66c2] relative transition-colors">
+                <div class="relative">
+                    <i class="fa-solid fa-bell text-lg"></i>
+                    {% if notif_count and notif_count > 0 %}
+                    <span class="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[7px] px-1 rounded-full font-bold">{{ notif_count }}</span>
+                    {% endif %}
+                </div>
+                <span class="text-[9px] font-medium mt-0.5">Notif</span>
+            </a>
+
+        </div>
+    </div>
+
+    <!-- Toast Notification Overlay -->
+    <div id="share-toast" class="hidden fixed bottom-20 left-1/2 -translate-x-1/2 bg-[#1d2226] text-white px-5 py-3 rounded-lg shadow-2xl z-[999] transition-all duration-300 transform translate-y-20 opacity-0 flex items-center justify-between min-w-[280px] sm:min-w-[320px]">
+        <div class="flex items-center gap-2">
+            <i class="fa-solid fa-circle-check text-green-400"></i>
+            <span class="text-xs sm:text-sm font-semibold">Link copied to clipboard!</span>
+        </div>
+        <button onclick="hideToast()" class="ml-4 text-gray-400 hover:text-white transition-colors">
+            <i class="fa-solid fa-xmark text-base"></i>
+        </button>
+    </div>
+
+    <!-- Script Controllers System -->
+    <script>
+        // --- 1. TOGGLE COMMENT BOX ---
+        function toggleCommentBox(id) { 
+            const box = document.getElementById('comment-box-' + id);
+            if(box) box.classList.toggle('hidden');
+        }
+
+        // --- 2. AJAX LIKE LOGIC ---
+        $(document).on('click', '.like-btn', function(e) {
+            e.preventDefault();
+            const btn = $(this);
+            const jobId = btn.data('job-id');
+            const workerId = btn.data('worker-id');
+            
+            const id = jobId || workerId;
+            const type = jobId ? 'job' : 'worker';
+            const url = (type === 'job') ? '/like-job/' + id + '/' : '/worker/' + id + '/like/';
+
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: { 'csrfmiddlewaretoken': '{{ csrf_token }}' },
+                success: function(res) {
+                    $('#like-count-' + id).text('Like (' + (res.total_likes !== undefined ? res.total_likes : res.count) + ')');
+                    
+                    const icon = btn.find('i');
+                    const liked = (res.is_liked !== undefined) ? res.is_liked : res.liked;
+                    
+                    if (liked) {
+                        icon.removeClass('fa-regular').addClass('fa-solid text-blue-600');
+                    } else {
+                        icon.removeClass('fa-solid text-blue-600').addClass('fa-regular');
+                    }
+                },
+                error: function(xhr) {
+                    console.error("Like Error:", xhr.responseText);
+                }
+            });
+        });
+
+        // --- 3. SUBMIT COMMENT LOGIC ---
+        function submitComment(id, type) {
+            const content = $('#content-' + id).val();
+            if (!content || content.trim() === "") return;
+
+            const csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
+            const url = (type === 'job') ? '/job/' + id + '/comment/' : '/worker/' + id + '/comment/';
+
+            $.ajax({
+                type: 'POST',
+                url: url,
+                headers: { "X-CSRFToken": csrftoken },
+                data: { 'content': content },
+                success: function(res) {
+                    if(res.status === 'success') {
+                        let displayName = (res.user && res.user.toString().startsWith('99')) ? "Dishu" : res.user;
+                        let avatarHtml = '';
+                        
+                        if (res.photo_url && res.photo_url !== 'None' && res.photo_url !== '') {
+                            avatarHtml = `<img src="${res.photo_url}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border border-gray-200">`;
+                        } else {
+                            avatarHtml = `<img src="https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=0a66c2&color=fff&bold=true" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-gray-200">`;
+                        }
+
+                        $('#comments-list-' + id).prepend(`
+                            <div class="flex items-start space-x-2 sm:space-x-3 p-2 animate-fade-in" id="comment-${res.comment_id}">
+                                ${avatarHtml}
+                                <div class="flex-grow min-w-0">
+                                    <div class="bg-[#f2f2f2] p-2 sm:p-3 rounded-r-xl rounded-bl-xl comment-bubble">
+                                        <div class="flex justify-between items-center mb-1 gap-2">
+                                            <span class="font-bold text-xs text-gray-900 truncate">${displayName}</span>
+                                            <button onclick="deleteComment('${res.comment_id}', '${id}', 'job')" class="text-gray-400 hover:text-red-500 shrink-0 p-0.5">
+                                                <i class="fa-solid fa-trash-can text-[10px]"></i>
+                                            </button>
+                                        </div>
+                                        <p class="text-xs text-gray-800 break-words leading-normal">${res.content}</p>
+                                    </div>
+                                    <div class="ml-1 mt-1 text-[9px] text-gray-500 font-bold uppercase tracking-wide">Just now</div>
+                                </div>
+                            </div>`);
+                        
+                        $('#content-' + id).val("");
+                        $('#comment-count-' + id).text('Comment (' + res.comment_count + ')');
+                    }
+                },
+                error: function(xhr) {
+                    console.error("Error:", xhr.responseText);
+                    alert("Error: Login session check karein.");
+                }
+            });
+        }
+
+        // --- 4. DELETE COMMENT LOGIC ---
+        function deleteComment(commentId, id, type) {
+            if (!confirm("Are you sure?")) return;
+            $.ajax({
+                type: 'POST',
+                url: '/comment/' + commentId + '/delete/',
+                data: { 'csrfmiddlewaretoken': '{{ csrf_token }}' },
+                success: function(res) {
+                    $('#comment-' + commentId).fadeOut(300, function() { $(this).remove(); });
+                    $('#comment-count-' + id).text('Comment (' + res.comment_count + ')');
+                }
+            });
+        }
+
+        // --- 5. SHARE JOB LOGIC ---
+        function shareJob(jobId, jobTitle) {
+            const jobUrl = window.location.origin + '/apply/' + jobId + '/';
+
+            if (navigator.share) {
+                navigator.share({
+                    title: jobTitle,
+                    text: 'Check out this job at Farukhnagar Hub: ' + jobTitle,
+                    url: jobUrl,
+                }).catch((error) => console.log('Error sharing:', error));
+            } else {
+                navigator.clipboard.writeText(jobUrl).then(() => {
+                    const toast = document.getElementById('share-toast');
+                    if (toast) {
+                        toast.classList.remove('hidden');
+                        toast.classList.remove('opacity-0', 'translate-y-20');
+                        toast.classList.add('opacity-100', 'translate-y-0');
+                        setTimeout(hideToast, 3000);
+                    }
+                });
+            }
+        }
+
+        // --- HIDE TOAST ---
+        function hideToast() {
+            const toast = document.getElementById('share-toast');
+            if (toast) {
+                toast.classList.add('opacity-0', 'translate-y-20');
+                setTimeout(() => toast.classList.add('hidden'), 300);
+            }
+        }
+
+        // --- 6. ME DROPDOWN HANDLERS ---
+        function toggleMeMenu(event, menuId) {
+            if (event) event.stopPropagation();
+            
+            const targetMenu = document.getElementById(menuId);
+            if(!targetMenu) return;
+
+            const isAlreadyOpen = !targetMenu.classList.contains('hidden');
+            
+            const desktopMenu = document.getElementById('meMenu');
+            const mobileMenu = document.getElementById('meMenuMobile');
+            
+            if(desktopMenu) desktopMenu.classList.add('hidden');
+            if(mobileMenu) mobileMenu.classList.add('hidden');
+            
+            if (!isAlreadyOpen) {
+                targetMenu.classList.remove('hidden');
+            }
+        }
+
+        window.onclick = function(e) {
+            if (!e.target.closest('.desktopMeContainer') && !e.target.closest('.mobileMeContainer')) {
+                const desktopMenu = document.getElementById('meMenu');
+                const mobileMenu = document.getElementById('meMenuMobile');
+                if(desktopMenu) desktopMenu.classList.add('hidden');
+                if(mobileMenu) mobileMenu.classList.add('hidden');
+            }
+        }
+
+        // --- 7. ADDITIONAL UTILITIES ---
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput && searchInput.value) {
+            searchInput.focus();
+            let val = searchInput.value;
+            searchInput.value = '';
+            searchInput.value = val;
+        }
+
+        function runAiAnalysis() {
+            const modal = document.getElementById('aiModal');
+            const content = document.getElementById('aiContent');
+            if(modal && content) {
+                modal.classList.remove('hidden');
+                content.innerHTML = '<div class="text-indigo-600 font-bold flex items-center gap-2"><i class="fa-solid fa-spinner animate-spin"></i> Scanning your profile...</div>';
+                
+                setTimeout(() => {
+                    content.innerHTML = `
+                        <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                            <p class="text-xs font-bold text-indigo-900">🚀 Success! Your profile is 85% complete.</p>
+                            <p class="text-[12px] text-indigo-700 mt-1">To reach 100%, add a <b>'Warehouse Management'</b> certification. Recruiters are 3x more likely to contact profiles with certifications.</p>
+                        </div>
+                        <a href="{% url 'create_profile' %}" class="block text-center mt-4 w-full py-3 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-black transition-all">Update Profile Now</a>
+                    `;
+                }, 2000);
+            }
+        }
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

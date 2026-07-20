@@ -1,0 +1,74 @@
+<div class="flex items-center gap-6 px-4 py-2 border-t border-b bg-gray-50/50">
+    <button class="like-btn text-gray-500 font-bold text-xs px-4 py-2 hover:bg-gray-100 rounded flex items-center transition-colors" 
+        data-job-id="{{ post.id }}">
+        <i class="fa-solid fa-thumbs-up mr-1 like-icon {% if request.user in post.likes.all %}text-blue-600{% endif %}"></i> 
+        <span id="like-count-{{ post.id }}" class="like-text">Like ({{ post.likes.count }})</span>
+    </button>
+
+    <button onclick="toggleCommentBox('{{ post.id }}')" class="text-gray-500 font-bold text-sm px-4 py-2 hover:bg-gray-100 rounded flex items-center">
+        <i class="fa-regular fa-comment-dots mr-1"></i>
+        <span class="comment-count-{{ post.id }}">Comment ({{ post.comments.count }})</span>
+    </button>
+</div>
+
+<div id="comment-box-{{ post.id }}" class="hidden p-4 bg-white border-t animate-fade-in">
+    <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border shadow-sm">
+            {% if request.user.role == 'vendor' and request.user.vendor_profile.company_logo %}
+                <img src="{{ request.user.vendor_profile.company_logo.url }}" class="w-full h-full object-cover">
+            {% elif request.user.worker_profile.photo %}
+                <img src="{{ request.user.worker_profile.photo.url }}" class="w-full h-full object-cover">
+            {% else %}
+                <img src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=0a66c2&color=fff" class="w-full h-full object-cover">
+            {% endif %}
+        </div>
+        
+        <div class="flex-1">
+            <textarea id="content-{{ post.id }}" 
+                    class="w-full p-3 border border-gray-300 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent resize-none transition-all shadow-inner" 
+                    placeholder="Add a comment..." rows="1"></textarea>
+            <div class="mt-2 flex justify-start">
+                <button onclick="submitComment('{{ post.id }}', false)" 
+                        class="bg-blue-700 text-white px-5 py-1.5 rounded-full text-sm font-bold hover:bg-blue-800 transition-all shadow-md">
+                    Post
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="comments-list-{{ post.id }}" class="mt-5 space-y-4 max-h-[300px] overflow-y-auto custom-scrollbar pr-1">
+        {% for comment in post.comments.all %}
+            <div class="flex gap-2 group" id="comment-{{ comment.id }}">
+                <div class="w-9 h-9 rounded-full overflow-hidden flex-shrink-0 border shadow-sm">
+                    {% if comment.user.worker_profile.photo %}
+                        <img src="{{ comment.user.worker_profile.photo.url }}" class="w-full h-full object-cover">
+                    {% elif comment.user.vendor_profile.company_logo %}
+                        <img src="{{ comment.user.vendor_profile.company_logo.url }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <img src="https://ui-avatars.com/api/?name={% if '99' in comment.user.username %}Dishu{% else %}{{ comment.user.username }}{% endif %}&background=e2e8f0&color=0a66c2&bold=true" class="w-full h-full object-cover">
+                    {% endif %}
+                </div>
+                
+                <div class="flex-1 bg-[#F2F2F2] rounded-r-2xl rounded-bl-2xl px-4 py-2.5 shadow-sm relative group hover:bg-[#EBEBEB] transition-colors">
+                    <div class="flex justify-between items-center mb-1">
+                        <p class="text-[12px] font-bold text-gray-900 cursor-pointer hover:underline">
+                            {% if '99' in comment.user.username %}Dishu{% else %}{{ comment.user.username|title }}{% endif %}
+                        </p>
+                        
+                        <div class="flex items-center gap-3">
+                            <span class="text-[10px] text-gray-500 font-medium">{{ comment.created_at|timesince }} ago</span>
+                            
+                            {% if comment.user == request.user %}
+                            <button onclick="deleteComment('{{ comment.id }}', '{{ post.id }}', false)" 
+                                    class="text-gray-400 hover:text-red-600 transition-colors">
+                                <i class="fa-solid fa-trash-can text-[11px]"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-800">{{ comment.content }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>

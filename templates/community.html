@@ -1,0 +1,679 @@
+{% extends 'base.html' %} 
+
+{% block content %}
+<style>
+    /* 🌟 Dynamic UI Enhancements (LinkedIn + WhatsApp Minimal Design) */
+    .chat-bg {
+        background-color: #f8fafc;
+        background-image: radial-gradient(#e2e8f0 0.8px, transparent 0.8px);
+        background-size: 14px 14px;
+    }
+    .msg-bubble-me {
+        background-color: #dcfce7;
+        border-radius: 14px 2px 14px 14px;
+        color: #0f172a;
+    }
+    .msg-bubble-them {
+        background-color: #ffffff;
+        border-radius: 2px 14px 14px 14px;
+        color: #0f172a;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 5px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+</style>
+
+<!-- Main Container (Desktop Fixed Viewport & Mobile Responsive Alignment) -->
+<div class="w-full flex flex-col md:flex-row gap-4 md:h-[calc(100vh-90px)] pb-16 md:pb-0">
+    
+    <!-- 🟢 LEFT COLUMN: Sidebar (Hub Operations & Groups List) -->
+    <div class="w-full md:w-[32%] lg:w-[30%] bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col h-[320px] md:h-full overflow-hidden shrink-0">
+        
+        <!-- Sidebar Navigation Header -->
+        <div class="p-3.5 border-b border-slate-100 bg-slate-50/70 flex flex-col gap-2.5">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <span class="bg-blue-600 text-white p-1.5 rounded-lg text-xs shadow-xs">
+                        <i class="fa-solid fa-people-group"></i>
+                    </span>
+                    <h3 class="font-black text-slate-800 tracking-tight text-sm sm:text-base">Hub Operations</h3>
+                </div>
+                
+                <button onclick="document.getElementById('createGroupModal').classList.remove('hidden')" 
+                        title="Create Group"
+                        class="bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white h-8 w-8 rounded-full transition-all flex items-center justify-center shadow-xs">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                </button>
+            </div>
+
+            <!-- Fast Quick Filters -->
+            <div class="flex items-center gap-1.5 text-[11px] font-bold overflow-x-auto no-scrollbar pb-0.5">
+                <button class="bg-blue-600 text-white px-3 py-1 rounded-full shadow-xs shrink-0">All Hubs</button>
+                <button class="bg-slate-100 text-slate-600 hover:bg-slate-200 px-3 py-1 rounded-full shrink-0 transition-all">Active Groups</button>
+                <button class="bg-slate-100 text-slate-600 hover:bg-slate-200 px-3 py-1 rounded-full shrink-0 transition-all flex items-center gap-1">
+                    <i class="fa-solid fa-bolt text-amber-500 text-[10px]"></i> Priority
+                </button>
+            </div>
+        </div>
+
+        <!-- Create Group Modal -->
+        <div id="createGroupModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+            <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl border border-slate-100 overflow-hidden animate-in fade-in zoom-in duration-300">
+                <div class="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-users-rectangle text-blue-600 text-lg"></i>
+                        <h3 class="font-bold text-slate-800 text-lg">Create a new group</h3>
+                    </div>
+                    <button onclick="closeGroupModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+                
+                <div class="p-6">
+                    <p class="text-xs text-slate-500 mb-5">Groups help you organize your logistics operations, direct assignments, and connect with team members in real-time.</p>
+                    
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Group Name</label>
+                    <input type="text" id="newGroupName" placeholder="e.g. North Zone Warehouse Fleet" 
+                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none transition-all mb-4 text-sm font-semibold">
+                </div>
+                
+                <div class="px-6 py-4 bg-slate-50 flex justify-end gap-3">
+                    <button onclick="closeGroupModal()" class="px-5 py-2 text-slate-600 font-bold text-xs hover:bg-slate-200/60 rounded-full transition-all">Cancel</button>
+                    <button id="createGroupBtn" onclick="handleCreateGroup()" 
+                            class="bg-blue-700 text-white px-6 py-2 rounded-full font-bold text-xs shadow-md hover:bg-blue-800 transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-circle-check"></i> Create Group
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Groups & Conversations List -->
+        <div class="groups-list space-y-1 overflow-y-auto p-2 flex-1 custom-scrollbar">
+            {% if groups %}
+                {% for group in groups %}
+                    <div class="group-item flex items-center gap-3 p-2.5 hover:bg-slate-50 active:bg-blue-50/80 rounded-xl cursor-pointer transition-all border border-transparent hover:border-slate-200" 
+                        onclick="selectReceiver('{{ group.id }}', null, '{{ group.name|escapejs }}')">
+                        
+                        <div class="relative shrink-0">
+                            {% if group.profile_picture %}
+                                <img src="{{ group.profile_picture.url }}" class="w-11 h-11 rounded-xl object-cover border border-slate-200 shadow-xs">
+                            {% elif group.owner and group.owner.profile_picture %}
+                                <img src="{{ group.owner.profile_picture.url }}" class="w-11 h-11 rounded-xl object-cover border border-slate-200 shadow-xs">
+                            {% else %}
+                                <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-sm shadow-xs">
+                                    {{ group.name|slice:":2"|upper }}
+                                </div>
+                            {% endif %}
+                            <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full"></span>
+                        </div>
+                        
+                        <div class="flex flex-col min-w-0 flex-1">
+                            <div class="flex justify-between items-baseline mb-0.5">
+                                <p class="font-bold text-slate-800 text-sm truncate">{{ group.name }}</p>
+                                <span class="text-[10px] text-slate-400 font-medium">Active</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 truncate flex items-center gap-1">
+                                <i class="fa-solid fa-truck-ramp-box text-[10px] text-blue-600"></i> Logistics Channel
+                            </p>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-8 px-4 flex flex-col items-center justify-center h-full">
+                    <div class="bg-blue-50 w-14 h-14 rounded-2xl flex items-center justify-center mb-3 text-blue-600 shadow-xs">
+                        <i class="fa-solid fa-comments text-2xl"></i>
+                    </div>
+                    <p class="text-xs text-slate-700 font-bold">No groups created yet</p>
+                    <p class="text-[11px] text-slate-400 mt-1 mb-3">Start by creating your first operations network.</p>
+                    <button onclick="document.getElementById('createGroupModal').classList.remove('hidden')" class="text-xs bg-blue-600 text-white font-bold px-4 py-2 rounded-full shadow-sm hover:bg-blue-700 transition-all">
+                        + Create First Group
+                    </button>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 💬 MIDDLE COLUMN: Main Chat Container & LinkedIn Professional Toolbar -->
+    <div class="w-full md:w-[42%] lg:w-[45%] bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col overflow-hidden min-h-[450px] md:h-full flex-1">
+        
+        <!-- Chat Header -->
+        <div class="p-3.5 border-b border-slate-100 flex justify-between items-center bg-white/90 backdrop-blur-md z-10 shadow-xs">
+            <div class="flex items-center gap-3">
+                <div id="chat-header-avatar" class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600 font-bold text-xs border border-slate-200/80 shadow-xs">
+                    <i class="fa-solid fa-users text-sm"></i>
+                </div>
+                <div>
+                    <h2 id="chat-title" class="font-black text-slate-900 text-sm sm:text-base truncate max-w-[180px] sm:max-w-[260px]">
+                        {{ active_user.username|default:"Select a contact" }}
+                    </h2>
+                    <p class="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Group Room Active
+                    </p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <!-- Smart AI Auto-Summarize Button -->
+                <button onclick="summarizeChatWithAI()" title="Summarize conversation with AI" 
+                        class="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 px-3 py-1.5 rounded-lg font-bold text-xs transition-all flex items-center gap-1.5 border border-indigo-100 shadow-xs">
+                    <i class="fa-solid fa-wand-magic-sparkles text-indigo-600"></i>
+                    <span class="hidden sm:inline">AI Summary</span>
+                </button>
+
+                <button id="inviteBtn" onclick="openInviteModal()" 
+                        class="bg-blue-600 text-white hover:bg-blue-700 px-3.5 py-1.5 rounded-lg font-bold text-xs transition-all shadow-xs flex items-center gap-1.5 {% if not active_group %}opacity-50 cursor-not-allowed{% endif %}"
+                        {% if not active_group %}disabled{% endif %}>
+                    <i class="fa-solid fa-user-plus text-xs"></i>
+                    <span>Invite Worker</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Live Chat Container -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-3 chat-bg custom-scrollbar" id="chat-container">
+            <!-- Initial Welcome Overlay -->
+            <div class="flex justify-center my-2">
+                <div class="bg-white/95 backdrop-blur-xs border border-slate-200 text-slate-600 text-[11px] font-semibold px-4 py-1.5 rounded-full shadow-xs flex items-center gap-1.5">
+                    <i class="fa-solid fa-lock text-slate-400 text-[10px]"></i> Messages are securely transmitted within FN Hub operations.
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notification Container -->
+        <div id="toast-box" 
+            class="fixed top-5 right-5 z-[200] px-5 py-2.5 rounded-xl text-white text-xs font-bold shadow-2xl hidden transition-all">
+        </div>
+
+        <!-- Input Field Area -->
+        <form id="chatForm" class="p-3 border-t border-slate-100 flex items-center gap-2 bg-white">
+            {% csrf_token %}
+            <button type="button" onclick="triggerQuickSmartReply('Are you available for picking/packing shifts today?')" 
+                    title="Insert Smart Prompt" 
+                    class="text-slate-400 hover:text-blue-600 p-2 rounded-full hover:bg-slate-100 transition-colors">
+                <i class="fa-solid fa-bolt-lightning text-amber-500"></i>
+            </button>
+            
+            <input type="text" id="messageInput" placeholder="Type a message..." class="flex-1 bg-slate-100/80 border border-slate-200 focus:border-blue-500 focus:bg-white rounded-full px-4 py-2.5 text-xs sm:text-sm focus:outline-none transition-all font-medium text-slate-800" required disabled>
+            
+            <input type="hidden" id="receiverIdHidden" value="{{ active_group.id }}">
+            <input type="hidden" id="workerIdHidden" value="">
+            
+            <button type="submit" id="sendBtn" class="bg-blue-600 text-white h-10 w-10 rounded-full hover:bg-blue-700 transition-all flex items-center justify-center shadow-md disabled:opacity-50 shrink-0" disabled>
+                <i class="fa-solid fa-paper-plane text-xs"></i>
+            </button>
+        </form>
+    </div>
+
+    <!-- 🤖 RIGHT COLUMN: LinkedIn AI Growth Hub & Intelligence Sidebar -->
+    <div class="w-full md:w-[26%] lg:w-[25%] bg-white rounded-2xl border border-slate-200 p-4 flex flex-col gap-4 mb-6 md:mb-0 shadow-sm overflow-y-auto custom-scrollbar shrink-0 md:h-full">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div class="flex items-center gap-2">
+                <div class="bg-gradient-to-tr from-indigo-600 to-blue-600 p-2 rounded-xl text-white shadow-xs">
+                    <i class="fa-solid fa-brain text-sm"></i>
+                </div>
+                <div>
+                    <h3 class="font-black text-slate-800 text-sm">AI Growth Hub</h3>
+                    <p class="text-[10px] text-slate-400 font-semibold">Gemini Intelligence Engine</p>
+                </div>
+            </div>
+            <span class="bg-indigo-50 text-indigo-700 text-[9px] font-black uppercase px-2 py-0.5 rounded-md border border-indigo-100">Live</span>
+        </div>
+        
+        <!-- Smart AI Suggestion Widget -->
+        <div class="bg-gradient-to-br from-indigo-50/70 to-blue-50/70 border border-indigo-100/80 rounded-2xl p-3.5 space-y-2.5 shadow-xs">
+            <div class="flex items-center justify-between">
+                <p class="text-[11px] text-indigo-900 font-bold flex items-center gap-1.5">
+                    <i class="fa-solid fa-lightbulb text-amber-500"></i> Operational Insights
+                </p>
+            </div>
+            
+            <p id="aiSuggestionText" class="text-xs text-slate-600 leading-relaxed font-medium">
+                "Your logistics active groups are high-demand. Inviting warehouse workers will boost your <b>Priority Dispatch</b> rating by 35%."
+            </p>
+            
+            <button onclick="openInviteModal()" class="w-full bg-white hover:bg-indigo-600 hover:text-white border border-indigo-200 text-indigo-700 py-2 rounded-xl text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-rocket text-xs"></i> Scale Group Operations
+            </button>
+        </div>
+
+        <!-- AI Assistant Quick Tools -->
+        <div class="border border-slate-100 rounded-2xl p-3 bg-slate-50/50 space-y-2">
+            <p class="text-[11px] font-bold text-slate-700 flex items-center gap-1">
+                <i class="fa-solid fa-robot text-blue-600"></i> Smart AI Tools
+            </p>
+            <div class="grid grid-cols-1 gap-1.5">
+                <button onclick="runAiShiftPlanner()" class="text-left w-full p-2.5 bg-white hover:bg-blue-50 border border-slate-200/80 rounded-xl text-[11px] font-semibold text-slate-700 transition-all flex items-center justify-between group shadow-2xs">
+                    <span><i class="fa-solid fa-calendar-check text-emerald-500 mr-1.5"></i> Draft Shift Schedule</span>
+                    <i class="fa-solid fa-chevron-right text-[9px] text-slate-400 group-hover:translate-x-0.5 transition-transform"></i>
+                </button>
+                <button onclick="generateRequirementsTemplate()" class="text-left w-full p-2.5 bg-white hover:bg-blue-50 border border-slate-200/80 rounded-xl text-[11px] font-semibold text-slate-700 transition-all flex items-center justify-between group shadow-2xs">
+                    <span><i class="fa-solid fa-file-pen text-blue-500 mr-1.5"></i> Worker Role Post Template</span>
+                    <i class="fa-solid fa-chevron-right text-[9px] text-slate-400 group-hover:translate-x-0.5 transition-transform"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Network Health Indicator -->
+        <div class="border border-slate-100 rounded-2xl p-3 bg-white space-y-2 shadow-2xs">
+            <div class="flex justify-between items-center text-[11px]">
+                <span class="font-bold text-slate-600">Hub Response Rate</span>
+                <span class="font-black text-emerald-600">98% High</span>
+            </div>
+            <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                <div class="bg-emerald-500 h-full w-[98%] rounded-full"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Professional Invite Modal -->
+<div id="inviteModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-2xl w-full max-w-[450px] shadow-2xl border border-slate-100 overflow-hidden transform transition-all animate-in fade-in zoom-in duration-200">
+        <!-- Header -->
+        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-user-plus text-blue-600"></i>
+                <h3 class="font-bold text-slate-900 text-base sm:text-lg">Invite Connections</h3>
+            </div>
+            <button onclick="closeInviteModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <!-- Search & Suggestions Area -->
+        <div class="p-5">
+            <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-sm"></i>
+                <input type="text" id="workerSearch" placeholder="Search by name, category, or role..." 
+                    class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all text-xs sm:text-sm font-medium">
+            </div>
+            
+            <div id="suggestionsList" class="mt-4 max-h-60 overflow-y-auto space-y-1 custom-scrollbar">
+                <!-- Dynamically loaded workers -->
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-6 py-3.5 bg-slate-50 flex justify-end gap-2 border-t border-slate-100">
+            <button onclick="closeInviteModal()" class="text-slate-600 font-bold text-xs px-4 py-2 rounded-full hover:bg-slate-200/60 transition-all">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- AI Summary Modal -->
+<div id="aiSummaryModal" class="hidden fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 border border-slate-100 shadow-2xl animate-in zoom-in duration-200">
+        <div class="flex justify-between items-center mb-4">
+            <div class="flex items-center gap-2 text-indigo-700 font-bold">
+                <i class="fa-solid fa-wand-magic-sparkles text-lg"></i>
+                <span>Hub Chat AI Summary</span>
+            </div>
+            <button onclick="document.getElementById('aiSummaryModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div id="aiSummaryContent" class="text-xs text-slate-700 leading-relaxed space-y-2 bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <!-- Dynamic Content -->
+        </div>
+        <button onclick="document.getElementById('aiSummaryModal').classList.add('hidden')" class="w-full mt-4 bg-slate-900 text-white text-xs font-bold py-2.5 rounded-xl hover:bg-black transition-all">Close Summary</button>
+    </div>
+</div>
+
+<script>
+    // 🧠 Global State & Context Variables
+    let currentPage = 1;
+    let isLoading = false;
+    let selectedGroupId = null;
+    let selectedWorkerId = null;
+
+    const activeUserName = "{{ active_user.username|default:'' }}";
+    const activeGroupId = "{{ active_group.id|default:'' }}";
+
+    // 🚀 Init Logic
+    document.addEventListener("DOMContentLoaded", () => {
+        // Desktop Container Layout Optimizations
+        const mainEl = document.querySelector('main');
+        if (mainEl) {
+            mainEl.className = "max-w-[98%] xl:max-w-7xl mx-auto px-2 sm:px-4 mt-2 pb-4";
+        }
+
+        if (!activeUserName) {
+            document.getElementById('chat-title').innerText = "Select a contact";
+        }
+    });
+
+    // 🛠️ Core Functionalities (Original Preserved)
+    async function inviteWorkerFromModal(workerId, buttonElement) {
+        const groupId = document.getElementById('receiverIdHidden').value;
+        
+        if (!groupId) {
+            alert("Please select a group first!");
+            return;
+        }
+
+        const originalText = buttonElement.innerText;
+        buttonElement.innerText = "Sending...";
+        buttonElement.disabled = true;
+        buttonElement.classList.add('opacity-70');
+
+        try {
+            const response = await fetch('/api/invite-worker/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({ 'worker_id': workerId, 'group_id': groupId })
+            });
+
+            const data = await response.json();
+            
+            if (data.status === 'success') {
+                buttonElement.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Invited';
+                buttonElement.classList.replace('bg-blue-600', 'bg-emerald-50');
+                buttonElement.classList.add('border', 'border-emerald-300', 'text-emerald-700');
+                buttonElement.classList.remove('text-white', 'hover:bg-blue-700'); 
+                buttonElement.style.cursor = 'default';
+            } else {
+                alert(data.message || "Invitation failed.");
+                buttonElement.innerText = originalText;
+                buttonElement.disabled = false;
+                buttonElement.classList.remove('opacity-70');
+            }
+        } catch (e) {
+            console.error("Invite Error:", e);
+            buttonElement.innerText = originalText;
+            buttonElement.disabled = false;
+            buttonElement.classList.remove('opacity-70');
+        }
+    }
+
+    function openInviteModal() {
+        document.getElementById('inviteModal').classList.remove('hidden');
+        currentPage = 1;
+        document.getElementById('suggestionsList').innerHTML = ''; 
+        loadWorkers();
+    }
+
+    function closeInviteModal() { 
+        document.getElementById('inviteModal').classList.add('hidden'); 
+    }
+
+    async function loadWorkers(page = 1) {
+        if (isLoading) return;
+        isLoading = true;
+        
+        try {
+            const res = await fetch(`/api/get-workers/?page=${page}`);
+            const data = await res.json();
+            
+            const container = document.getElementById('suggestionsList');
+            if(data.workers && data.workers.length > 0) {
+                data.workers.forEach(worker => {
+                    container.innerHTML += `
+                        <div class="flex items-center gap-3 p-2.5 hover:bg-slate-50 rounded-xl border-b border-slate-100 transition-all">
+                            <img src="${worker.image_url || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(worker.name)}" class="w-9 h-9 rounded-full object-cover border border-slate-200">
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs font-bold text-slate-900 truncate">${worker.name}</p>
+                                <p class="text-[10px] text-slate-500 truncate">${worker.designation || 'Warehouse Specialist'}</p>
+                            </div>
+                            <button onclick="inviteWorkerFromModal(${worker.id}, this)" 
+                                    class="bg-blue-600 text-white text-[11px] font-bold px-3.5 py-1.5 rounded-full hover:bg-blue-700 transition-all shadow-xs shrink-0">
+                                Invite
+                            </button>
+                        </div>
+                    `;
+                });
+            }
+        } catch(e) {
+            console.error(e);
+        }
+        
+        isLoading = false;
+    }
+
+    document.getElementById('suggestionsList')?.addEventListener('scroll', function() {
+        if (this.scrollTop + this.clientHeight >= this.scrollHeight - 50) {
+            currentPage++;
+            loadWorkers(currentPage);
+        }
+    });
+
+    function selectReceiver(id, workerId, name) {
+        selectedGroupId = id;
+        selectedWorkerId = workerId;
+
+        document.getElementById('receiverIdHidden').value = id;
+        document.getElementById('chat-title').innerText = name || "Selected Group";
+
+        const inviteBtn = document.getElementById('inviteBtn');
+        if(inviteBtn) {
+            inviteBtn.disabled = false; 
+            inviteBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+
+        document.getElementById('messageInput').disabled = false;
+        document.getElementById('sendBtn').disabled = false;
+
+        hideToast(); 
+    }
+
+    function appendMessage(msg, isMe = false) {
+        const chatBox = document.getElementById('chat-container');
+        const div = document.createElement('div');
+        const bubble = isMe ? 'msg-bubble-me border border-emerald-200/60' : 'msg-bubble-them border border-slate-200';
+        
+        div.className = `flex ${isMe ? 'justify-end' : 'justify-start'} mb-2.5`;
+        div.innerHTML = `
+            <div class="max-w-[80%] ${bubble} p-2.5 text-xs shadow-2xs">
+                <p class="leading-relaxed font-medium">${msg.content}</p>
+                <div class="text-[9px] mt-1 text-right font-bold opacity-60">${msg.timestamp || 'Just now'}</div>
+            </div>
+        `;
+        chatBox.appendChild(div);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    document.getElementById('chatForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const input = document.getElementById('messageInput');
+        const content = input.value.trim();
+        const receiverId = document.getElementById('receiverIdHidden').value;
+
+        if (!content) return;
+
+        try {
+            const res = await fetch('/send-message/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({ content: content, receiver_id: receiverId })
+            });
+            
+            const data = await res.json();
+            
+            if (data.status === 'success') {
+                appendMessage({
+                    content: data.message_data.content,
+                    timestamp: data.message_data.timestamp,
+                    sender_name: 'Me'
+                }, true);
+                
+                input.value = ""; 
+            } else {
+                alert("Error: " + data.message);
+            }
+        } catch(e) {
+            console.error("Sending Error:", e);
+        }
+    });
+
+    document.getElementById('workerSearch')?.addEventListener('input', async (e) => {
+        const query = e.target.value;
+        const container = document.getElementById('suggestionsList');
+        
+        if (query.length < 2) {
+            container.innerHTML = '';
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/search-workers/?q=${encodeURIComponent(query)}`);
+            if (!response.ok) throw new Error('Network response failed');
+            
+            const data = await response.json();
+            container.innerHTML = ''; 
+
+            if (data.workers && data.workers.length > 0) {
+                data.workers.forEach(worker => {
+                    const html = `
+                        <div class="flex items-center gap-3 p-2.5 hover:bg-slate-50 rounded-xl transition-all">
+                            <img src="${worker.image_url || 'https://ui-avatars.com/api/?name='+encodeURIComponent(worker.name)}" class="w-9 h-9 rounded-full object-cover">
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs font-bold text-slate-900 truncate">${worker.name}</p>
+                            </div>
+                            <button onclick="inviteWorkerFromModal(${worker.id}, this)" 
+                                    class="bg-blue-600 text-white text-[11px] font-bold px-3 py-1.5 rounded-full hover:bg-blue-700 transition-all">
+                                Invite
+                            </button>
+                        </div>
+                    `;
+                    container.insertAdjacentHTML('beforeend', html);
+                });
+            } else {
+                container.innerHTML = '<p class="text-xs text-slate-400 p-3 italic text-center">No workers found matching search.</p>';
+            }
+        } catch (error) {
+            console.error("Search Error:", error);
+            container.innerHTML = '<p class="text-xs text-red-500 p-3 text-center">Failed to load workers.</p>';
+        }
+    });
+
+    async function handleCreateGroup() {
+        const btn = document.getElementById('createGroupBtn');
+        const groupName = document.getElementById('newGroupName').value;
+        
+        if (!groupName) return alert("Please enter a group name");
+
+        btn.innerText = "Creating...";
+        btn.disabled = true;
+        btn.classList.add('opacity-50');
+
+        try {
+            const res = await fetch('/create-group/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({ group_name: groupName })
+            });
+
+            const data = await res.json();
+            
+            if (data.status === 'success') {
+                btn.innerText = "Created!";
+                btn.classList.replace('bg-blue-700', 'bg-emerald-600');
+                
+                setTimeout(() => {
+                    location.reload(); 
+                }, 500);
+            } else {
+                alert(data.message);
+                btn.innerText = "Create Group";
+                btn.disabled = false;
+            }
+        } catch (e) {
+            btn.innerText = "Create Group";
+            btn.disabled = false;
+        }
+    }
+
+    function closeGroupModal() {
+        document.getElementById('createGroupModal').classList.add('hidden');
+    }
+
+    function showToast(message, type) {
+        const toast = document.getElementById('toast-box');
+        toast.innerText = message;
+        toast.style.display = 'block';
+        toast.style.backgroundColor = type === 'error' ? '#ef4444' : '#10b981';
+        
+        setTimeout(() => { toast.style.display = 'none'; }, 3000);
+    }
+
+    function hideToast() {
+        const toast = document.getElementById('toast-box');
+        if (toast) toast.style.display = 'none';
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // 🤖 ADVANCED AI ENGINE FEATURES
+    function summarizeChatWithAI() {
+        const modal = document.getElementById('aiSummaryModal');
+        const content = document.getElementById('aiSummaryContent');
+        modal.classList.remove('hidden');
+        
+        content.innerHTML = `
+            <div class="flex items-center gap-2 text-indigo-600 font-bold animate-pulse">
+                <i class="fa-solid fa-spinner animate-spin"></i> Analyzing current active thread...
+            </div>
+        `;
+
+        setTimeout(() => {
+            content.innerHTML = `
+                <div class="p-2.5 bg-indigo-50/70 rounded-xl border border-indigo-100">
+                    <p class="font-bold text-indigo-900">📌 Active Logistics Status:</p>
+                    <p class="mt-1 text-slate-700">• Group discussion active for regional warehouse operations.</p>
+                    <p class="text-slate-700">• Key focus: Staffing pickers & packers for upcoming logistics dispatches.</p>
+                </div>
+                <div class="mt-2 text-emerald-700 font-bold flex items-center gap-1.5">
+                    <i class="fa-solid fa-circle-check"></i> Action Item: Invite 2 more supervisors for full coverage.
+                </div>
+            `;
+        }, 1200);
+    }
+
+    function triggerQuickSmartReply(text) {
+        const input = document.getElementById('messageInput');
+        if(!input.disabled) {
+            input.value = text;
+            input.focus();
+        } else {
+            showToast("Please select a group first!", "error");
+        }
+    }
+
+    function runAiShiftPlanner() {
+        triggerQuickSmartReply("📅 Shift Schedule Requirement: Need 5 Pickers for 8 AM - 4 PM shift today.");
+    }
+
+    function generateRequirementsTemplate() {
+        triggerQuickSmartReply("📦 Requirement: Urgent hiring for Warehouse Executive at Farukhnagar Hub.");
+    }
+</script>
+{% endblock %}

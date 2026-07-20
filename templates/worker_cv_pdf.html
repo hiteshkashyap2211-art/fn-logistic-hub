@@ -1,0 +1,531 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ worker.full_name|default:"Resume Profile" }} | FN Hub{% endblock %}</title>
+    
+    <!-- External Frameworks & Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        body { 
+            font-family: 'Urbanist', 'Segoe UI', Arial, sans-serif; 
+            background: #f3f2ef; 
+            color: #1d2226; 
+            margin: 0; 
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Responsive Action Navigation (Screen view) */
+        .no-print-nav { 
+            background: white; 
+            padding: 12px 20px; 
+            border-bottom: 1px solid #e2e8f0; 
+            position: sticky; 
+            top: 56px; 
+            z-index: 40; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .btn { padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; }
+        .btn-back { color: #64748b; border: 1px solid #cbd5e1; background: white; }
+        .btn-edit { background: #ea580c; color: white; }
+        .btn-download { background: #0a66c2; color: white; cursor: pointer; border: none; }
+
+        /* Modern Responsive Resume Layout Box */
+        .cv-card-wrapper {
+            background: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        /* Sidebar Styling */
+        .sidebar { background-color: #0f172a; color: white; padding: 30px 20px; }
+        
+        /* Circular Photo Logic */
+        .profile-img-container { text-align: center; margin-bottom: 25px; }
+        .profile-img { 
+            width: 130px; height: 130px; 
+            border-radius: 50%; 
+            border: 4px solid #334155; 
+            object-fit: cover;
+            margin: 0 auto;
+        }
+        .no-img { 
+            width: 130px; height: 130px; background: #334155; 
+            border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center;
+            font-weight: bold; color: #cbd5e1; font-size: 13px;
+        }
+
+        .sidebar-title { 
+            color: #38bdf8; font-size: 12px; font-weight: 800; text-transform: uppercase; 
+            letter-spacing: 1.5px; margin-bottom: 12px; border-bottom: 1px solid #334155; padding-bottom: 5px;
+        }
+        .sidebar-text { font-size: 12px; margin: 10px 0; color: #cbd5e1; line-height: 1.6; word-break: break-word; }
+
+        /* Main Content Styling */
+        .main { padding: 35px 30px; background: white; }
+        .header-name { color: #0f172a; font-size: 28px; margin: 0; font-weight: 800; text-transform: uppercase; line-height: 1.1; }
+        @media (min-width: 768px) {
+            .header-name { font-size: 38px; }
+        }
+        .header-title { color: #0a66c2; font-size: 18px; font-weight: 600; margin-top: 5px; }
+
+        .section-header { 
+            font-size: 15px; font-weight: 800; color: #0f172a; margin-top: 25px; margin-bottom: 12px;
+            text-transform: uppercase; border-bottom: 2px solid #f1f5f9; padding-bottom: 5px;
+        }
+        .content-body { font-size: 13px; line-height: 1.7; color: #475569; }
+        .skill-pill { 
+            display: inline-block; background: #f1f5f9; color: #1e293b; padding: 4px 10px; 
+            border-radius: 4px; font-size: 11px; font-weight: bold; margin: 3px; border: 1px solid #e2e8f0; 
+        }
+
+        .verified-badge { background: #057642; color: white; padding: 6px 12px; border-radius: 4px; font-size: 10px; font-weight: bold; margin-top: 20px; display: inline-block; }
+        .footer { text-align: right; font-size: 10px; color: #94a3b8; margin-top: 40px; }
+
+        /* Animation System */
+        .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .animate-scale-in { animation: scaleIn 0.15s cubic-bezier(0, 0, 0.2, 1); transform-origin: top right; }
+        @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Mobile specific print nav tweaks */
+        @media (max-width: 767px) {
+            .mobile-bottom-nav { box-shadow: 0 -2px 10px rgba(0,0,0,0.08); }
+        }
+
+        /* PDF / Print Optimization */
+        @media print {
+            .no-print-nav, nav, .mobile-bottom-nav, .ai-banner { display: none !important; }
+            body { background: white; }
+            .cv-card-wrapper { box-shadow: none; border-radius: 0; margin-bottom: 0; }
+            .cv-table { width: 100%; border-collapse: collapse; display: table !important; }
+            .sidebar { width: 32% !important; display: table-cell !important; vertical-align: top; }
+            .main { width: 68% !important; display: table-cell !important; vertical-align: top; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 📱 Responsive Dual-Layer Navigation Grid Layout -->
+    <nav class="bg-white border-b sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-3 sm:px-4 flex justify-between items-center h-14 gap-2">
+            
+            <!-- Brand Logo & Search System -->
+            <div class="flex items-center space-x-2 md:space-x-3 shrink-0 flex-1 md:flex-initial">
+                <div class="bg-orange-600 text-white font-black px-2.5 py-1 rounded text-base sm:text-lg italic tracking-tighter shrink-0 cursor-pointer">WH</div>
+                
+                <!-- Desktop Search Bar -->
+                <div class="hidden md:flex items-center bg-[#edf3f8] px-3 py-1.5 rounded-md border border-transparent focus-within:bg-white focus-within:border-gray-500 focus-within:ring-1 focus-within:ring-gray-500 transition-all w-72">
+                    <i class="fa-solid fa-magnifying-glass text-gray-600 text-sm mr-2"></i>
+                    <input type="text" id="searchInput" placeholder="Search Farukhnagar Jobs..." class="bg-transparent border-none outline-none text-sm w-full text-gray-900 placeholder-gray-500 font-normal">
+                </div>
+
+                <!-- Mobile Search Bar -->
+                <div class="flex md:hidden flex-1 items-center bg-[#edf3f8] px-2.5 py-1.5 rounded border border-transparent focus-within:bg-white focus-within:border-gray-500 transition-all max-w-[220px]">
+                    <i class="fa-solid fa-magnifying-glass text-gray-500 text-xs mr-2"></i>
+                    <input type="text" placeholder="Search..." class="bg-transparent border-none outline-none text-xs w-full text-gray-900 placeholder-gray-500 font-normal">
+                </div>
+            </div>
+
+            <!-- Desktop Navigation Links Row -->
+            <div class="hidden md:flex items-center justify-end space-x-4 md:space-x-8 flex-1 py-1">
+                <a href="{% url 'community_hub' %}" class="flex flex-col items-center text-slate-500 hover:text-indigo-600 transition shrink-0">
+                    <i class="fa-solid fa-comments text-lg sm:text-xl"></i>
+                    <span class="text-[10px] font-bold mt-1">Hub</span>
+                </a>
+                
+                <a href="{% url 'home' %}" class="flex flex-col items-center group text-gray-500 hover:text-black transition-all shrink-0">
+                    <i class="fa-solid fa-house text-lg sm:text-xl"></i>
+                    <span class="text-[10px] font-bold mt-1">Home</span>
+                </a>
+
+                {% if request.user.role == 'vendor' %}
+                <a href="{% url 'find_worker' %}" class="flex flex-col items-center group text-gray-500 hover:text-black transition-all shrink-0">
+                    <i class="fa-solid fa-user-group text-lg sm:text-xl"></i>
+                    <span class="text-[10px] font-bold mt-1">Find Workers</span>
+                </a>
+                {% endif %}
+
+                <a href="{% url 'job_list' %}" class="flex flex-col items-center group text-gray-500 hover:text-black transition-all shrink-0">
+                    <i class="fa-solid fa-briefcase text-lg sm:text-xl"></i>
+                    <span class="text-[10px] font-bold mt-1">Jobs</span>
+                </a>
+
+                <a href="{% url 'messages' %}" class="flex flex-col items-center group text-gray-500 hover:text-black relative transition-all shrink-0">
+                    <div class="relative">
+                        <i class="fa-solid fa-comment-dots text-lg sm:text-xl"></i>
+                        {% if msg_count > 0 %}
+                        <span class="absolute -top-1.5 -right-2 bg-red-600 text-white text-[8px] px-1 rounded-full border border-white font-bold">{{ msg_count }}</span>
+                        {% endif %}
+                    </div>
+                    <span class="text-[10px] font-bold mt-1">Messaging</span>
+                </a>
+
+                <a href="{% url 'notifications' %}" class="flex flex-col items-center group text-gray-500 hover:text-black relative transition-all shrink-0">
+                    <div class="relative">
+                        <i class="fa-solid fa-bell text-lg sm:text-xl"></i>
+                        {% if notif_count > 0 %}
+                        <span class="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[8px] px-1 rounded-full border border-white font-bold">{{ notif_count }}</span>
+                        {% endif %}
+                    </div>
+                    <span class="text-[10px] font-bold mt-1">Notifications</span>
+                </a>
+
+                <!-- Desktop Custom Profile Dropdown Container -->
+                <div class="relative flex items-center shrink-0 desktopMeContainer">
+                    <div class="flex flex-col items-center">
+                        <a href="{% if request.user.role == 'vendor' %}{% url 'vendor_dashboard' %}{% else %}{% url 'worker_dashboard' %}{% endif %}" class="w-6 h-6 rounded-full overflow-hidden border border-gray-200 hover:border-black transition-all">
+                            {% if request.user.role == 'vendor' and user_profile.company_logo %}
+                                <img src="{{ user_profile.company_logo.url }}" class="w-full h-full object-cover">
+                            {% elif request.user.worker_profile.photo %}
+                                <img src="{{ request.user.worker_profile.photo.url }}" class="w-full h-full object-cover">
+                            {% else %}
+                                <img src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=0a66c2&color=fff" class="w-full h-full object-cover">
+                            {% endif %}
+                        </a>
+                        <button onclick="toggleMeMenu(event, 'meMenu')" class="flex items-center gap-0.5 mt-0.5 group focus:outline-none cursor-pointer bg-transparent border-none p-0">
+                            <span class="text-[11px] text-gray-500 font-medium group-hover:text-black">Me</span>
+                            <i class="fa-solid fa-caret-down text-[9px] text-gray-500 group-hover:text-black"></i>
+                        </button>
+                    </div>
+
+                    <!-- Dropdown Panel Template Card -->
+                    <div id="meMenu" class="hidden absolute right-0 mt-2 top-12 w-[280px] bg-white rounded-lg shadow-xl border border-[#e0e0e0] z-[100] overflow-hidden transition-all duration-150 origin-top-right animate-fade-in text-left">
+                        <div class="p-3 flex gap-3 border-b border-[#f3f2ef]">
+                            <div class="w-12 h-12 rounded-full overflow-hidden shrink-0 border border-gray-200">
+                                {% if request.user.role == 'vendor' and user_profile.company_logo %}
+                                    <img src="{{ user_profile.company_logo.url }}" class="w-full h-full object-cover">
+                                {% elif request.user.role == 'worker' and user_profile.photo %}
+                                    <img src="{{ user_profile.photo.url }}" class="w-full h-full object-cover">
+                                {% else %}
+                                    <img src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=0a66c2&color=fff&bold=true" class="w-full h-full object-cover">
+                                {% endif %}
+                            </div>
+                            <div class="flex flex-col justify-center overflow-hidden flex-1">
+                                <p class="font-semibold text-[14px] text-gray-900 leading-tight truncate">
+                                    {% if request.user.role == 'vendor' %}{{ user_profile.company_name|default:request.user.username }}{% else %}{{ user_profile.full_name|default:request.user.username }}{% endif %}
+                                </p>
+                                <p class="text-[12px] text-gray-600 mt-0.5 truncate font-normal">
+                                    {% if request.user.role == 'vendor' %}Logistics Vendor{% else %}{{ user_profile.work_category|default:"Logistics" }} Specialist{% endif %} at FN Hub
+                                </p>
+                            </div>
+                        </div>
+                        <div class="p-2 border-b border-[#f3f2ef]">
+                            {% if request.user.role == 'vendor' %}
+                                <a href="{% url 'vendor_dashboard' %}" class="block w-full text-center py-1 border border-[#0a66c2] text-[#0a66c2] font-semibold rounded-full text-[14px] hover:bg-blue-50 transition-all mb-1.5">Manage Dashboard</a>
+                                <a href="{% url 'create_profile' %}" class="block w-full text-center py-1 border border-orange-600 text-orange-600 font-semibold rounded-full text-[14px] hover:bg-orange-50 transition-all">Edit Company Profile</a>
+                            {% else %}
+                                <a href="{% url 'worker_detail' request.user.worker_profile.pk|default:user_profile.id %}" class="block w-full text-center py-1 border border-[#0a66c2] text-[#0a66c2] font-semibold rounded-full text-[14px] hover:bg-blue-50 transition-all mb-1.5">View Profile</a>
+                                <a href="{% url 'create_profile' %}" class="block w-full text-center py-1 border border-orange-600 text-orange-600 font-semibold rounded-full text-[14px] hover:bg-orange-50 transition-all">Edit Resume Info</a>
+                            {% endif %}
+                        </div>
+                        <div class="py-1 border-b border-[#f3f2ef]">
+                            <p class="px-3 pt-1 text-[13px] font-semibold text-gray-900">Account</p>
+                            <a href="#" class="block px-3 py-1 text-[12px] text-orange-600 font-semibold hover:underline"> Try Premium for Free</a>
+                            <a href="{% if request.user.role == 'vendor' %}{% url 'vendor_dashboard' %}{% else %}{% url 'worker_dashboard' %}{% endif %}" class="block px-3 py-1 text-[12px] text-gray-500 hover:bg-gray-100 transition-colors">Settings & Privacy</a>
+                            <a href="#" class="block px-3 py-1 text-[12px] text-gray-500 hover:bg-gray-100 transition-colors">Help & Language</a>
+                        </div>
+                        <div class="p-1 bg-white">
+                            <form action="{% url 'logout' %}" method="post" class="m-0 p-0">
+                                {% csrf_token %}
+                                <button type="submit" class="block w-full text-left px-3 py-1.5 text-[12px] text-gray-500 hover:bg-gray-100 font-normal transition-colors border-0 bg-transparent cursor-pointer outline-none">Sign Out</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Layout Avatar Dropdown Button -->
+            <div class="flex md:hidden items-center space-x-2 shrink-0 relative mobileMeContainer">
+                <button onclick="toggleMeMenu(event, 'meMenuMobile')" class="w-7 h-7 rounded-full overflow-hidden border border-gray-300 focus:outline-none">
+                    {% if request.user.role == 'vendor' and user_profile.company_logo %}
+                        <img src="{{ user_profile.company_logo.url }}" class="w-full h-full object-cover">
+                    {% elif request.user.worker_profile.photo %}
+                        <img src="{{ request.user.worker_profile.photo.url }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <img src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=0a66c2&color=fff" class="w-full h-full object-cover">
+                    {% endif %}
+                </button>
+
+                <!-- Mobile Profile Menu Dropdown -->
+                <div id="meMenuMobile" class="hidden absolute right-0 mt-2 top-10 w-[260px] bg-white rounded-lg shadow-xl border border-[#e0e0e0] z-[100] text-left overflow-hidden animate-fade-in">
+                    <div class="p-3 flex gap-2 border-b border-[#f3f2ef] bg-gray-50">
+                        <div class="flex flex-col justify-center overflow-hidden flex-1">
+                            <p class="font-bold text-xs text-gray-900 leading-tight truncate">
+                                {% if request.user.role == 'vendor' %}{{ user_profile.company_name|default:request.user.username }}{% else %}{{ user_profile.full_name|default:request.user.username }}{% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="p-2 border-b border-[#f3f2ef] flex flex-col gap-1">
+                        {% if request.user.role == 'vendor' %}
+                            <a href="{% url 'vendor_dashboard' %}" class="block text-center w-full py-1 text-xs border border-[#0a66c2] text-[#0a66c2] font-bold rounded-full hover:bg-blue-50">Dashboard</a>
+                            <a href="{% url 'create_profile' %}" class="block text-center w-full py-1 text-xs border border-orange-600 text-orange-600 font-bold rounded-full hover:bg-orange-50">Edit Profile</a>
+                        {% else %}
+                            <a href="{% url 'worker_detail' request.user.worker_profile.pk|default:user_profile.id %}" class="block text-center w-full py-1 text-xs border border-[#0a66c2] text-[#0a66c2] font-bold rounded-full hover:bg-blue-50">View Profile</a>
+                            <a href="{% url 'create_profile' %}" class="block text-center w-full py-1 text-xs border border-orange-600 text-orange-600 font-bold rounded-full hover:bg-orange-50">Edit Resume</a>
+                        {% endif %}
+                    </div>
+                    <div class="p-1 bg-white">
+                        <form action="{% url 'logout' %}" method="post" class="m-0 p-0">
+                            {% csrf_token %}
+                            <button type="submit" class="block w-full text-left px-3 py-1.5 text-xs text-gray-500 hover:bg-gray-100 border-0 bg-transparent cursor-pointer">Sign Out</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Mobile Sub-Nav Bar (Groups Bar) -->
+        <div class="block md:hidden bg-white border-b overflow-x-auto no-scrollbar whitespace-nowrap px-3 py-2">
+            <div class="flex items-center space-x-2 text-xs">
+                <button onclick="location.href='#'" class="bg-indigo-50 text-indigo-700 font-bold px-3 py-1.5 rounded-full border border-indigo-200 flex items-center gap-1.5 shrink-0 active:scale-95 transition-all">
+                    <i class="fa-solid fa-circle-plus text-sm"></i>
+                    <span>Create Group</span>
+                </button>
+                <div class="h-4 w-[1px] bg-gray-300 shrink-0"></div>
+                
+                <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
+                    <i class="fa-solid fa-user-group text-orange-600"></i>
+                    <span>Dishu Group PVT</span>
+                </a>
+                <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
+                    <i class="fa-solid fa-warehouse text-blue-600"></i>
+                    <span>Logistics Hub</span>
+                </a>
+                
+                {% for group in vendor_groups %}
+                    {% if group.name != "Dishu Group PVT" and group.name != "Logistics Hub" %}
+                    <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
+                        <i class="fa-solid fa-user-group text-slate-500"></i>
+                        <span>{{ group.name }} {% if group.member_count %}({{ group.member_count }}){% endif %}</span>
+                    </a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- AI Smart Insights Banner Section -->
+    <div class="max-w-4xl mx-auto px-2 sm:px-4 mt-4 sm:mt-6 ai-banner">
+        <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-slate-100 shadow-lg flex flex-col md:flex-row items-center justify-between gap-4 overflow-hidden relative">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
+            
+            <div class="flex items-center gap-4 relative z-10 w-full md:w-auto">
+                <div class="relative w-14 h-14 sm:w-16 sm:h-16 shrink-0">
+                    <div class="w-full h-full rounded-2xl border-2 border-slate-50 overflow-hidden shadow-inner bg-white flex items-center justify-center">
+                        {% if worker.photo %}
+                            <img src="{{ worker.photo.url }}" class="w-full h-full object-cover">
+                        {% else %}
+                            <div class="w-full h-full flex items-center justify-center bg-indigo-50 text-indigo-600 font-bold text-xs">
+                                FN
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></div>
+                </div>
+                
+                <div class="min-w-0">
+                    <h2 class="text-base sm:text-xl font-black text-slate-900 leading-tight truncate">
+                        {{ worker.full_name|default:request.user.username }}
+                    </h2>
+                    <div class="flex items-center gap-2 mt-1 flex-wrap">
+                        <button onclick="runAiAnalysis()" class="group flex items-center gap-1.5 text-[10px] sm:text-[12px] font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full hover:bg-indigo-600 hover:text-white transition-all duration-300 border border-indigo-200 shrink-0">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span>AI Resume Insights</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative z-10 flex flex-row md:flex-col items-center justify-between md:justify-end md:items-end gap-2 w-full md:w-auto border-t md:border-none pt-2 md:pt-0">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-[11px] sm:text-xs font-bold text-slate-500">Profile Status:</span>
+                    <span class="text-xs sm:text-sm font-black text-green-600">Active Verified</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resume Action Toolbar (Navigation / Download Controls) -->
+    <div class="max-w-4xl mx-auto px-2 sm:px-4 mt-4">
+        <div class="no-print-nav rounded-xl flex flex-wrap items-center justify-between gap-2">
+            <a href="{% url 'worker_detail' worker.pk %}" class="btn btn-back">
+                <i class="fa-solid fa-arrow-left mr-1.5"></i> Back to Profile
+            </a>
+            
+            <div class="flex items-center gap-2">
+                <a href="{% url 'create_profile' %}" class="btn btn-edit">
+                    <i class="fa-solid fa-pen-to-square mr-1.5"></i> Edit Resume Info
+                </a>
+                <button onclick="window.print()" class="btn btn-download">
+                    <i class="fas fa-download mr-1.5"></i> Download PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Responsive Resume Card Container -->
+    <div class="max-w-4xl mx-auto px-2 sm:px-4 mt-4 pb-20">
+        <div class="cv-card-wrapper">
+            <!-- Flex/Grid Layout for Web (Transforms to Table automatically for PDF) -->
+            <div class="cv-table grid grid-cols-1 md:grid-cols-12 w-full">
+                
+                <!-- Sidebar Layer -->
+                <div class="sidebar md:col-span-4">
+                    <div class="profile-img-container">
+                        {% if worker.photo %}
+                            <img src="{{ worker.photo.url }}" class="profile-img">
+                        {% else %}
+                            <div class="no-img">NO PHOTO</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="sidebar-title">Contact</div>
+                    <p class="sidebar-text">📞 +91 {{ worker.phone }}</p>
+                    <p class="sidebar-text">✉️ {{ worker.email|default:worker.user.email }}</p>
+                    <p class="sidebar-text">📍 Farukhnagar Hub, HR</p>
+
+                    <div class="sidebar-title mt-6">Skills</div>
+                    <div style="margin-top: 10px;">
+                        {% if worker.skills %}
+                            {% for skill in worker.skills.split %}
+                                <span class="skill-pill">{{ skill }}</span>
+                            {% endfor %}
+                        {% else %}
+                            <p class="sidebar-text">No skills added</p>
+                        {% endif %}
+                    </div>
+
+                    {% if worker.is_aadhar_verified %}
+                        <div class="verified-badge">✓ ID VERIFIED</div>
+                    {% endif %}
+                </div>
+
+                <!-- Main Section Layer -->
+                <div class="main md:col-span-8">
+                    <h1 class="header-name">{{ worker.full_name }}</h1>
+                    <p class="header-title">{{ worker.work_category|default:"Logistics" }} Specialist</p>
+
+                    <div class="section-header">Professional Summary</div>
+                    <p class="content-body">{{ worker.experience_summary|default:"Logistics professional with expertise in warehouse management." }}</p>
+
+                    <div class="section-header">Work History</div>
+                    <div style="border-left: 3px solid #0a66c2; padding-left: 15px;">
+                        <p style="margin: 0;"><strong>Senior {{ worker.work_category|default:"Executive" }}</strong></p>
+                        <p style="color: #0a66c2; font-size: 13px; font-weight: bold; margin: 2px 0;">Farukhnagar Logistics Hub • 2024 - Present</p>
+                        <p class="content-body" style="margin-top: 5px;">Managing daily operations and logistics workflow at Farukhnagar Hub.</p>
+                    </div>
+                    
+                    <div class="section-header">Certification</div>
+                    <p class="content-body">
+                        <span style="color: #0a66c2;">★</span> {{ worker.certifications|default:"Certified active member of Farukhnagar Logistics Network." }}
+                    </p>
+
+                    <div class="footer">
+                        Digitally Verified Profile • FN Hub © 2026
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 📱 Sticky Mobile Bottom Navigation Layer System -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 h-14 mobile-bottom-nav">
+        <div class="grid grid-cols-5 h-full max-w-xl mx-auto items-center text-center">
+            <a href="{% url 'home' %}" class="flex flex-col items-center justify-center text-gray-500 hover:text-[#0a66c2]">
+                <i class="fa-solid fa-house text-lg"></i>
+                <span class="text-[9px] font-medium mt-0.5">Home</span>
+            </a>
+            <a href="{% url 'find_worker' %}" class="flex flex-col items-center justify-center text-gray-500 hover:text-[#0a66c2]">
+                <i class="fa-solid fa-user-group text-lg"></i>
+                <span class="text-[9px] font-medium mt-0.5">Workers</span>
+            </a>
+            <a href="{% url 'job_list' %}" class="flex flex-col items-center justify-center text-gray-500 hover:text-[#0a66c2]">
+                <i class="fa-solid fa-briefcase text-lg"></i>
+                <span class="text-[9px] font-medium mt-0.5">Jobs</span>
+            </a>
+            <a href="{% url 'messages' %}" class="flex flex-col items-center justify-center text-gray-500 hover:text-[#0a66c2] relative">
+                <i class="fa-solid fa-comment-dots text-lg"></i>
+                <span class="text-[9px] font-medium mt-0.5">Messaging</span>
+            </a>
+            <a href="{% url 'notifications' %}" class="flex flex-col items-center justify-center text-gray-500 hover:text-[#0a66c2]">
+                <i class="fa-solid fa-bell text-lg"></i>
+                <span class="text-[9px] font-medium mt-0.5">Notif</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- AI Insights Modal System -->
+    <div id="aiModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full border border-slate-100 shadow-2xl animate-scale-in mx-2">
+            <div class="flex justify-between items-start mb-6">
+                <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <i class="fa-solid fa-wand-magic-sparkles text-white text-xl"></i>
+                </div>
+                <button onclick="document.getElementById('aiModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-900 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <h3 class="font-black text-xl sm:text-2xl text-slate-900">Resume Optimization</h3>
+            <div id="aiContent" class="mt-6 space-y-4"></div>
+        </div>
+    </div>
+
+    <!-- Scripts Controller -->
+    <script>
+        function toggleMeMenu(event, menuId) {
+            if (event) event.stopPropagation();
+            const targetMenu = document.getElementById(menuId);
+            const isAlreadyOpen = !targetMenu.classList.contains('hidden');
+            
+            document.getElementById('meMenu').classList.add('hidden');
+            document.getElementById('meMenuMobile').classList.add('hidden');
+            
+            if (!isAlreadyOpen) targetMenu.classList.remove('hidden');
+        }
+
+        window.onclick = function(e) {
+            if (!e.target.closest('.desktopMeContainer') && !e.target.closest('.mobileMeContainer')) {
+                document.getElementById('meMenu').classList.add('hidden');
+                document.getElementById('meMenuMobile').classList.add('hidden');
+            }
+        }
+
+        function runAiAnalysis() {
+            const modal = document.getElementById('aiModal');
+            const content = document.getElementById('aiContent');
+            modal.classList.remove('hidden');
+            content.innerHTML = '<div class="text-indigo-600 font-bold flex items-center gap-2"><i class="fa-solid fa-spinner animate-spin"></i> Analyzing profile completeness...</div>';
+            
+            setTimeout(() => {
+                content.innerHTML = `
+                    <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                        <p class="text-xs font-bold text-indigo-900">🚀 Profile Strength Score: 92%</p>
+                        <p class="text-[12px] text-indigo-700 mt-1">Your skills and logistics experience align with high-demand vendor job posts in Farukhnagar Hub.</p>
+                    </div>
+                `;
+            }, 1200);
+        }
+    </script>
+</body>
+</html>

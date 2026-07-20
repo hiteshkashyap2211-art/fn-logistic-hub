@@ -1,0 +1,418 @@
+{% extends 'base.html' %} 
+{% load static %}
+
+{% block title %}WH Logistic Hub | Find Workers{% endblock %}
+
+{% block content %}
+<!-- Dynamic CSS Layer for Mobile Top Navigation Adjustments -->
+<style>
+    @media (max-width: 767px) {
+        header i.fa-solid:not(.fa-magnifying-glass), 
+        header i.fa-regular, 
+        header i.fas, 
+        header i.far,
+        header svg:not(.w-4):not(.h-4),
+        header button:not([type="submit"]),
+        nav .flex.justify-around,
+        .fixed.top-0 .flex.items-center.gap-2 {
+            display: none !important;
+        }
+
+        header .flex.items-center.gap-4,
+        header .flex.items-center.space-x-4,
+        header .flex.items-center.gap-3 {
+            display: none !important;
+        }
+
+        header .flex.items-center.justify-between,
+        header .container,
+        header > div {
+            display: flex !important;
+            width: 100% !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+        }
+
+        header .flex.items-center.justify-between > div:not(:first-child):not(:last-child),
+        header .container > div:not(:first-child):not(:last-child) {
+            display: none !important;
+        }
+
+        header img.rounded-full,
+        header a[href*="profile"] img,
+        header .w-8.h-8.rounded-full,
+        header .w-10.h-10.rounded-full {
+            display: block !important;
+        }
+    }
+</style>
+
+<!-- Top AI Smart Insights Banner Section -->
+<div class="max-w-6xl mx-auto px-2 sm:px-4 mt-4 sm:mt-6">
+    <div class="bg-white rounded-2xl sm:rounded-[24px] p-4 sm:p-6 border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 overflow-hidden relative">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none"></div>
+        
+        <div class="flex items-center gap-4 sm:gap-6 relative z-10 w-full md:w-auto">
+            <div class="relative w-16 h-16 sm:w-20 sm:h-20 shrink-0">
+                <div class="w-full h-full rounded-2xl border-2 border-slate-100 overflow-hidden shadow-inner bg-white">
+                    {% if user_profile %}
+                        {% if request.user.role == 'vendor' and user_profile.company_logo %}
+                            <img src="{{ user_profile.company_logo.url }}" class="w-full h-full object-cover">
+                        {% elif user_profile.photo %}
+                            <img src="{{ user_profile.photo.url }}" class="w-full h-full object-cover">
+                        {% else %}
+                            <img src="https://ui-avatars.com/api/?name={{ request.user.username|urlencode }}&background=0a66c2&color=fff" class="w-full h-full object-cover">
+                        {% endif %}
+                    {% else %}
+                        <div class="w-full h-full flex items-center justify-center bg-indigo-50 text-indigo-600">
+                            <i class="fa-solid fa-user text-2xl sm:text-3xl"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+            </div>
+            
+            <div class="min-w-0">
+                <h2 class="text-lg sm:text-2xl font-black text-slate-900 leading-tight truncate">
+                    {% if user_profile %}
+                        {% if request.user.role == 'vendor' %}{{ user_profile.company_name|default:request.user.username }}{% else %}{{ user_profile.full_name|default:request.user.username }}{% endif %}
+                    {% else %}
+                        {{ request.user.username }}
+                    {% endif %}
+                </h2>
+                <div class="flex items-center gap-2 mt-1 flex-wrap">
+                    <button onclick="runAiAnalysis()" class="group flex items-center gap-1.5 text-[10px] sm:text-[12px] font-bold text-indigo-700 bg-indigo-50 px-3 py-1 sm:py-1.5 rounded-full hover:bg-indigo-600 hover:text-white transition-all duration-300 border border-indigo-200 shrink-0">
+                        <svg class="w-3.5 h-3.5 group-hover:rotate-12 transition-transform" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="currentColor"/>
+                        </svg>
+                        <span>AI Talent Matcher</span>
+                    </button>
+                    <span class="text-[9px] sm:text-[11px] text-slate-500 font-medium flex items-center gap-1">
+                        <i class="fa-solid fa-circle text-[6px] text-green-500 animate-pulse"></i> Verified Workers Live
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="relative z-10 flex flex-row md:flex-col items-center justify-between md:justify-end md:items-end gap-2 w-full md:w-auto border-t md:border-none pt-3 md:pt-0">
+            <div class="flex items-center gap-1.5">
+                <span class="text-[11px] sm:text-xs font-bold text-slate-500 flex items-center gap-1">
+                    <i class="fa-solid fa-chart-line text-indigo-500"></i> Search Efficiency:
+                </span>
+                <span class="text-sm sm:text-lg font-black text-indigo-600">92%</span>
+            </div>
+            <div class="w-32 sm:w-48 h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div class="h-full bg-indigo-500 rounded-full w-[92%] animate-pulse"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Feed & Stream Container -->
+<div class="space-y-4">
+    {% for worker in workers %}
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-5" id="worker-card-{{ worker.pk }}">
+        
+        <div class="flex items-start justify-between mb-3 gap-2">
+            <div class="flex items-center space-x-3 min-w-0">
+                <a href="{% url 'worker_detail' worker.pk %}" class="shrink-0">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border border-gray-200 shadow-sm bg-gray-50">
+                        <img src="{% if worker.photo %}{{ worker.photo.url }}{% else %}https://ui-avatars.com/api/?name={{ worker.full_name|default:worker.user.username|urlencode }}&background=0a66c2&color=fff{% endif %}" class="w-full h-full object-cover">
+                    </div>
+                </a>
+                <div class="min-w-0">
+                    <h4 class="text-xs sm:text-sm font-bold text-gray-900 truncate">
+                        <a href="{% url 'worker_detail' worker.pk %}" class="hover:underline hover:text-blue-600">{{ worker.full_name|default:worker.user.username }}</a>
+                    </h4>
+                    <p class="text-[10px] sm:text-[11px] text-gray-500 uppercase font-bold tracking-tight truncate mt-0.5">
+                        <i class="fa-solid fa-briefcase text-[10px] mr-1 text-slate-400"></i> {{ worker.work_category|default:"Logistics Worker" }}
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Action Controls Layer -->
+            <div class="flex flex-row gap-1.5 shrink-0">
+                <button onclick="inviteWorkerDirectly({{ worker.id }})" 
+                        class="invite-btn bg-blue-600 text-white px-3 sm:px-4 py-1.5 rounded-full text-xs font-bold hover:bg-blue-700 transition active:scale-95 shadow-sm">
+                    Invite
+                </button>
+                <a href="{% url 'worker_detail' worker.pk %}" class="px-3 sm:px-4 py-1.5 border border-blue-600 text-blue-600 text-xs font-bold rounded-full hover:bg-blue-50 transition text-center shadow-sm">
+                    Hire
+                </a>
+            </div>
+        </div>
+        
+        <!-- Summary Area -->
+        <p class="text-xs sm:text-sm text-gray-700 mb-3 leading-relaxed font-normal bg-slate-50 p-3 rounded-xl border border-slate-100">
+            {{ worker.experience_summary|default:"Experienced logistics specialist ready for operations." }}
+        </p>
+
+        <!-- Interaction Layer System -->
+        <div class="border-t pt-2 border-gray-100">
+            <div class="flex justify-between items-center px-1 text-gray-500">
+                <button class="like-btn flex items-center font-bold text-[11px] sm:text-xs hover:bg-gray-100 px-3 py-2 rounded transition-colors" data-worker-id="{{ worker.pk }}">
+                    <i class="{% if worker.is_liked %}fa-solid text-blue-600{% else %}fa-regular{% endif %} fa-thumbs-up mr-1.5 text-base sm:text-lg"></i> 
+                    <span id="like-count-{{ worker.pk }}">Like ({{ worker.likes.count }})</span>
+                </button>
+                
+                <button onclick="toggleCommentBox('{{ worker.pk }}')" class="flex items-center font-bold text-[11px] sm:text-xs hover:bg-gray-100 px-3 py-2 rounded transition-colors">
+                    <i class="fa-regular fa-comment mr-1.5 text-base sm:text-lg"></i> 
+                    <span id="comment-count-{{ worker.pk }}">Comment ({{ worker.comments.count }})</span>
+                </button>
+                
+                <button onclick="shareWorkerProfile('{{ worker.pk }}', '{{ worker.full_name|escapejs }}')" class="flex items-center font-bold text-[11px] sm:text-xs hover:bg-gray-100 px-3 py-2 rounded transition-colors">
+                    <i class="fa-regular fa-share-from-square mr-1.5 text-base sm:text-lg"></i> Share
+                </button>
+            </div>
+            
+            <!-- Dynamic Comments Box -->
+            <div id="comment-box-{{ worker.pk }}" class="hidden mt-3 p-3 bg-gray-50 rounded-xl border border-slate-100 animate-fade-in">
+                <textarea id="content-{{ worker.pk }}" class="w-full p-2 border border-gray-200 rounded-lg text-xs sm:text-sm outline-none resize-none h-16 focus:border-gray-400 focus:ring-1 focus:ring-gray-400 bg-white" placeholder="Write a comment..."></textarea>
+                
+                <button onclick="submitComment('{{ worker.pk }}')" class="mt-2 bg-blue-700 text-white px-5 py-1.5 rounded-full text-xs font-bold hover:bg-blue-800 transition-colors shadow-sm">
+                    Post
+                </button>
+                
+                <div id="comments-list-{{ worker.pk }}" class="mt-3 space-y-2 max-h-52 overflow-y-auto pr-1 border-t pt-3 custom-scrollbar">
+                    {% for comment in worker.comments.all %}
+                    <div class="flex items-start space-x-2 sm:space-x-3 p-2 rounded-lg transition hover:bg-white" id="comment-{{ comment.id }}">
+                        
+                        <div class="w-8 h-8 rounded-full flex-shrink-0 overflow-hidden border border-gray-200 bg-white">
+                            {% if comment.user.worker_profile.photo %}
+                                <img src="{{ comment.user.worker_profile.photo.url }}" class="w-full h-full object-cover">
+                            {% elif comment.user.vendor_profile.company_logo %}
+                                <img src="{{ comment.user.vendor_profile.company_logo.url }}" class="w-full h-full object-cover">
+                            {% else %}
+                                <img src="https://ui-avatars.com/api/?name={{ comment.user.username|urlencode }}&background=e2e8f0&color=0a66c2&bold=true" class="w-full h-full object-cover">
+                            {% endif %}
+                        </div>
+                        
+                        <div class="flex-grow min-w-0">
+                            <div class="bg-[#f2f2f2] p-2.5 rounded-r-xl rounded-bl-xl comment-bubble">
+                                <div class="flex justify-between items-center mb-1 gap-2">
+                                    <span class="font-bold text-xs text-gray-900 truncate">
+                                        {% if comment.user.worker_profile.full_name %}
+                                            {{ comment.user.worker_profile.full_name|title }}
+                                        {% elif comment.user.vendor_profile.company_name %}
+                                            {{ comment.user.vendor_profile.company_name|title }}
+                                        {% else %}
+                                            {{ comment.user.username|title }}
+                                        {% endif %}
+                                    </span>
+                                    {% if comment.user == request.user %}
+                                    <button onclick="deleteComment('{{ comment.id }}', '{{ worker.pk }}')" class="text-gray-400 hover:text-red-500 transition p-0.5 shrink-0">
+                                        <i class="fa-regular fa-trash-can text-[10px]"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                                <p class="text-xs text-gray-800 break-words leading-normal">{{ comment.content }}</p>
+                            </div>
+                            <div class="ml-1 mt-1 text-[9px] text-gray-400 font-bold uppercase">{{ comment.created_at|timesince }} ago</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="bg-white rounded-xl border p-8 text-center text-gray-500 font-medium">
+        <i class="fa-solid fa-user-slash text-2xl text-gray-300 block mb-2"></i> No active workers found in the portal currently.
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Mobile Bottom Navigation Bar -->
+<div class="block md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] z-50">
+    <div class="flex justify-around items-center h-16 max-w-md mx-auto px-2">
+        <a href="{% url 'home' %}" class="flex flex-col items-center justify-center flex-1 text-gray-400 hover:text-gray-600 transition-colors">
+            <i class="fa-solid fa-house text-xl"></i>
+            <span class="text-[10px] font-medium mt-0.5">Home</span>
+        </a>
+        <a href="{% url 'find_worker' %}" class="flex flex-col items-center justify-center flex-1 text-[#0a66c2] transition-colors">
+            <i class="fa-solid fa-users text-xl"></i>
+            <span class="text-[10px] font-bold mt-0.5">Workers</span>
+        </a>
+        <a href="{% url 'job_list' %}" class="flex flex-col items-center justify-center flex-1 text-gray-400 hover:text-gray-600 transition-colors">
+            <i class="fa-solid fa-briefcase text-xl"></i>
+            <span class="text-[10px] font-medium mt-0.5">Jobs</span>
+        </a>
+        <a href="{% url 'messages' %}" class="flex flex-col items-center justify-center flex-1 text-gray-400 hover:text-gray-600 transition-colors">
+            <i class="fa-solid fa-comment-dots text-xl"></i>
+            <span class="text-[10px] font-medium mt-0.5">Messaging</span>
+        </a>
+        <a href="{% url 'notifications' %}" class="flex flex-col items-center justify-center flex-1 text-gray-400 hover:text-gray-600 transition-colors">
+            <i class="fa-solid fa-bell text-xl"></i>
+            <span class="text-[10px] font-medium mt-0.5">Hub</span>
+        </a>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="share-toast" class="hidden fixed bottom-20 left-1/2 -translate-x-1/2 bg-[#1d2226] text-white px-5 py-3 rounded-lg shadow-2xl z-[999] transition-all duration-300 transform translate-y-20 opacity-0 flex items-center justify-between min-w-[280px] sm:min-w-[320px]">
+    <div class="flex items-center gap-2">
+        <i class="fa-solid fa-circle-check text-green-400"></i>
+        <span class="text-xs sm:text-sm font-semibold">Profile link copied to clipboard!</span>
+    </div>
+    <button onclick="hideToast()" class="ml-4 text-gray-400 hover:text-white transition-colors">
+        <i class="fa-solid fa-xmark text-base"></i>
+    </button>
+</div>
+
+<!-- AI Modal Panel System -->
+<div id="aiModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full border border-slate-100 shadow-2xl mx-2">
+        <div class="flex justify-between items-start mb-6">
+            <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <i class="fa-solid fa-wand-magic-sparkles text-white text-xl"></i>
+            </div>
+            <button onclick="document.getElementById('aiModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-900 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+        <h3 class="font-black text-xl sm:text-2xl text-slate-900">AI Intelligent Matcher</h3>
+        <div id="aiContent" class="mt-4 space-y-3"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleCommentBox(id) { 
+        $('#comment-box-' + id).slideToggle(200); 
+    }
+
+    $(document).on('click', '.like-btn', function() {
+        const btn = $(this);
+        const id = btn.data('worker-id');
+        $.ajax({
+            type: 'POST',
+            url: '/worker/' + id + '/like/',
+            data: { 'csrfmiddlewaretoken': '{{ csrf_token }}' },
+            success: function(res) {
+                $('#like-count-' + id).text('Like (' + res.total_likes + ')');
+                const icon = btn.find('i');
+                if (res.liked) {
+                    icon.removeClass('fa-regular').addClass('fa-solid text-blue-600');
+                } else {
+                    icon.removeClass('fa-solid text-blue-600').addClass('fa-regular');
+                }
+            }
+        });
+    });
+
+    async function inviteWorkerDirectly(workerId) {
+        const hiddenField = document.getElementById('receiverIdHidden');
+        const groupId = hiddenField ? hiddenField.value : null;
+
+        if (!groupId) {
+            alert("Please select a group first from the top dashboard layout row!");
+            return;
+        }
+
+        try {
+            const response = await fetch(`/invite-worker/to-group/${groupId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ worker_id: workerId })
+            });
+
+            const data = await response.json();
+            if (response.ok && data.status === 'success') {
+                alert("Invitation dispatched successfully inside the group system!");
+            } else {
+                alert("Alert: " + (data.message || "Failed to finalize invite"));
+            }
+        } catch (error) {
+            console.error("Fetch Exception:", error);
+            alert("Network connection error. Check terminal layout logs.");
+        }
+    }
+
+    function submitComment(id) {
+        const content = $('#content-' + id).val();
+        if (!content.trim()) return;
+
+        $.ajax({
+            type: 'POST',
+            url: '/worker/' + id + '/comment/',
+            data: { 'content': content, 'csrfmiddlewaretoken': '{{ csrf_token }}' },
+            success: function(res) {
+                const avatarHtml = res.photo_url 
+                    ? `<img src="${res.photo_url}" class="w-8 h-8 rounded-full object-cover flex-shrink-0">`
+                    : `<img src="https://ui-avatars.com/api/?name=${encodeURIComponent(res.user)}&background=e2e8f0&color=0a66c2&bold=true" class="w-8 h-8 rounded-full flex-shrink-0">`;
+
+                $('#comments-list-' + id).prepend(`
+                    <div class="flex items-start space-x-2 sm:space-x-3 p-2 rounded-lg bg-white shadow-sm border border-slate-100" id="comment-${res.comment_id}">
+                        ${avatarHtml}
+                        <div class="flex-grow min-w-0">
+                            <div class="bg-[#f2f2f2] p-2 rounded-r-xl rounded-bl-xl comment-bubble">
+                                <div class="flex justify-between items-center mb-0.5">
+                                    <span class="font-bold text-xs text-gray-800">${res.user}</span>
+                                    <button onclick="deleteComment('${res.comment_id}', '${id}')" class="text-gray-400 hover:text-red-500 transition p-0.5"><i class="fa-regular fa-trash-can text-[10px]"></i></button>
+                                </div>
+                                <p class="text-xs text-gray-700 break-words">${res.content}</p>
+                            </div>
+                            <div class="ml-1 mt-0.5 text-[9px] text-gray-400 font-bold uppercase">Just now</div>
+                        </div>
+                    </div>`);
+                $('#content-' + id).val("");
+                $('#comment-count-' + id).text('Comment (' + res.comment_count + ')');
+            }
+        });
+    }
+
+    function deleteComment(commentId, workerId) {
+        if(!confirm("Delete this comment permanently?")) return;
+        $.ajax({
+            type: 'POST',
+            url: '/comment/' + commentId + '/delete/',
+            data: { 'csrfmiddlewaretoken': '{{ csrf_token }}' },
+            success: function(res) {
+                if (res.status === 'success') {
+                    $('#comment-' + commentId).fadeOut(250, function() { $(this).remove(); });
+                    $('#comment-count-' + workerId).text('Comment (' + res.comment_count + ')');
+                }
+            }
+        });
+    }
+
+    function shareWorkerProfile(workerId, name) {
+        const profileUrl = window.location.origin + '/worker/' + workerId + '/';
+        if (navigator.share) {
+            navigator.share({ title: name, text: 'Check out this worker profile on WH Hub.', url: profileUrl });
+        } else {
+            navigator.clipboard.writeText(profileUrl).then(() => {
+                const toast = document.getElementById('share-toast');
+                toast.classList.remove('hidden');
+                toast.classList.remove('opacity-0', 'translate-y-20');
+                toast.classList.add('opacity-100', 'translate-y-0');
+                setTimeout(hideToast, 2500);
+            });
+        }
+    }
+
+    function hideToast() {
+        const toast = document.getElementById('share-toast');
+        toast.classList.add('opacity-0', 'translate-y-20');
+        setTimeout(() => toast.classList.add('hidden'), 300);
+    }
+
+    function runAiAnalysis() {
+        const modal = document.getElementById('aiModal');
+        const content = document.getElementById('aiContent');
+        modal.classList.remove('hidden');
+        content.innerHTML = '<div class="text-indigo-600 font-bold flex items-center gap-2 text-sm"><i class="fa-solid fa-spinner animate-spin"></i> Analyzing current available worker trends...</div>';
+        
+        setTimeout(() => {
+            content.innerHTML = `
+                <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                    <p class="text-xs font-bold text-indigo-900">📊 Market Pulse Recommendation</p>
+                    <p class="text-[12px] text-indigo-700 mt-1">Workers with <b>Logistics Specialist</b> tags are heavily targeted today. Try sorting out profiles with matching active statuses.</p>
+                </div>
+            `;
+        }, 1200);
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Job | FN Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Urbanist', sans-serif; background: #f3f2ef; color: #1d2226; min-height: 100vh; }
+        .linkedin-card { background: white; border: 1px solid #e0e0e0; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .step { display: none; }
+        .step.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        input, textarea {
+            background: white !important;
+            border: 1px solid #b2b2b2 !important;
+            color: #1d2226 !important;
+            width: 100%; padding: 12px; border-radius: 4px; margin-top: 8px;
+        }
+        input:focus { border: 2px solid #0a66c2 !important; outline: none; }
+        label { color: #5e5e5e; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+        
+        .guide-note { background: #eef3f8; border-left: 4px solid #0a66c2; padding: 12px; margin-top: 24px; border-radius: 2px; }
+        .btn-blue { background: #0a66c2; color: white; }
+        .btn-blue:hover { background: #004182; }
+    </style>
+</head>
+<body class="flex items-center justify-center p-6">
+
+    <div class="max-w-xl w-full linkedin-card p-10">
+        <div class="flex justify-between mb-10">
+            <div id="dot1" class="h-1.5 w-full bg-[#0a66c2] rounded-full mx-1 transition-all"></div>
+            <div id="dot2" class="h-1.5 w-full bg-gray-200 rounded-full mx-1 transition-all"></div>
+            <div id="dot3" class="h-1.5 w-full bg-gray-200 rounded-full mx-1 transition-all"></div>
+        </div>
+
+        <form id="jobPostForm" method="POST">
+            {% csrf_token %}
+
+            <div class="step active" id="step1">
+                <span class="text-blue-600 font-bold text-[10px] tracking-widest uppercase">Phase 01</span>
+                <h2 class="text-2xl font-bold mb-2 mt-1 text-gray-900">Company Info</h2>
+                
+                <div class="space-y-5 mt-8">
+                    <div><label>Organization Name</label>{{ form.company_name }}</div>
+                    <div><label>Target Role / Title</label>{{ form.job_title }}</div>
+                </div>
+
+                <div class="guide-note">
+                    <p class="text-[12px] text-gray-700 leading-relaxed">
+                        <strong>Tip:</strong> Using official names like "Zomato Logistics Hub" builds trust.
+                    </p>
+                </div>
+
+                <button type="button" onclick="nextStep(2)" class="w-full btn-blue font-bold py-3 rounded-full mt-10 transition">Continue to Logistics →</button>
+            </div>
+
+            <div class="step" id="step2">
+                <span class="text-blue-600 font-bold text-[10px] tracking-widest uppercase">Phase 02</span>
+                <h2 class="text-2xl font-bold mb-2 mt-1 text-gray-900">Logistics</h2>
+                
+                <div class="space-y-5 mt-8">
+                    <div><label>Monthly Salary (INR)</label>{{ form.salary }}</div>
+                    <div><label>Work Location</label>{{ form.location }}</div>
+                </div>
+
+                <div class="guide-note">
+                    <p class="text-[12px] text-gray-700 leading-relaxed">
+                        <strong>Note:</strong> Mentioning "Near Warehouse Zone" helps local workers.
+                    </p>
+                </div>
+
+                <div class="flex gap-4 mt-10">
+                    <button type="button" onclick="nextStep(1)" class="flex-1 border border-gray-400 text-gray-600 font-bold py-3 rounded-full">Back</button>
+                    <button type="button" onclick="nextStep(3)" class="flex-2 btn-blue font-bold py-3 px-10 rounded-full">Next Section →</button>
+                </div>
+            </div>
+
+            <div class="step" id="step3">
+                <span class="text-blue-600 font-bold text-[10px] tracking-widest uppercase">Phase 03</span>
+                <h2 class="text-2xl font-bold mb-2 mt-1 text-gray-900">Description</h2>
+                
+                <div class="mt-8">
+                    <label>Job Responsibilities</label>
+                    {{ form.description }}
+                </div>
+
+                <div class="guide-note">
+                    <p class="text-[12px] text-gray-700 leading-relaxed">
+                        <strong>Pro Tip:</strong> List key tasks like "Loading trucks, Barcode scanning."
+                    </p>
+                </div>
+
+                <div class="flex gap-4 mt-10">
+                    <button type="button" onclick="nextStep(2)" class="flex-1 border border-gray-400 text-gray-600 font-bold py-3 rounded-full">Back</button>
+                    <button type="submit" class="flex-2 btn-blue font-bold py-3 px-10 rounded-full">Publish Vacancy</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function nextStep(step) {
+            document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+            document.getElementById('step' + step).classList.add('active');
+            for(let i=1; i<=3; i++) {
+                const dot = document.getElementById('dot' + i);
+                if(i <= step) dot.className = 'h-1.5 w-full bg-[#0a66c2] rounded-full mx-1 transition-all';
+                else dot.className = 'h-1.5 w-full bg-gray-200 rounded-full mx-1 transition-all';
+            }
+        }
+    </script>
+</body>
+</html>

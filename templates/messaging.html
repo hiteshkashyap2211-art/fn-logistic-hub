@@ -1,0 +1,786 @@
+{% load static %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messaging | WH Logistic Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    
+    <style>
+        body { 
+            height: 100vh; 
+            margin: 0; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
+            background: #f3f2ef;
+        }
+        
+        .messaging-wrapper {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cfcfcf; border-radius: 10px; }
+        
+        /* Premium LinkedIn Micro-Tailored Message Bubbles */
+        .msg-bubble-me { 
+            background-color: #0a66c2 !important; 
+            color: white !important; 
+            border-radius: 18px 18px 4px 18px !important; 
+        }
+        .msg-bubble-them { 
+            background-color: #f3f2ef !important; 
+            color: #1d2226 !important; 
+            border-radius: 18px 18px 18px 4px !important; 
+        }
+        
+        .chat-contact-item:hover {
+            background-color: #f3f2ef !important;
+        }
+        .shadow-sm {
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Dynamic Engine Responsive States for Mobile viewports like LinkedIn App */
+        @media (max-width: 767px) {
+            .mobile-view-active .sidebar-panel-shield {
+                display: none !important;
+            }
+            .mobile-view-active .chat-pane-shield {
+                display: flex !important;
+                width: 100% !important;
+                grid-column: span 12 / span 12 !important;
+            }
+            .sidebar-panel-shield {
+                width: 100% !important;
+                grid-column: span 12 / span 12 !important;
+            }
+            .chat-pane-shield {
+                display: none;
+            }
+            .mobile-bottom-nav {
+                box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+            }
+        }
+    </style>
+</head>
+<body class="bg-[#f3f2ef]"> 
+    
+    <!-- 📱 Responsive Dual-Layer Navigation Grid -->
+    <nav class="bg-white border-b sticky top-0 z-50 flex-shrink-0">
+        <div class="max-w-6xl mx-auto px-3 sm:px-4 flex justify-between items-center h-14 gap-2">
+            
+            <!-- Brand Logo & Search System -->
+            <div class="flex items-center space-x-2 md:space-x-3 shrink-0 flex-1 md:flex-initial">
+                <div class="bg-orange-600 text-white font-black px-2.5 py-1 rounded text-base sm:text-lg italic tracking-tighter shrink-0 cursor-pointer">WH</div>
+                
+                <!-- 🖥️ Desktop Search -->
+                <div class="hidden md:flex items-center bg-[#edf3f8] px-3 py-1.5 rounded-md border border-transparent focus-within:bg-white focus-within:border-gray-500 transition-all w-72">
+                    <i class="fa-solid fa-magnifying-glass text-gray-600 text-sm mr-2"></i>
+                    <input type="text" placeholder="Search Farukhnagar Jobs..." class="bg-transparent border-none outline-none text-sm w-full text-gray-900 placeholder-gray-500 font-normal">
+                </div>
+
+                <!-- 📱 Mobile Search Bar -->
+                <div class="flex md:hidden flex-1 items-center bg-[#edf3f8] px-2.5 py-1.5 rounded border border-transparent focus-within:bg-white focus-within:border-gray-500 transition-all max-w-[220px]">
+                    <i class="fa-solid fa-magnifying-glass text-gray-500 text-xs mr-2"></i>
+                    <input type="text" placeholder="Search..." class="bg-transparent border-none outline-none text-xs w-full text-gray-900 placeholder-gray-500 font-normal">
+                </div>
+            </div>
+
+            <!-- 🖥️ Desktop Navigation Links Row -->
+            <div class="hidden md:flex items-center justify-end space-x-4 md:space-x-8 flex-1 py-1">
+                <a href="{% url 'community_hub' %}" class="flex flex-col items-center text-slate-500 hover:text-indigo-600 transition shrink-0">
+                    <i class="fa-solid fa-comments text-xl"></i>
+                    <span class="text-[10px] font-bold mt-1">Hub</span>
+                </a>
+                
+                <a href="{% url 'home' %}" class="flex flex-col items-center group text-gray-500 hover:text-black transition-all shrink-0">
+                    <i class="fa-solid fa-house text-xl"></i>
+                    <span class="text-[10px] font-bold mt-1">Home</span>
+                </a>
+
+                {% if request.user.role == 'vendor' %}
+                <a href="{% url 'find_worker' %}" class="flex flex-col items-center group text-gray-500 hover:text-black transition-all shrink-0">
+                    <i class="fa-solid fa-user-group text-xl"></i>
+                    <span class="text-[10px] font-bold mt-1">Find Workers</span>
+                </a>
+                {% endif %}
+
+                <a href="{% url 'job_list' %}" class="flex flex-col items-center group text-gray-500 hover:text-black transition-all shrink-0">
+                    <i class="fa-solid fa-briefcase text-xl"></i>
+                    <span class="text-[10px] font-bold mt-1">Jobs</span>
+                </a>
+
+                <a href="{% url 'messaging' %}" class="flex flex-col items-center group text-gray-500 hover:text-black relative transition-all shrink-0">
+                    <div class="relative">
+                        <i class="fa-solid fa-comment-dots text-xl"></i>
+                        {% if msg_count > 0 %}
+                        <span class="absolute -top-1.5 -right-2 bg-red-600 text-white text-[8px] px-1 rounded-full border border-white font-bold">{{ msg_count }}</span>
+                        {% endif %}
+                    </div>
+                    <span class="text-[10px] font-bold mt-1">Messaging</span>
+                </a>
+
+                <a href="{% url 'notifications' %}" class="flex flex-col items-center group text-gray-500 hover:text-black relative transition-all shrink-0">
+                    <div class="relative">
+                        <i class="fa-solid fa-bell text-xl"></i>
+                        {% if notif_count > 0 %}
+                        <span class="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[8px] px-1 rounded-full border border-white font-bold">{{ notif_count }}</span>
+                        {% endif %}
+                    </div>
+                    <span class="text-[10px] font-bold mt-1">Notifications</span>
+                </a>
+
+                <!-- Desktop Me Dropdown Avatar -->
+                <div class="relative flex items-center shrink-0 desktopMeContainer">
+                    <div class="flex flex-col items-center">
+                        <a href="{% if request.user.role == 'vendor' %}{% url 'vendor_dashboard' %}{% else %}{% url 'worker_dashboard' %}{% endif %}" class="w-6 h-6 rounded-full overflow-hidden border border-gray-200 hover:border-black transition-all">
+                            {% if request.user.role == 'vendor' and request.user.vendor_profile.company_logo %}
+                                <img src="{{ request.user.vendor_profile.company_logo.url }}" class="w-full h-full object-cover">
+                            {% elif user_profile and user_profile.company_logo %}
+                                <img src="{{ user_profile.company_logo.url }}" class="w-full h-full object-cover">
+                            {% elif request.user.worker_profile and request.user.worker_profile.photo %}
+                                <img src="{{ request.user.worker_profile.photo.url }}" class="w-full h-full object-cover">
+                            {% elif user_profile and user_profile.photo %}
+                                <img src="{{ user_profile.photo.url }}" class="w-full h-full object-cover">
+                            {% else %}
+                                <img src="https://ui-avatars.com/api/?name={{ request.user.get_full_name|default:request.user.username }}&background=0a66c2&color=fff" class="w-full h-full object-cover">
+                            {% endif %}
+                        </a>
+                        <button onclick="toggleMeMenu(event, 'meMenu')" class="flex items-center gap-0.5 mt-0.5 group focus:outline-none cursor-pointer bg-transparent border-none p-0">
+                            <span class="text-[11px] text-gray-500 font-medium group-hover:text-black">Me</span>
+                            <i class="fa-solid fa-caret-down text-[9px] text-gray-500 group-hover:text-black"></i>
+                        </button>
+                    </div>
+
+                    <!-- Dropdown Panel -->
+                    <div id="meMenu" class="hidden absolute right-0 mt-2 top-12 w-[280px] bg-white rounded-lg shadow-xl border border-[#e0e0e0] z-[100] overflow-hidden text-left animate-fade-in">
+                        <div class="p-3 flex gap-3 border-b border-[#f3f2ef]">
+                            <div class="w-12 h-12 rounded-full overflow-hidden shrink-0 border border-gray-200">
+                                {% if request.user.role == 'vendor' and request.user.vendor_profile.company_logo %}
+                                    <img src="{{ request.user.vendor_profile.company_logo.url }}" class="w-full h-full object-cover">
+                                {% elif user_profile and user_profile.company_logo %}
+                                    <img src="{{ user_profile.company_logo.url }}" class="w-full h-full object-cover">
+                                {% elif request.user.worker_profile and request.user.worker_profile.photo %}
+                                    <img src="{{ request.user.worker_profile.photo.url }}" class="w-full h-full object-cover">
+                                {% elif user_profile and user_profile.photo %}
+                                    <img src="{{ user_profile.photo.url }}" class="w-full h-full object-cover">
+                                {% else %}
+                                    <img src="https://ui-avatars.com/api/?name={{ request.user.get_full_name|default:request.user.username }}&background=0a66c2&color=fff&bold=true" class="w-full h-full object-cover">
+                                {% endif %}
+                            </div>
+                            <div class="flex flex-col justify-center overflow-hidden flex-1">
+                                <p class="font-semibold text-[14px] text-gray-900 leading-tight truncate">
+                                    {% if request.user.role == 'vendor' %}
+                                        {{ request.user.vendor_profile.company_name|default:request.user.username }}
+                                    {% else %}
+                                        {{ request.user.worker_profile.full_name|default:request.user.username }}
+                                    {% endif %}
+                                </p>
+                                <p class="text-[12px] text-gray-600 mt-0.5 truncate font-normal">
+                                    {% if request.user.role == 'vendor' %}Logistics Vendor{% else %}{{ request.user.worker_profile.work_category|default:"Logistics" }} Specialist{% endif %} at WH Hub
+                                </p>
+                            </div>
+                        </div>
+                        <div class="p-2 border-b border-[#f3f2ef]">
+                            {% if request.user.role == 'vendor' %}
+                                <a href="{% url 'vendor_dashboard' %}" class="block w-full text-center py-1 border border-[#0a66c2] text-[#0a66c2] font-semibold rounded-full text-[14px] hover:bg-blue-50 transition-all mb-1.5">Manage Dashboard</a>
+                                <a href="{% url 'create_profile' %}" class="block w-full text-center py-1 border border-orange-600 text-orange-600 font-semibold rounded-full text-[14px] hover:bg-orange-50 transition-all">Edit Company Profile</a>
+                            {% else %}
+                                <a href="{% url 'worker_detail' request.user.worker_profile.pk|default:request.user.id %}" class="block w-full text-center py-1 border border-[#0a66c2] text-[#0a66c2] font-semibold rounded-full text-[14px] hover:bg-blue-50 transition-all mb-1.5">View Profile</a>
+                                <a href="{% url 'create_profile' %}" class="block w-full text-center py-1 border border-orange-600 text-orange-600 font-semibold rounded-full text-[14px] hover:bg-orange-50 transition-all">Edit Resume Info</a>
+                            {% endif %}
+                        </div>
+                        <div class="py-1 border-b border-[#f3f2ef]">
+                            <p class="px-3 pt-1 text-[13px] font-semibold text-gray-900">Account</p>
+                            <a href="#" class="block px-3 py-1 text-[12px] text-orange-600 font-semibold hover:underline"> Try Premium for Free</a>
+                            <a href="{% if request.user.role == 'vendor' %}{% url 'vendor_dashboard' %}{% else %}{% url 'worker_dashboard' %}{% endif %}" class="block px-3 py-1 text-[12px] text-gray-500 hover:bg-gray-100 transition-colors">Settings & Privacy</a>
+                        </div>
+                        <div class="p-1 bg-white">
+                            <form action="{% url 'logout' %}" method="post" class="m-0 p-0">
+                                {% csrf_token %}
+                                <button type="submit" class="block w-full text-left px-3 py-1.5 text-[12px] text-gray-500 hover:bg-gray-100 font-normal transition-colors border-0 bg-transparent cursor-pointer outline-none">Sign Out</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 📱 Mobile Layout Avatar Layer -->
+            <div class="flex md:hidden items-center space-x-2 shrink-0 relative mobileMeContainer">
+                <button onclick="toggleMeMenu(event, 'meMenuMobile')" class="w-7 h-7 rounded-full overflow-hidden border border-gray-300 focus:outline-none">
+                    {% if request.user.role == 'vendor' and request.user.vendor_profile.company_logo %}
+                        <img src="{{ request.user.vendor_profile.company_logo.url }}" class="w-full h-full object-cover">
+                    {% elif user_profile and user_profile.company_logo %}
+                        <img src="{{ user_profile.company_logo.url }}" class="w-full h-full object-cover">
+                    {% elif request.user.worker_profile and request.user.worker_profile.photo %}
+                        <img src="{{ request.user.worker_profile.photo.url }}" class="w-full h-full object-cover">
+                    {% elif user_profile and user_profile.photo %}
+                        <img src="{{ user_profile.photo.url }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <img src="https://ui-avatars.com/api/?name={{ request.user.get_full_name|default:request.user.username }}&background=0a66c2&color=fff" class="w-full h-full object-cover">
+                    {% endif %}
+                </button>
+
+                <!-- Mobile Dropdown Portal Menu -->
+                <div id="meMenuMobile" class="hidden absolute right-0 mt-2 top-10 w-[260px] bg-white rounded-lg shadow-xl border border-[#e0e0e0] z-[100] text-left overflow-hidden animate-fade-in">
+                    <div class="p-3 flex gap-2 border-b border-[#f3f2ef] bg-gray-50">
+                        <div class="flex flex-col justify-center overflow-hidden flex-1">
+                            <p class="font-bold text-xs text-gray-900 leading-tight truncate">
+                                {% if request.user.role == 'vendor' %}
+                                    {{ request.user.vendor_profile.company_name|default:request.user.username }}
+                                {% else %}
+                                    {{ request.user.worker_profile.full_name|default:request.user.username }}
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="p-2 border-b border-[#f3f2ef] flex flex-col gap-1">
+                        {% if request.user.role == 'vendor' %}
+                            <a href="{% url 'vendor_dashboard' %}" class="block text-center w-full py-1 text-xs border border-[#0a66c2] text-[#0a66c2] font-bold rounded-full hover:bg-blue-50">Dashboard</a>
+                        {% else %}
+                            <a href="{% url 'worker_detail' request.user.worker_profile.pk|default:request.user.id %}" class="block text-center w-full py-1 text-xs border border-[#0a66c2] text-[#0a66c2] font-bold rounded-full hover:bg-blue-50">View Profile</a>
+                        {% endif %}
+                    </div>
+                    <div class="p-1 bg-white">
+                        <form action="{% url 'logout' %}" method="post" class="m-0 p-0">
+                            {% csrf_token %}
+                            <button type="submit" class="block w-full text-left px-3 py-1.5 text-xs text-gray-500 hover:bg-gray-100 border-0 bg-transparent cursor-pointer">Sign Out</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 💬 WhatsApp/LinkedIn Style Mobile Sub-Nav Bar -->
+        <div class="block md:hidden bg-white border-b overflow-x-auto no-scrollbar whitespace-nowrap px-3 py-2">
+            <div class="flex items-center space-x-2 text-xs">
+                <button onclick="location.href='#'" class="bg-indigo-50 text-indigo-700 font-bold px-3 py-1.5 rounded-full border border-indigo-200 flex items-center gap-1.5 shrink-0 active:scale-95 transition-all">
+                    <i class="fa-solid fa-circle-plus text-sm"></i>
+                    <span>Create Group</span>
+                </button>
+                <div class="h-4 w-[1px] bg-gray-300 shrink-0"></div>
+                
+                <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
+                    <i class="fa-solid fa-user-group text-orange-600"></i>
+                    <span>Dishu Group PVT</span>
+                </a>
+                <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
+                    <i class="fa-solid fa-warehouse text-blue-600"></i>
+                    <span>Logistics Hub</span>
+                </a>
+                
+                {% for group in vendor_groups %}
+                    {% if group.name != "Dishu Group PVT" and group.name != "Logistics Hub" %}
+                    <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
+                        <i class="fa-solid fa-user-group text-slate-500"></i>
+                        <span>{{ group.name }}</span>
+                    </a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Full Height Layout Shield Matrix -->
+    <div class="messaging-wrapper max-w-6xl mx-auto w-full md:pt-4 md:pb-4 pb-14">
+        <div id="coreLayoutMatrix" class="grid grid-cols-12 bg-white md:border md:border-gray-300 md:rounded-lg shadow-sm overflow-hidden w-full h-full {% if active_user %}mobile-view-active{% endif %}">
+            
+            <!-- Sidebar Contacts List Panel -->
+            <div class="sidebar-panel-shield col-span-12 md:col-span-4 border-r border-gray-200 bg-white flex flex-col h-full overflow-hidden">
+                <div class="p-4 border-b font-bold text-slate-800 flex justify-between items-center bg-white sticky top-0 z-10 flex-shrink-0">
+                    <span class="text-lg">Messaging</span>
+                    <i class="fa-solid fa-ellipsis text-gray-500 cursor-pointer"></i>
+                </div>
+                
+                <div class="px-4 py-2 border-b bg-white flex-shrink-0">
+                    <div class="flex items-center bg-[#edf3f8] px-3 py-1.5 rounded border border-transparent focus-within:border-blue-600 focus-within:bg-white transition-all">
+                        <i class="fa-solid fa-magnifying-glass text-gray-500 text-xs mr-2"></i>
+                        <input type="text" placeholder="Search messages" class="bg-transparent border-none outline-none text-xs w-full">
+                    </div>
+                </div>
+
+                <div class="overflow-y-auto flex-1 custom-scrollbar">
+                    {% for contact in contacts %}
+                    <a href="{% url 'messaging' %}?user={{ contact.username }}" 
+                    class="p-4 flex gap-3 hover:bg-gray-50 cursor-pointer border-b transition relative {% if contact == active_user %} bg-gray-50 border-l-4 border-blue-600 {% endif %}">
+                        
+                        <div class="relative flex-shrink-0">
+                            {% if contact.role == 'vendor' and contact.vendor_profile.company_logo %}
+                                <img src="{{ contact.vendor_profile.company_logo.url }}" class="w-12 h-12 rounded-full border border-gray-100 object-cover">
+                            {% elif contact.role == 'worker' and contact.worker_profile.photo %}
+                                <img src="{{ contact.worker_profile.photo.url }}" class="w-12 h-12 rounded-full border border-gray-100 object-cover">
+                            {% else %}
+                                <img src="https://ui-avatars.com/api/?name={{ contact.username }}&background=0a66c2&color=fff" class="w-12 h-12 rounded-full border border-gray-100 object-cover">
+                            {% endif %}
+                            
+                            {% if contact|is_online %}
+                                <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full" title="Online"></div>
+                            {% else %}
+                                <div class="absolute bottom-0 right-0 w-3 h-3 bg-gray-400 border-2 border-white rounded-full" title="Offline"></div>
+                            {% endif %}
+                        </div>
+
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-sm text-slate-800 truncate pr-2">
+                                    {% if contact.role == 'worker' %}
+                                        {{ contact.worker_profile.full_name|default:contact.username|title }}
+                                    {% elif contact.role == 'vendor' %}
+                                        {{ contact.vendor_profile.company_name|default:contact.username|title }}
+                                    {% else %}
+                                        {{ contact.username|title }}
+                                    {% endif %}
+                                </span>
+                                <span class="text-[10px] text-gray-400 flex-shrink-0">
+                                    {{ contact.last_msg_time|date:"d M"|default:"" }}
+                                </span>
+                            </div>
+                            <p class="text-xs text-gray-500 truncate mt-0.5">
+                                {{ contact.last_msg_content|default:"Start a conversation" }}
+                            </p>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Chat Thread Content Monitor Shield -->
+            <div class="chat-pane-shield col-span-12 md:col-span-8 flex flex-col bg-white h-full overflow-hidden">
+                {% if active_user %}
+                    <div class="p-3 border-b flex items-center justify-between bg-white z-10 flex-shrink-0">
+                        <div class="flex items-center gap-3 px-2 min-w-0">
+                            <button onclick="exitChatView(event)" class="md:hidden mr-1 text-gray-600 hover:text-black focus:outline-none p-1">
+                                <i class="fa-solid fa-arrow-left text-lg"></i>
+                            </button>
+
+                            {% if active_user.role == 'vendor' and active_user.vendor_profile.company_logo %}
+                                <img src="{{ active_user.vendor_profile.company_logo.url }}" class="w-8 h-8 rounded-full shadow-sm object-cover flex-shrink-0">
+                            {% elif active_user.role == 'worker' and active_user.worker_profile.photo %}
+                                <img src="{{ active_user.worker_profile.photo.url }}" class="w-8 h-8 rounded-full shadow-sm object-cover flex-shrink-0">
+                            {% else %}
+                                <img src="https://ui-avatars.com/api/?name={{ active_user.username }}&background=0a66c2&color=fff" class="w-8 h-8 rounded-full shadow-sm flex-shrink-0">
+                            {% endif %}
+                            
+                            <div class="min-w-0">
+                                <h3 class="font-bold text-sm text-slate-800 leading-tight truncate">
+                                    {% if active_user.role == 'vendor' %}
+                                        {{ active_user.vendor_profile.company_name|default:active_user.username|title }}
+                                    {% elif active_user.role == 'worker' %}
+                                        {{ active_user.worker_profile.full_name|default:active_user.username|title }}
+                                    {% else %}
+                                        {{ active_user.username|title }}
+                                    {% endif %}
+                                </h3>
+                                <p class="text-[10px] text-green-600 font-bold">Active Now</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 px-4 text-gray-500 flex-shrink-0">
+                            <i class="fa-solid fa-video cursor-pointer hover:text-black"></i>
+                            <i class="fa-solid fa-circle-info cursor-pointer hover:text-black"></i>
+                        </div>
+                    </div>
+
+                    <!-- Threads Stream Container -->
+                    <div class="flex-1 overflow-y-auto p-4 space-y-4 bg-white custom-scrollbar" id="messageContainer">
+                        <div id="loadMoreTrigger" class="text-center py-2">
+                            <button onclick="loadMoreMessages()" class="text-xs text-blue-600 font-bold hover:underline">
+                                Load older messages
+                            </button>
+                        </div>
+                        <div class="text-center my-4"><span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-gray-50 px-2 py-1 rounded">Today</span></div>
+                        
+                        {% for msg in chat_messages %}
+                            <div id="message-{{ msg.id }}" class="flex flex-col {% if msg.sender == request.user %} items-end {% else %} items-start {% endif %} group relative mb-2">
+                                <div class="flex items-start gap-2 {% if msg.sender == request.user %} flex-row-reverse {% endif %} max-w-[85%]">
+                                    
+                                    <div class="flex flex-col {% if msg.sender == request.user %} items-end {% else %} items-start {% endif %}">
+                                        <div class="p-3 text-sm shadow-sm transition-all {% if msg.sender == request.user %} msg-bubble-me {% else %} msg-bubble-them {% endif %}">
+                                            
+                                            {% if msg.image %}
+                                                <img src="{{ msg.image.url }}" class="rounded-lg mb-2 max-h-60 border border-black/10 max-w-full object-contain">
+                                            {% endif %}
+
+                                            {% if msg.content %}<p class="break-words text-left">{{ msg.content }}</p>{% endif %}
+
+                                            {% if msg.document %}
+                                                <div class="mt-2 flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg w-full max-w-[280px] hover:border-blue-400 transition-all shadow-sm">
+                                                    <div class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded text-red-600 shrink-0">
+                                                        <i class="fa-solid fa-file-pdf text-xl"></i>
+                                                    </div>
+                                                    
+                                                    <div class="flex-1 min-w-0">
+                                                        <p class="text-sm font-semibold text-gray-900 truncate" title="{{ msg.document.name|cut:'chat_docs/' }}">
+                                                            {{ msg.document.name|cut:"chat_docs/" }}
+                                                        </p>
+                                                        <p class="text-[11px] text-gray-500 font-medium uppercase">PDF Document</p>
+                                                    </div>
+
+                                                    <a href="{{ msg.document.url }}" target="_blank" 
+                                                    class="text-gray-500 hover:text-blue-700 p-2 hover:bg-blue-50 rounded-full transition-all shrink-0">
+                                                        <i class="fa-solid fa-download text-lg"></i>
+                                                    </a>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <span class="text-[9px] text-gray-400 mt-1 font-bold">
+                                            {{ msg.timestamp|time:"H:i" }}
+                                        </span>
+                                    </div>
+
+                                    {% if msg.sender == request.user %}
+                                        <button type="button" 
+                                                onclick="deleteMessage('{{ msg.id }}')" 
+                                                class="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-600 transition-all duration-200 cursor-pointer z-50 ml-2 self-center">
+                                            <i class="fa-solid fa-trash-can text-[10px]"></i>
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Footer Chat Input Layer Controls -->
+                    <div class="p-3 md:p-4 border-t bg-white flex-shrink-0">
+                        <form id="chatForm" action="{% url 'send_message' %}" method="POST" enctype="multipart/form-data" 
+                              class="flex flex-col bg-[#f4f2ee] rounded-xl border border-gray-200 focus-within:border-gray-400 transition-all">
+                            {% csrf_token %}
+                            <input type="hidden" name="receiver_id" id="receiverIdHidden" value="{{ active_user.id }}">
+                            
+                            <div id="previewContainer" class="hidden p-2 bg-white border-b flex items-center justify-between mx-2 mt-2 rounded">
+                                <img id="imagePreview" src="#" class="hidden w-12 h-12 rounded object-cover border">
+                                <div id="fileInfo" class="hidden text-xs font-bold text-blue-700">📎 <span id="fileName"></span></div>
+                                <button type="button" onclick="clearAttachments()" class="text-red-500"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+
+                            <textarea name="content" placeholder="Write a message..." class="w-full p-3 text-sm outline-none resize-none bg-transparent" rows="2"></textarea>
+                            
+                            <div class="flex justify-between items-center p-2.5 border-t border-gray-200">
+                                <div class="flex gap-5 text-gray-500 px-1">
+                                    <i class="fa-regular fa-image cursor-pointer hover:text-blue-600 text-lg" onclick="document.getElementById('imageInput').click()"></i>
+                                    <i class="fa-solid fa-paperclip cursor-pointer hover:text-blue-600 text-lg" onclick="document.getElementById('fileInput').click()"></i>
+                                    <input type="file" name="image" id="imageInput" class="hidden" onchange="previewFile(this, 'image')">
+                                    <input type="file" name="document" id="fileInput" class="hidden" onchange="previewFile(this, 'file')">
+                                </div>
+                                <button type="submit" class="bg-[#0a66c2] text-white px-5 py-1.5 rounded-full font-bold text-xs hover:bg-[#004182] transition-all">Send</button>
+                            </div>
+                        </form>
+                    </div>
+                {% else %}
+                    <div class="flex-1 flex flex-col items-center justify-center text-center p-10 bg-[#f4f2ee]">
+                        <div class="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mb-4">
+                            <i class="fa-solid fa-comment-dots text-4xl text-gray-400"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-700">Select a conversation</h3>
+                        <p class="text-gray-500 text-sm mt-1">Pick a contact to start messaging with vendors.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 📱 Sticky Mobile Bottom Bar Layer Panel -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 h-14 mobile-bottom-nav">
+        <div class="grid grid-cols-5 h-full max-w-xl mx-auto items-center justify-center text-center">
+            <a href="{% url 'home' %}" class="flex flex-col items-center justify-center group text-gray-500 hover:text-[#0a66c2] transition-colors">
+                <i class="fa-solid fa-house text-lg"></i>
+                <span class="text-[9px] font-medium mt-0.5">Home</span>
+            </a>
+            {% if request.user.role == 'vendor' %}
+            <a href="{% url 'find_worker' %}" class="flex flex-col items-center justify-center group text-gray-500 hover:text-[#0a66c2] transition-colors">
+                <i class="fa-solid fa-user-group text-lg"></i>
+                <span class="text-[9px] font-medium mt-0.5">Workers</span>
+            </a>
+            {% else %}
+            <a href="{% url 'community_hub' %}" class="flex flex-col items-center justify-center group text-gray-500 hover:text-[#0a66c2] transition-colors">
+                <i class="fa-solid fa-comments text-lg"></i>
+                <span class="text-[9px] font-medium mt-0.5">Hub</span>
+            </a>
+            {% endif %}
+            <a href="{% url 'job_list' %}" class="flex flex-col items-center justify-center group text-gray-500 hover:text-[#0a66c2] transition-colors">
+                <i class="fa-solid fa-briefcase text-lg"></i>
+                <span class="text-[9px] font-medium mt-0.5">Jobs</span>
+            </a>
+            <a href="{% url 'messaging' %}" class="flex flex-col items-center justify-center group text-[#0a66c2] relative transition-colors">
+                <div class="relative">
+                    <i class="fa-solid fa-comment-dots text-lg"></i>
+                    {% if msg_count > 0 %}
+                    <span class="absolute -top-1.5 -right-2 bg-red-600 text-white text-[7px] px-1 rounded-full font-bold">{{ msg_count }}</span>
+                    {% endif %}
+                </div>
+                <span class="text-[9px] font-medium mt-0.5">Messaging</span>
+            </a>
+            <a href="{% url 'notifications' %}" class="flex flex-col items-center justify-center group text-gray-500 hover:text-[#0a66c2] relative transition-colors">
+                <div class="relative">
+                    <i class="fa-solid fa-bell text-lg"></i>
+                    {% if notif_count > 0 %}
+                    <span class="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[7px] px-1 rounded-full font-bold">{{ notif_count }}</span>
+                    {% endif %}
+                </div>
+                <span class="text-[9px] font-medium mt-0.5">Notif</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Lightbox Modals Shield -->
+    <div id="fileModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black bg-opacity-70" onclick="closeModal()">
+        <div class="relative max-w-4xl w-full p-4" onclick="event.stopPropagation()">
+            <button onclick="closeModal()" class="absolute -top-10 right-0 text-white text-3xl">&times;</button>
+            <div id="modalContent" class="bg-white p-2 rounded-lg shadow-2xl"></div>
+        </div>
+    </div>
+
+    <!-- Script Automation Layer Framework -->
+    <script>
+        function exitChatView(event) {
+            if(event) event.preventDefault();
+            document.getElementById('coreLayoutMatrix').classList.remove('mobile-view-active');
+            const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            window.location.href = cleanUrl; 
+        }
+
+        function openModal(url, type) {
+            const modal = document.getElementById('fileModal');
+            const modalContent = document.getElementById('modalContent');
+            modal.classList.remove('hidden');
+            if (type === 'image') {
+                modalContent.innerHTML = `<img src="${url}" class="w-full h-auto max-h-[80vh] object-contain">`;
+            } else {
+                modalContent.innerHTML = `<iframe src="${url}" class="w-full h-[80vh]">`;
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('fileModal').classList.add('hidden');
+        }
+
+        const container = document.getElementById('messageContainer');
+        function scrollToBottom() { if (container) { container.scrollTop = container.scrollHeight; } }
+        window.onload = scrollToBottom;
+        
+        function toggleMeMenu(event, menuId) {
+            if (event) event.stopPropagation();
+            const targetMenu = document.getElementById(menuId);
+            const isAlreadyOpen = !targetMenu.classList.contains('hidden');
+            
+            document.getElementById('meMenu').classList.add('hidden');
+            document.getElementById('meMenuMobile').classList.add('hidden');
+            
+            if (!isAlreadyOpen) {
+                targetMenu.classList.remove('hidden');
+            }
+        }
+
+        window.onclick = function(e) {
+            if (!e.target.closest('.desktopMeContainer') && !e.target.closest('.mobileMeContainer')) {
+                const meMenu = document.getElementById('meMenu');
+                const meMenuMobile = document.getElementById('meMenuMobile');
+                if(meMenu) meMenu.classList.add('hidden');
+                if(meMenuMobile) meMenuMobile.classList.add('hidden');
+            }
+        }
+
+        document.querySelector('input[placeholder="Search messages"]')?.addEventListener('keyup', function() {
+            let searchTerm = this.value.toLowerCase();
+            document.querySelectorAll('.sidebar-panel-shield a').forEach(item => {
+                let name = item.querySelector('.font-bold').innerText.toLowerCase();
+                item.style.display = name.includes(searchTerm) ? 'flex' : 'none';
+            });
+        });
+
+        document.getElementById('chatForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            let formData = new FormData(this);
+            let messageContainer = document.getElementById('messageContainer');
+
+            fetch("{% url 'send_message' %}", {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    lastMessageId = data.id; 
+                    let docHtml = "";
+                    
+                    if (data.doc_url) {
+                        docHtml = `
+                            <div class="mt-2 flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg w-full max-w-[280px] shadow-sm">
+                                <div class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded text-red-600 shrink-0">
+                                    <i class="fa-solid fa-file-pdf text-xl"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-semibold text-gray-900 truncate">${data.doc_name || 'Document'}</p>
+                                    <p class="text-[11px] text-gray-500 font-medium">PDF Document</p>
+                                </div>
+                                <a href="${data.doc_url}" target="_blank" class="text-gray-500 hover:text-blue-700 p-2 rounded-full shrink-0">
+                                    <i class="fa-solid fa-download text-lg"></i>
+                                </a>
+                            </div>`;
+                    }
+                    
+                    let imgHtml = data.img_url ? `<img src="${data.img_url}" class="rounded-lg mb-2 max-h-60 border border-black/10 max-w-full object-contain">` : "";
+                    
+                    let newMessage = `
+                        <div id="message-${data.id}" class="flex flex-col items-end group relative mb-2 animate-fade-in">
+                            <div class="flex items-start gap-2 flex-row-reverse max-w-[85%]">
+                                <div class="flex flex-col items-end">
+                                    <div class="p-3 text-sm shadow-sm msg-bubble-me">
+                                        ${imgHtml}
+                                        ${data.content ? `<p class="break-words text-left">${data.content}</p>` : ""}
+                                        ${docHtml}
+                                    </div>
+                                    <span class="text-[9px] text-gray-400 mt-1 font-bold">${data.timestamp}</span>
+                                </div>
+                            </div>
+                        </div>`;
+                    
+                    messageContainer.insertAdjacentHTML('beforeend', newMessage);
+                    document.querySelector('textarea[name="content"]').value = ""; 
+                    clearAttachments(); 
+                    scrollToBottom(); 
+                }
+            })
+            .catch(err => console.error("Error:", err));
+        });
+
+        let lastMessageId = "{{ chat_messages.last.id|default:'0' }}";
+
+        setInterval(function() {
+            if(!document.getElementById('coreLayoutMatrix').classList.contains('mobile-view-active') && window.innerWidth < 768) {
+                return; 
+            }
+            
+            let receiverId = "{{ active_user.id }}";
+            if (!receiverId || receiverId === "None" || receiverId === "") return;
+
+            fetch(`/get-new-messages/${receiverId}/?last_msg_id=${lastMessageId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.messages && data.messages.length > 0) {
+                    data.messages.forEach(msg => {
+                        let newMessage = `
+                            <div id="message-${msg.id}" class="flex flex-col items-start mb-2 group animate-fade-in">
+                                <div class="p-3 text-sm msg-bubble-them shadow-sm">
+                                    ${msg.content}
+                                </div>
+                                <span class="text-[9px] text-gray-400 mt-1 font-bold">
+                                    ${msg.timestamp}
+                                </span>
+                            </div>`;
+                        
+                        document.getElementById('messageContainer').insertAdjacentHTML('beforeend', newMessage);
+                        lastMessageId = msg.id;
+                    });
+                    scrollToBottom();
+                }
+            });
+        }, 3000);
+
+        function clearAttachments() {
+            document.getElementById('imageInput').value = "";
+            document.getElementById('fileInput').value = "";
+            document.getElementById('previewContainer').classList.add('hidden');
+            document.getElementById('imagePreview').classList.add('hidden');
+            document.getElementById('fileInfo').classList.add('hidden');
+        }
+        
+        function previewFile(input, type) {
+            const file = input.files[0];
+            const previewContainer = document.getElementById('previewContainer');
+            const imagePreview = document.getElementById('imagePreview');
+            const fileInfo = document.getElementById('fileInfo');
+            const fileName = document.getElementById('fileName');
+
+            if (file) {
+                previewContainer.classList.remove('hidden');
+                if (type === 'image') {
+                    imagePreview.src = URL.createObjectURL(file);
+                    imagePreview.classList.remove('hidden');
+                    fileInfo.classList.add('hidden');
+                } else {
+                    imagePreview.classList.add('hidden');
+                    fileInfo.classList.remove('hidden');
+                    fileName.innerText = file.name;
+                }
+            }
+        }
+        
+        function deleteMessage(messageId) {
+            if (!confirm('Are you sure you want to delete this message?')) return;
+
+            fetch(`/delete-message/${messageId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    const msgElement = document.getElementById(`message-${messageId}`);
+                    if (msgElement) {
+                        msgElement.style.transition = "all 0.3s ease";
+                        msgElement.style.transform = "scale(0.95)";
+                        msgElement.style.opacity = "0";
+                        setTimeout(() => msgElement.remove(), 300);
+                    }
+                } else {
+                    alert('You are not authorized to delete this message.');
+                }
+            })
+            .catch(err => {
+                console.error("Error:", err);
+            });
+        }
+        
+        let offset = 20; 
+
+        function loadMoreMessages() {
+            let receiverId = "{{ active_user.id }}";
+            let container = document.getElementById('messageContainer');
+            let previousScrollHeight = container.scrollHeight; 
+
+            fetch(`/load-more-messages/${receiverId}/?offset=${offset}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.messages && data.messages.length > 0) {
+                    data.messages.forEach(msg => {
+                        let msgHtml = `
+                            <div class="flex flex-col ${msg.is_me ? 'items-end' : 'items-start'} mb-2">
+                                <div class="p-3 text-sm ${msg.is_me ? 'msg-bubble-me' : 'msg-bubble-them'} shadow-sm">
+                                    ${msg.content}
+                                </div>
+                            </div>`;
+                        container.insertAdjacentHTML('afterbegin', msgHtml);
+                    });
+                    container.scrollTop = container.scrollHeight - previousScrollHeight;
+                    offset += 20;
+                } else {
+                    document.getElementById('loadMoreTrigger').innerHTML = '<span class="text-[10px] text-gray-400">No more messages</span>';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

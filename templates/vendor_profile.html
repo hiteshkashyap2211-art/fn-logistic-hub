@@ -1,0 +1,504 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ vendor.company_name }} | Professional Profile{% endblock %}</title>
+    
+    <!-- External Frameworks & Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <style>
+        body { 
+            font-family: 'Urbanist', -apple-system, sans-serif; 
+            background: #f3f2ef; 
+            color: #1d2226; 
+            -webkit-font-smoothing: antialiased; 
+        }
+
+        .btn-linkedin-primary { background-color: #0a66c2; color: white; border-radius: 1600px; }
+        .btn-linkedin-primary:hover { background-color: #004182; }
+
+        /* Custom Card Enhancements */
+        .vendor-card {
+            background: white;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        /* Scrollbar Logic */
+        .custom-scrollbar {
+            scrollbar-width: thin; 
+            scrollbar-color: #cfcfcf transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cfcfcf; 
+            border-radius: 10px;
+        }
+
+        /* Animations */
+        .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .animate-scale-in { animation: scaleIn 0.15s cubic-bezier(0, 0, 0.2, 1); transform-origin: top right; }
+        @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        @media (max-width: 767px) {
+            .mobile-bottom-nav { box-shadow: 0 -2px 10px rgba(0,0,0,0.08); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 📱 Responsive Dual-Layer Navigation Grid -->
+    <nav class="bg-white border-b sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-3 sm:px-4 flex justify-between items-center h-14 gap-2">
+            
+            <!-- Brand Logo & LinkedIn-Style Search System -->
+            <div class="flex items-center space-x-2 md:space-x-3 shrink-0 flex-1 md:flex-initial">
+                <div class="bg-orange-600 text-white font-black px-2.5 py-1 rounded text-base sm:text-lg italic tracking-tighter shrink-0 cursor-pointer">WH</div>
+                
+                <!-- 🖥️ Desktop Search -->
+                <div class="hidden md:flex items-center bg-[#edf3f8] px-3 py-1.5 rounded-md border border-transparent focus-within:bg-white focus-within:border-gray-500 focus-within:ring-1 focus-within:ring-gray-500 transition-all w-72">
+                    <i class="fa-solid fa-magnifying-glass text-gray-600 text-sm mr-2"></i>
+                    <input type="text" id="searchInput" placeholder="Search Farukhnagar Jobs..." class="bg-transparent border-none outline-none text-sm w-full text-gray-900 placeholder-gray-500 font-normal">
+                </div>
+
+                <!-- 📱 Mobile Search Bar -->
+                <div class="flex md:hidden flex-1 items-center bg-[#edf3f8] px-2.5 py-1.5 rounded border border-transparent focus-within:bg-white focus-within:border-gray-500 transition-all max-w-[220px]">
+                    <i class="fa-solid fa-magnifying-glass text-gray-500 text-xs mr-2"></i>
+                    <input type="text" placeholder="Search..." class="bg-transparent border-none outline-none text-xs w-full text-gray-900 placeholder-gray-500 font-normal">
+                </div>
+            </div>
+
+            <!-- 🖥️ Desktop Navigation Links Row (Hidden on Mobile) -->
+            <div class="hidden md:flex items-center justify-end space-x-4 md:space-x-8 flex-1 py-1">
+                <a href="{% url 'community_hub' %}" class="flex flex-col items-center text-slate-500 hover:text-indigo-600 transition shrink-0">
+                    <i class="fa-solid fa-comments text-lg sm:text-xl"></i>
+                    <span class="text-[10px] font-bold mt-1">Hub</span>
+                </a>
+                
+                <a href="{% url 'home' %}" class="flex flex-col items-center group text-gray-500 hover:text-black transition-all shrink-0">
+                    <i class="fa-solid fa-house text-lg sm:text-xl"></i>
+                    <span class="text-[10px] font-bold mt-1">Home</span>
+                </a>
+
+                {% if request.user.role == 'vendor' %}
+                <a href="{% url 'find_worker' %}" class="flex flex-col items-center group text-gray-500 hover:text-black transition-all shrink-0">
+                    <i class="fa-solid fa-user-group text-lg sm:text-xl"></i>
+                    <span class="text-[10px] font-bold mt-1">Find Workers</span>
+                </a>
+                {% endif %}
+
+                <a href="{% url 'job_list' %}" class="flex flex-col items-center group text-gray-500 hover:text-black transition-all shrink-0">
+                    <i class="fa-solid fa-briefcase text-lg sm:text-xl"></i>
+                    <span class="text-[10px] font-bold mt-1">Jobs</span>
+                </a>
+
+                <a href="{% url 'messages' %}" class="flex flex-col items-center group text-gray-500 hover:text-black relative transition-all shrink-0">
+                    <div class="relative">
+                        <i class="fa-solid fa-comment-dots text-lg sm:text-xl"></i>
+                        {% if msg_count > 0 %}
+                        <span class="absolute -top-1.5 -right-2 bg-red-600 text-white text-[8px] px-1 rounded-full border border-white font-bold">{{ msg_count }}</span>
+                        {% endif %}
+                    </div>
+                    <span class="text-[10px] font-bold mt-1">Messaging</span>
+                </a>
+
+                <a href="{% url 'notifications' %}" class="flex flex-col items-center group text-gray-500 hover:text-black relative transition-all shrink-0">
+                    <div class="relative">
+                        <i class="fa-solid fa-bell text-lg sm:text-xl"></i>
+                        {% if notif_count > 0 %}
+                        <span class="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[8px] px-1 rounded-full border border-white font-bold">{{ notif_count }}</span>
+                        {% endif %}
+                    </div>
+                    <span class="text-[10px] font-bold mt-1">Notifications</span>
+                </a>
+
+                <!-- Desktop Custom Dropdown Container -->
+                <div class="relative flex items-center shrink-0 desktopMeContainer">
+                    <div class="flex flex-col items-center">
+                        <a href="{% if request.user.role == 'vendor' %}{% url 'vendor_dashboard' %}{% else %}{% url 'worker_dashboard' %}{% endif %}" class="w-6 h-6 rounded-full overflow-hidden border border-gray-200 hover:border-black transition-all">
+                            {% if request.user.role == 'vendor' and user_profile.company_logo %}
+                                <img src="{{ user_profile.company_logo.url }}" class="w-full h-full object-cover">
+                            {% elif request.user.worker_profile.photo %}
+                                <img src="{{ request.user.worker_profile.photo.url }}" class="w-full h-full object-cover">
+                            {% else %}
+                                <img src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=0a66c2&color=fff" class="w-full h-full object-cover">
+                            {% endif %}
+                        </a>
+                        <button onclick="toggleMeMenu(event, 'meMenu')" class="flex items-center gap-0.5 mt-0.5 group focus:outline-none cursor-pointer bg-transparent border-none p-0">
+                            <span class="text-[11px] text-gray-500 font-medium group-hover:text-black">Me</span>
+                            <i class="fa-solid fa-caret-down text-[9px] text-gray-500 group-hover:text-black"></i>
+                        </button>
+                    </div>
+
+                    <!-- Dropdown Panel Template Card -->
+                    <div id="meMenu" class="hidden absolute right-0 mt-2 top-12 w-[280px] bg-white rounded-lg shadow-xl border border-[#e0e0e0] z-[100] overflow-hidden transition-all duration-150 origin-top-right animate-fade-in text-left">
+                        <div class="p-3 flex gap-3 border-b border-[#f3f2ef]">
+                            <div class="w-12 h-12 rounded-full overflow-hidden shrink-0 border border-gray-200">
+                                {% if request.user.role == 'vendor' and user_profile.company_logo %}
+                                    <img src="{{ user_profile.company_logo.url }}" class="w-full h-full object-cover">
+                                {% elif request.user.role == 'worker' and user_profile.photo %}
+                                    <img src="{{ user_profile.photo.url }}" class="w-full h-full object-cover">
+                                {% else %}
+                                    <img src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=0a66c2&color=fff&bold=true" class="w-full h-full object-cover">
+                                {% endif %}
+                            </div>
+                            <div class="flex flex-col justify-center overflow-hidden flex-1">
+                                <p class="font-semibold text-[14px] text-gray-900 leading-tight truncate">
+                                    {% if request.user.role == 'vendor' %}{{ user_profile.company_name|default:request.user.username }}{% else %}{{ user_profile.full_name|default:request.user.username }}{% endif %}
+                                </p>
+                                <p class="text-[12px] text-gray-600 mt-0.5 truncate font-normal">
+                                    {% if request.user.role == 'vendor' %}Logistics Vendor{% else %}{{ user_profile.work_category|default:"Logistics" }} Specialist{% endif %} at FN Hub
+                                </p>
+                            </div>
+                        </div>
+                        <div class="p-2 border-b border-[#f3f2ef]">
+                            {% if request.user.role == 'vendor' %}
+                                <a href="{% url 'vendor_dashboard' %}" class="block w-full text-center py-1 border border-[#0a66c2] text-[#0a66c2] font-semibold rounded-full text-[14px] hover:bg-blue-50 transition-all mb-1.5">Manage Dashboard</a>
+                                <a href="{% url 'create_profile' %}" class="block w-full text-center py-1 border border-orange-600 text-orange-600 font-semibold rounded-full text-[14px] hover:bg-orange-50 transition-all">Edit Company Profile</a>
+                            {% else %}
+                                <a href="{% url 'worker_detail' request.user.worker_profile.pk|default:user_profile.id %}" class="block w-full text-center py-1 border border-[#0a66c2] text-[#0a66c2] font-semibold rounded-full text-[14px] hover:bg-blue-50 transition-all mb-1.5">View Profile</a>
+                                <a href="{% url 'create_profile' %}" class="block w-full text-center py-1 border border-orange-600 text-orange-600 font-semibold rounded-full text-[14px] hover:bg-orange-50 transition-all">Edit Resume Info</a>
+                            {% endif %}
+                        </div>
+                        <div class="py-1 border-b border-[#f3f2ef]">
+                            <p class="px-3 pt-1 text-[13px] font-semibold text-gray-900">Account</p>
+                            <a href="#" class="block px-3 py-1 text-[12px] text-orange-600 font-semibold hover:underline"> Try Premium for Free</a>
+                            <a href="{% if request.user.role == 'vendor' %}{% url 'vendor_dashboard' %}{% else %}{% url 'worker_dashboard' %}{% endif %}" class="block px-3 py-1 text-[12px] text-gray-500 hover:bg-gray-100 transition-colors">Settings & Privacy</a>
+                            <a href="#" class="block px-3 py-1 text-[12px] text-gray-500 hover:bg-gray-100 transition-colors">Help & Language</a>
+                        </div>
+                        <div class="p-1 bg-white">
+                            <form action="{% url 'logout' %}" method="post" class="m-0 p-0">
+                                {% csrf_token %}
+                                <button type="submit" class="block w-full text-left px-3 py-1.5 text-[12px] text-gray-500 hover:bg-gray-100 font-normal transition-colors border-0 bg-transparent cursor-pointer outline-none">Sign Out</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 📱 Mobile Layout Avatar Layer -->
+            <div class="flex md:hidden items-center space-x-2 shrink-0 relative mobileMeContainer">
+                <button onclick="toggleMeMenu(event, 'meMenuMobile')" class="w-7 h-7 rounded-full overflow-hidden border border-gray-300 focus:outline-none">
+                    {% if request.user.role == 'vendor' and user_profile.company_logo %}
+                        <img src="{{ user_profile.company_logo.url }}" class="w-full h-full object-cover">
+                    {% elif request.user.worker_profile.photo %}
+                        <img src="{{ request.user.worker_profile.photo.url }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <img src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=0a66c2&color=fff" class="w-full h-full object-cover">
+                    {% endif %}
+                </button>
+
+                <!-- Dropdown Portal Component specific to Mobile Interface -->
+                <div id="meMenuMobile" class="hidden absolute right-0 mt-2 top-10 w-[260px] bg-white rounded-lg shadow-xl border border-[#e0e0e0] z-[100] text-left overflow-hidden animate-fade-in">
+                    <div class="p-3 flex gap-2 border-b border-[#f3f2ef] bg-gray-50">
+                        <div class="flex flex-col justify-center overflow-hidden flex-1">
+                            <p class="font-bold text-xs text-gray-900 leading-tight truncate">
+                                {% if request.user.role == 'vendor' %}{{ user_profile.company_name|default:request.user.username }}{% else %}{{ user_profile.full_name|default:request.user.username }}{% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="p-2 border-b border-[#f3f2ef] flex flex-col gap-1">
+                        {% if request.user.role == 'vendor' %}
+                            <a href="{% url 'vendor_dashboard' %}" class="block text-center w-full py-1 text-xs border border-[#0a66c2] text-[#0a66c2] font-bold rounded-full hover:bg-blue-50">Dashboard</a>
+                            <a href="{% url 'create_profile' %}" class="block text-center w-full py-1 text-xs border border-orange-600 text-orange-600 font-bold rounded-full hover:bg-orange-50">Edit Profile</a>
+                        {% else %}
+                            <a href="{% url 'worker_detail' request.user.worker_profile.pk|default:user_profile.id %}" class="block text-center w-full py-1 text-xs border border-[#0a66c2] text-[#0a66c2] font-bold rounded-full hover:bg-blue-50">View Profile</a>
+                            <a href="{% url 'create_profile' %}" class="block text-center w-full py-1 text-xs border border-orange-600 text-orange-600 font-bold rounded-full hover:bg-orange-50">Edit Resume</a>
+                        {% endif %}
+                    </div>
+                    <div class="p-1 bg-white">
+                        <form action="{% url 'logout' %}" method="post" class="m-0 p-0">
+                            {% csrf_token %}
+                            <button type="submit" class="block w-full text-left px-3 py-1.5 text-xs text-gray-500 hover:bg-gray-100 border-0 bg-transparent cursor-pointer">Sign Out</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 📱 WhatsApp Style Mobile Sub-Nav Bar -->
+        <div class="block md:hidden bg-white border-b overflow-x-auto no-scrollbar whitespace-nowrap px-3 py-2">
+            <div class="flex items-center space-x-2 text-xs">
+                <button onclick="location.href='#'" class="bg-indigo-50 text-indigo-700 font-bold px-3 py-1.5 rounded-full border border-indigo-200 flex items-center gap-1.5 shrink-0 active:scale-95 transition-all">
+                    <i class="fa-solid fa-circle-plus text-sm"></i>
+                    <span>Create Group</span>
+                </button>
+                <div class="h-4 w-[1px] bg-gray-300 shrink-0"></div>
+                
+                <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
+                    <i class="fa-solid fa-user-group text-orange-600"></i>
+                    <span>Dishu Group PVT</span>
+                </a>
+                <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
+                    <i class="fa-solid fa-warehouse text-blue-600"></i>
+                    <span>Logistics Hub</span>
+                </a>
+                
+                {% for group in vendor_groups %}
+                    {% if group.name != "Dishu Group PVT" and group.name != "Logistics Hub" %}
+                    <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
+                        <i class="fa-solid fa-user-group text-slate-500"></i>
+                        <span>{{ group.name }} {% if group.member_count %}({{ group.member_count }}){% endif %}</span>
+                    </a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- AI Smart Insights Section -->
+    <div class="max-w-5xl mx-auto px-2 sm:px-4 mt-4 sm:mt-6">
+        <div class="bg-white rounded-2xl sm:rounded-[32px] p-4 sm:p-6 border border-slate-100 shadow-xl shadow-slate-100/50 flex flex-col md:flex-row items-center justify-between gap-4 overflow-hidden relative">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
+            
+            <div class="flex items-center gap-4 sm:gap-6 relative z-10 w-full md:w-auto">
+                <div class="relative w-14 h-14 sm:w-16 sm:h-16 shrink-0">
+                    <div class="w-full h-full rounded-2xl border-4 border-slate-50 overflow-hidden shadow-inner bg-white flex items-center justify-center">
+                        {% if vendor.company_logo %}
+                            <img src="{{ vendor.company_logo.url }}" class="w-full h-full object-cover">
+                        {% else %}
+                            <img src="https://ui-avatars.com/api/?name={{ vendor.company_name|default:'C' }}&background=0a66c2&color=fff&size=200" class="w-full h-full object-cover">
+                        {% endif %}
+                    </div>
+                    <div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></div>
+                </div>
+                
+                <div class="min-w-0">
+                    <h2 class="text-base sm:text-xl font-black text-slate-900 leading-tight truncate">
+                        {{ vendor.company_name }}
+                    </h2>
+                    <div class="flex items-center gap-2 mt-1 flex-wrap">
+                        <button onclick="runAiAnalysis()" class="group flex items-center gap-1.5 text-[10px] sm:text-[12px] font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full hover:bg-indigo-600 hover:text-white transition-all duration-300 border border-indigo-200 shrink-0">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span>Vendor Insights</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative z-10 flex flex-row md:flex-col items-center justify-between md:justify-end md:items-end gap-2 w-full md:w-auto border-t md:border-none pt-2 md:pt-0">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-[11px] sm:text-xs font-bold text-slate-500">Verified Partner:</span>
+                    <span class="text-xs sm:text-sm font-black text-green-600">Active</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Layout Container -->
+    <div class="max-w-5xl mx-auto px-2 sm:px-4 py-4 sm:py-6 pb-20">
+        
+        <!-- Vendor Profile Header Card -->
+        <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+            <div class="h-28 sm:h-32 bg-gradient-to-r from-blue-700 to-blue-900"></div>
+            <div class="px-4 sm:px-6 pb-6">
+                <div class="-mt-10 sm:-mt-12 w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white overflow-hidden bg-white shadow-lg">
+                    {% if vendor.company_logo %}
+                        <img src="{{ vendor.company_logo.url }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <img src="https://ui-avatars.com/api/?name={{ vendor.company_name|default:'C' }}&background=0a66c2&color=fff&size=200" class="w-full h-full object-cover">
+                    {% endif %}
+                </div>
+                
+                <div class="mt-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h1 class="text-xl sm:text-2xl font-black text-gray-900">{{ vendor.company_name }} 
+                            <span class="text-blue-600 text-xs ml-1 align-middle"><i class="fa-solid fa-circle-check"></i></span>
+                        </h1>
+                        <p class="text-gray-600 font-bold text-xs sm:text-sm mt-1">{{ vendor.contact_person }} • {{ vendor.location|default:"Farukhnagar" }}</p>
+                        <p class="text-[11px] sm:text-xs text-blue-700 font-bold mt-1 uppercase tracking-wide">300+ Active Logistics Connections</p>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-wrap sm:flex-nowrap gap-2 sm:gap-3">
+                        <a href="{% url 'messaging' %}?user={{ vendor.user.username }}" class="flex-1 sm:flex-none text-center bg-[#0a66c2] text-white px-5 sm:px-6 py-2 rounded-full font-bold text-xs sm:text-sm hover:bg-[#004182] transition shadow-md">Message</a>
+                        <button id="followBtn" data-id="{{ vendor.id }}" 
+                            class="flex-1 sm:flex-none border border-[#0a66c2] text-[#0a66c2] px-5 sm:px-6 py-2 rounded-full font-bold text-xs sm:text-sm hover:bg-blue-50 transition">
+                            {% if is_following %} Unfollow {% else %} Follow {% endif %}
+                        </button>
+                        <script>
+                        document.getElementById('followBtn').addEventListener('click', function() {
+                            const btn = this;
+                            const vendorId = btn.getAttribute('data-id');
+                            
+                            // Yahan URL dynamic banao
+                            const url = `/follow/${vendorId}/`; 
+
+                            fetch(url)
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.status === 'followed') {
+                                        btn.innerText = 'Unfollow';
+                                    } else {
+                                        btn.innerText = 'Follow';
+                                    }
+                                })
+                                .catch(error => console.error('Error:', error));
+                        });
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Responsive Body Grid Layout -->
+        <div class="grid grid-cols-12 gap-4 sm:gap-6 mt-4 sm:mt-6">
+            
+            <!-- Main Content Lane -->
+            <div class="col-span-12 lg:col-span-8 space-y-4 sm:space-y-6">
+                
+                <!-- About Section -->
+                <div class="bg-white p-4 sm:p-6 border border-gray-200 rounded-xl shadow-sm">
+                    <h2 class="text-base sm:text-lg font-black text-gray-900 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-info text-gray-400"></i> About
+                    </h2>
+                    <p class="text-gray-600 text-xs sm:text-sm leading-relaxed font-medium">{{ vendor.description|default:"No description provided yet." }}</p>
+                </div>
+
+                <!-- Active Openings Section -->
+                <div class="bg-white p-4 sm:p-6 border border-gray-200 rounded-xl shadow-sm">
+                    <h2 class="text-base sm:text-lg font-black text-gray-900 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-fire text-orange-500"></i> Active Openings
+                    </h2>
+                    <div class="space-y-3 sm:space-y-4">
+                        {% for job in active_jobs %}
+                        <div class="p-3.5 sm:p-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-blue-200 transition-all">
+                            <h3 class="font-bold text-gray-900 text-xs sm:text-sm">{{ job.job_title }}</h3>
+                            <p class="text-[11px] text-gray-500 font-bold mt-1">Salary: ₹{{ job.salary }} • Posted {{ job.posted_at|timesince }} ago</p>
+                        </div>
+                        {% empty %}
+                        <p class="text-gray-500 text-xs font-medium italic">No active openings.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Hiring History Section -->
+                <div class="bg-white p-4 sm:p-6 border border-gray-200 rounded-xl shadow-sm">
+                    <h2 class="text-base sm:text-lg font-black text-gray-900 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-history text-blue-500"></i> Hiring History
+                    </h2>
+                    <div class="space-y-2">
+                        {% for job in past_jobs %}
+                        <div class="flex items-center justify-between p-3 border-b border-gray-100">
+                            <span class="text-xs sm:text-sm font-bold text-gray-700">{{ job.job_title }}</span>
+                            <span class="text-[9px] sm:text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-black uppercase">Filled</span>
+                        </div>
+                        {% empty %}
+                        <p class="text-gray-400 text-xs font-medium italic">No history available yet.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar Lane -->
+            <div class="col-span-12 lg:col-span-4 space-y-4 sm:space-y-6">
+                <div class="bg-white p-4 sm:p-6 border border-gray-200 rounded-xl shadow-sm">
+                    <h3 class="font-black text-gray-900 mb-4 text-xs sm:text-sm uppercase tracking-wider">Insights</h3>
+                    <div class="grid grid-cols-2 gap-3 sm:gap-4">
+                        <div class="text-center p-3 bg-gray-50 rounded-lg border border-gray-100">
+                            <p class="text-base sm:text-lg font-black text-blue-700">{{ total_jobs }}</p>
+                            <p class="text-[9px] text-gray-500 font-bold uppercase mt-0.5">Total Jobs</p>
+                        </div>
+                        <div class="text-center p-3 bg-gray-50 rounded-lg border border-gray-100">
+                            <p class="text-base sm:text-lg font-black text-green-700">{{ hiring_rate }}</p>
+                            <p class="text-[9px] text-gray-500 font-bold uppercase mt-0.5">Hiring Rate</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div> 
+    </div>
+
+    <!-- 📱 Sticky Mobile Bottom Navigation Layer System -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 h-14 mobile-bottom-nav">
+        <div class="grid grid-cols-5 h-full max-w-xl mx-auto items-center text-center">
+            <a href="{% url 'home' %}" class="flex flex-col items-center justify-center text-gray-500 hover:text-[#0a66c2]">
+                <i class="fa-solid fa-house text-lg"></i>
+                <span class="text-[9px] font-medium mt-0.5">Home</span>
+            </a>
+            <a href="{% url 'find_worker' %}" class="flex flex-col items-center justify-center text-gray-500 hover:text-[#0a66c2]">
+                <i class="fa-solid fa-user-group text-lg"></i>
+                <span class="text-[9px] font-medium mt-0.5">Workers</span>
+            </a>
+            <a href="{% url 'job_list' %}" class="flex flex-col items-center justify-center text-gray-500 hover:text-[#0a66c2]">
+                <i class="fa-solid fa-briefcase text-lg"></i>
+                <span class="text-[9px] font-medium mt-0.5">Jobs</span>
+            </a>
+            <a href="{% url 'messages' %}" class="flex flex-col items-center justify-center text-gray-500 hover:text-[#0a66c2] relative">
+                <i class="fa-solid fa-comment-dots text-lg"></i>
+                <span class="text-[9px] font-medium mt-0.5">Messaging</span>
+            </a>
+            <a href="{% url 'notifications' %}" class="flex flex-col items-center justify-center text-gray-500 hover:text-[#0a66c2]">
+                <i class="fa-solid fa-bell text-lg"></i>
+                <span class="text-[9px] font-medium mt-0.5">Notif</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- AI Insights Modal Base System -->
+    <div id="aiModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full border border-slate-100 shadow-2xl animate-scale-in mx-2">
+            <div class="flex justify-between items-start mb-6">
+                <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <i class="fa-solid fa-wand-magic-sparkles text-white text-xl"></i>
+                </div>
+                <button onclick="document.getElementById('aiModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-900 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <h3 class="font-black text-xl sm:text-2xl text-slate-900">Vendor Analytics</h3>
+            <div id="aiContent" class="mt-6 space-y-4"></div>
+        </div>
+    </div>
+
+    <!-- Controller Scripts System -->
+    <script>
+        function toggleMeMenu(event, menuId) {
+            if (event) event.stopPropagation();
+            const targetMenu = document.getElementById(menuId);
+            const isAlreadyOpen = !targetMenu.classList.contains('hidden');
+            
+            document.getElementById('meMenu').classList.add('hidden');
+            document.getElementById('meMenuMobile').classList.add('hidden');
+            
+            if (!isAlreadyOpen) targetMenu.classList.remove('hidden');
+        }
+
+        window.onclick = function(e) {
+            if (!e.target.closest('.desktopMeContainer') && !e.target.closest('.mobileMeContainer')) {
+                document.getElementById('meMenu').classList.add('hidden');
+                document.getElementById('meMenuMobile').classList.add('hidden');
+            }
+        }
+
+        function runAiAnalysis() {
+            const modal = document.getElementById('aiModal');
+            const content = document.getElementById('aiContent');
+            modal.classList.remove('hidden');
+            content.innerHTML = '<div class="text-indigo-600 font-bold flex items-center gap-2"><i class="fa-solid fa-spinner animate-spin"></i> Analyzing vendor profile...</div>';
+            
+            setTimeout(() => {
+                content.innerHTML = `
+                    <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                        <p class="text-xs font-bold text-indigo-900">🚀 Vendor Hiring Insight</p>
+                        <p class="text-[12px] text-indigo-700 mt-1">This vendor has an active recruitment pipeline with high response engagement in Farukhnagar Hub.</p>
+                    </div>
+                `;
+            }, 1200);
+        }
+    </script>
+</body>
+</html>
