@@ -19,7 +19,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required  # <-- Isko import karein
 from .models import JobPost, WorkerProfile, VendorProfile, Application
 
-@login_required(login_url='login')  # <-- Isko yahan lagana zaroori hai
+@login_required(login_url='signup')  # <-- Isko yahan lagana zaroori hai
 def home(request):
     jobs = JobPost.objects.all().order_by('-posted_at')[:3]
     recent_workers = WorkerProfile.objects.all().order_by('-id')[:4]
