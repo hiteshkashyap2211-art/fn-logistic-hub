@@ -15,6 +15,11 @@ from .models import Group as Group, WorkerProfile, Message, Notification
 from django.shortcuts import render, redirect
 from .models import JobPost, WorkerProfile, VendorProfile, Application
 
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required  # <-- Isko import karein
+from .models import JobPost, WorkerProfile, VendorProfile, Application
+
+@login_required(login_url='login')  # <-- Yahan decorator lagayein
 def home(request):
     jobs = JobPost.objects.all().order_by('-posted_at')[:3]
     recent_workers = WorkerProfile.objects.all().order_by('-id')[:4]
@@ -23,11 +28,9 @@ def home(request):
     user_profile = None
 
     if request.user.is_authenticated:
-        # Worker aur Vendor profiles safety fetch
         worker = WorkerProfile.objects.filter(user=request.user).first()
         vendor = VendorProfile.objects.filter(user=request.user).first()
         
-        # Check user role safely
         user_role = getattr(request.user, 'role', None)
 
         if user_role == 'worker':
@@ -36,7 +39,6 @@ def home(request):
         elif user_role == 'vendor':
             user_profile = vendor
         else:
-            # Fallback for general or unspecified roles
             user_profile = worker or vendor
             if not user_profile:
                 return redirect('select_role')
