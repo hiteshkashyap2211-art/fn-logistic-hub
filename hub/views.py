@@ -12,8 +12,9 @@ from .models import WorkerProfile, VendorProfile, JobPost
 from .models import Group as Group, WorkerProfile, Message, Notification
 
 
-# 1. Home Feed
-# --- hub/views.py ---
+from django.shortcuts import render, redirect
+from .models import JobPost, WorkerProfile, VendorProfile, Application
+
 def home(request):
     jobs = JobPost.objects.all().order_by('-posted_at')[:3]
     recent_workers = WorkerProfile.objects.all().order_by('-id')[:4]
@@ -22,22 +23,23 @@ def home(request):
     user_profile = None
 
     if request.user.is_authenticated:
-        # Puraani logic ko maintain rakhte hue ek naya safe check:
-        # Pehle check karo agar Worker profile hai
+        # Worker aur Vendor profiles safety fetch
         worker = WorkerProfile.objects.filter(user=request.user).first()
-        # Phir check karo agar Vendor profile hai
         vendor = VendorProfile.objects.filter(user=request.user).first()
         
-        # User role ke mutabik assign karo
-        if request.user.role == 'worker':
+        # Check user role safely
+        user_role = getattr(request.user, 'role', None)
+
+        if user_role == 'worker':
             user_profile = worker
             applied_job_ids = Application.objects.filter(applicant=request.user).values_list('job_id', flat=True)
-        elif request.user.role == 'vendor':
+        elif user_role == 'vendor':
             user_profile = vendor
         else:
-            if not worker and not vendor:
-                return redirect('select_role')
+            # Fallback for general or unspecified roles
             user_profile = worker or vendor
+            if not user_profile:
+                return redirect('select_role')
 
     context = {
         'jobs': jobs,

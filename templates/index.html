@@ -153,10 +153,10 @@
                 <div class="relative flex items-center shrink-0 desktopMeContainer">
                     <div class="flex flex-col items-center">
                         <a href="{% if request.user.role == 'vendor' %}{% url 'vendor_dashboard' %}{% else %}{% url 'worker_dashboard' %}{% endif %}" class="w-6 h-6 rounded-full overflow-hidden border border-gray-200 hover:border-black transition-all">
-                            {% if request.user.role == 'vendor' and user_profile.company_logo %}
+                            {% if request.user.role == 'vendor' and user_profile and user_profile.company_logo %}
                                 <img src="{{ user_profile.company_logo.url }}" class="w-full h-full object-cover">
-                            {% elif request.user.worker_profile.photo %}
-                                <img src="{{ request.user.worker_profile.photo.url }}" class="w-full h-full object-cover">
+                            {% elif user_profile and user_profile.photo %}
+                                <img src="{{ user_profile.photo.url }}" class="w-full h-full object-cover">
                             {% else %}
                                 <img src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=0a66c2&color=fff" class="w-full h-full object-cover">
                             {% endif %}
@@ -171,9 +171,9 @@
                     <div id="meMenu" class="hidden absolute right-0 mt-2 top-12 w-[280px] bg-white rounded-lg shadow-xl border border-[#e0e0e0] z-[100] overflow-hidden transition-all duration-150 origin-top-right animate-fade-in text-left">
                         <div class="p-3 flex gap-3 border-b border-[#f3f2ef]">
                             <div class="w-12 h-12 rounded-full overflow-hidden shrink-0 border border-gray-200">
-                                {% if request.user.role == 'vendor' and user_profile.company_logo %}
+                                {% if request.user.role == 'vendor' and user_profile and user_profile.company_logo %}
                                     <img src="{{ user_profile.company_logo.url }}" class="w-full h-full object-cover">
-                                {% elif request.user.role == 'worker' and user_profile.photo %}
+                                {% elif user_profile and user_profile.photo %}
                                     <img src="{{ user_profile.photo.url }}" class="w-full h-full object-cover">
                                 {% else %}
                                     <img src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=0a66c2&color=fff&bold=true" class="w-full h-full object-cover">
@@ -181,10 +181,18 @@
                             </div>
                             <div class="flex flex-col justify-center overflow-hidden flex-1">
                                 <p class="font-semibold text-[14px] text-gray-900 leading-tight truncate">
-                                    {% if request.user.role == 'vendor' %}{{ user_profile.company_name|default:request.user.username }}{% else %}{{ user_profile.full_name|default:request.user.username }}{% endif %}
+                                    {% if request.user.role == 'vendor' %}
+                                        {% if user_profile and user_profile.company_name %}{{ user_profile.company_name }}{% else %}{{ request.user.username }}{% endif %}
+                                    {% else %}
+                                        {% if user_profile and user_profile.full_name %}{{ user_profile.full_name }}{% else %}{{ request.user.username }}{% endif %}
+                                    {% endif %}
                                 </p>
                                 <p class="text-[12px] text-gray-600 mt-0.5 truncate font-normal">
-                                    {% if request.user.role == 'vendor' %}Logistics Vendor{% else %}{{ user_profile.work_category|default:"Logistics" }} Specialist{% endif %} at WH Hub
+                                    {% if request.user.role == 'vendor' %}
+                                        Logistics Vendor
+                                    {% else %}
+                                        {% if user_profile and user_profile.work_category %}{{ user_profile.work_category }}{% else %}Logistics{% endif %} Specialist
+                                    {% endif %} at WH Hub
                                 </p>
                             </div>
                         </div>
@@ -193,10 +201,8 @@
                                 <a href="{% url 'vendor_dashboard' %}" class="block w-full text-center py-1 border border-[#0a66c2] text-[#0a66c2] font-semibold rounded-full text-[14px] hover:bg-blue-50 transition-all mb-1.5">Manage Dashboard</a>
                                 <a href="{% url 'create_profile' %}" class="block w-full text-center py-1 border border-orange-600 text-orange-600 font-semibold rounded-full text-[14px] hover:bg-orange-50 transition-all">Edit Company Profile</a>
                             {% else %}
-                                {% if request.user.worker_profile.pk %}
-                                    <a href="{% url 'worker_detail' request.user.worker_profile.pk %}" class="block w-full text-center py-1 border border-[#0a66c2] text-[#0a66c2] font-semibold rounded-full text-[14px] hover:bg-blue-50 transition-all mb-1.5">View Profile</a>
-                                {% elif user_profile and user_profile.id %}
-                                    <a href="{% url 'worker_detail' user_profile.id %}" class="block w-full text-center py-1 border border-[#0a66c2] text-[#0a66c2] font-semibold rounded-full text-[14px] hover:bg-blue-50 transition-all mb-1.5">View Profile</a>
+                                {% if user_profile and user_profile.pk %}
+                                    <a href="{% url 'worker_detail' user_profile.pk %}" class="block w-full text-center py-1 border border-[#0a66c2] text-[#0a66c2] font-semibold rounded-full text-[14px] hover:bg-blue-50 transition-all mb-1.5">View Profile</a>
                                 {% else %}
                                     <a href="{% url 'create_profile' %}" class="block w-full text-center py-1 border border-[#0a66c2] text-[#0a66c2] font-semibold rounded-full text-[14px] hover:bg-blue-50 transition-all mb-1.5">Create Profile</a>
                                 {% endif %}
@@ -222,10 +228,10 @@
             <!-- 📱 Mobile Layout Avatar Layer (Positioned beautifully next to search) -->
             <div class="flex md:hidden items-center space-x-2 shrink-0 relative mobileMeContainer">
                 <button onclick="toggleMeMenu(event, 'meMenuMobile')" class="w-7 h-7 rounded-full overflow-hidden border border-gray-300 focus:outline-none">
-                    {% if request.user.role == 'vendor' and user_profile.company_logo %}
+                    {% if request.user.role == 'vendor' and user_profile and user_profile.company_logo %}
                         <img src="{{ user_profile.company_logo.url }}" class="w-full h-full object-cover">
-                    {% elif request.user.worker_profile.photo %}
-                        <img src="{{ request.user.worker_profile.photo.url }}" class="w-full h-full object-cover">
+                    {% elif user_profile and user_profile.photo %}
+                        <img src="{{ user_profile.photo.url }}" class="w-full h-full object-cover">
                     {% else %}
                         <img src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=0a66c2&color=fff" class="w-full h-full object-cover">
                     {% endif %}
@@ -236,7 +242,11 @@
                     <div class="p-3 flex gap-2 border-b border-[#f3f2ef] bg-gray-50">
                         <div class="flex flex-col justify-center overflow-hidden flex-1">
                             <p class="font-bold text-xs text-gray-900 leading-tight truncate">
-                                {% if request.user.role == 'vendor' %}{{ user_profile.company_name|default:request.user.username }}{% else %}{{ user_profile.full_name|default:request.user.username }}{% endif %}
+                                {% if request.user.role == 'vendor' %}
+                                    {% if user_profile and user_profile.company_name %}{{ user_profile.company_name }}{% else %}{{ request.user.username }}{% endif %}
+                                {% else %}
+                                    {% if user_profile and user_profile.full_name %}{{ user_profile.full_name }}{% else %}{{ request.user.username }}{% endif %}
+                                {% endif %}
                             </p>
                         </div>
                     </div>
@@ -245,10 +255,8 @@
                             <a href="{% url 'vendor_dashboard' %}" class="block text-center w-full py-1 text-xs border border-[#0a66c2] text-[#0a66c2] font-bold rounded-full hover:bg-blue-50">Dashboard</a>
                             <a href="{% url 'create_profile' %}" class="block text-center w-full py-1 text-xs border border-orange-600 text-orange-600 font-bold rounded-full hover:bg-orange-50">Edit Profile</a>
                         {% else %}
-                            {% if request.user.worker_profile.pk %}
-                                <a href="{% url 'worker_detail' request.user.worker_profile.pk %}" class="block text-center w-full py-1 text-xs border border-[#0a66c2] text-[#0a66c2] font-bold rounded-full hover:bg-blue-50">View Profile</a>
-                            {% elif user_profile and user_profile.id %}
-                                <a href="{% url 'worker_detail' user_profile.id %}" class="block text-center w-full py-1 text-xs border border-[#0a66c2] text-[#0a66c2] font-bold rounded-full hover:bg-blue-50">View Profile</a>
+                            {% if user_profile and user_profile.pk %}
+                                <a href="{% url 'worker_detail' user_profile.pk %}" class="block text-center w-full py-1 text-xs border border-[#0a66c2] text-[#0a66c2] font-bold rounded-full hover:bg-blue-50">View Profile</a>
                             {% else %}
                                 <a href="{% url 'create_profile' %}" class="block text-center w-full py-1 text-xs border border-[#0a66c2] text-[#0a66c2] font-bold rounded-full hover:bg-blue-50">Create Profile</a>
                             {% endif %}
@@ -307,8 +315,10 @@
             <div class="flex items-center gap-4 sm:gap-6 relative z-10 w-full md:w-auto">
                 <div class="relative w-16 h-16 sm:w-20 sm:h-20 shrink-0">
                     <div class="w-full h-full rounded-2xl border-4 border-slate-50 overflow-hidden shadow-inner bg-white">
-                        {% if user_profile.photo %}
+                        {% if user_profile and user_profile.photo %}
                             <img src="{{ user_profile.photo.url }}" class="w-full h-full object-cover">
+                        {% elif user_profile and user_profile.company_logo %}
+                            <img src="{{ user_profile.company_logo.url }}" class="w-full h-full object-cover">
                         {% else %}
                             <div class="w-full h-full flex items-center justify-center bg-indigo-50 text-indigo-600">
                                 <svg viewBox="0 0 24 24" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg" class="sm:w-10 sm:h-10">
@@ -332,7 +342,13 @@
                 
                 <div class="min-w-0">
                     <h2 class="text-lg sm:text-2xl font-black text-slate-900 leading-tight truncate">
-                        {% if user_profile %}{{ user_profile.full_name }}{% else %}{{ request.user.username }}{% endif %}
+                        {% if user_profile and user_profile.full_name %}
+                            {{ user_profile.full_name }}
+                        {% elif user_profile and user_profile.company_name %}
+                            {{ user_profile.company_name }}
+                        {% else %}
+                            {{ request.user.username }}
+                        {% endif %}
                     </h2>
                     <div class="flex items-center gap-2 mt-1 flex-wrap">
                         <button onclick="runAiAnalysis()" class="group flex items-center gap-1.5 text-[10px] sm:text-[12px] font-bold text-indigo-700 bg-indigo-50 px-3 py-1 sm:py-1.5 rounded-full hover:bg-indigo-600 hover:text-white transition-all duration-300 border border-indigo-200 shrink-0">
@@ -395,14 +411,10 @@
 
                 <div class="px-4 pb-4 text-center">
                     <div class="relative -mt-9 mb-2 inline-block">
-                        {% if user_profile %}
-                            {% if user_profile.photo %}
-                                <img src="{{ user_profile.photo.url }}" class="w-16 h-16 rounded-full border-2 border-white shadow-sm object-cover bg-white">
-                            {% elif user_profile.company_logo %}
-                                <img src="{{ user_profile.company_logo.url }}" class="w-16 h-16 rounded-full border-2 border-white shadow-sm object-cover bg-white">
-                            {% else %}
-                                <img src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=0a66c2&color=fff&bold=true" class="w-16 h-16 rounded-full border-2 border-white shadow-sm bg-white">
-                            {% endif %}
+                        {% if user_profile and user_profile.photo %}
+                            <img src="{{ user_profile.photo.url }}" class="w-16 h-16 rounded-full border-2 border-white shadow-sm object-cover bg-white">
+                        {% elif user_profile and user_profile.company_logo %}
+                            <img src="{{ user_profile.company_logo.url }}" class="w-16 h-16 rounded-full border-2 border-white shadow-sm object-cover bg-white">
                         {% else %}
                             <img src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=0a66c2&color=fff&bold=true" class="w-16 h-16 rounded-full border-2 border-white shadow-sm bg-white">
                         {% endif %}
@@ -471,10 +483,10 @@
 
                         <div class="flex items-center gap-3 sm:gap-4">
                             <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-white shadow-md shadow-orange-100 shrink-0">
-                                {% if request.user.role == 'vendor' and request.user.vendor_profile.company_logo %}
-                                    <img src="{{ request.user.vendor_profile.company_logo.url }}" class="w-full h-full object-cover">
-                                {% elif request.user.worker_profile.photo %}
-                                    <img src="{{ request.user.worker_profile.photo.url }}" class="w-full h-full object-cover">
+                                {% if request.user.role == 'vendor' and user_profile and user_profile.company_logo %}
+                                    <img src="{{ user_profile.company_logo.url }}" class="w-full h-full object-cover">
+                                {% elif user_profile and user_profile.photo %}
+                                    <img src="{{ user_profile.photo.url }}" class="w-full h-full object-cover">
                                 {% else %}
                                     <div class="w-full h-full bg-gradient-to-br from-orange-500 to-orange-600 text-white flex items-center justify-center font-black text-sm sm:text-lg">
                                         {{ request.user.username|slice:":1"|upper }}
@@ -571,9 +583,9 @@
                             {% for comment in job.comments.all %}
                             <div class="flex items-start space-x-2 sm:space-x-3 p-2 animate-fade-in" id="comment-{{ comment.id }}">
                                 <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden border border-gray-200 shrink-0">
-                                    {% if comment.user.worker_profile.photo %}
+                                    {% if comment.user.worker_profile and comment.user.worker_profile.photo %}
                                         <img src="{{ comment.user.worker_profile.photo.url }}" class="w-full h-full object-cover">
-                                    {% elif comment.user.vendor_profile.company_logo %}
+                                    {% elif comment.user.vendor_profile and comment.user.vendor_profile.company_logo %}
                                         <img src="{{ comment.user.vendor_profile.company_logo.url }}" class="w-full h-full object-cover">
                                     {% else %}
                                         <img src="https://ui-avatars.com/api/?name={% if '99' in comment.user.username %}Dishu{% else %}{{ comment.user.username }}{% endif %}&background=0a66c2&color=fff&bold=true" class="w-full h-full object-cover">
@@ -586,7 +598,7 @@
                                             <span class="font-bold text-xs text-gray-900 truncate">
                                                 {% if comment.user.worker_profile and comment.user.worker_profile.full_name %}
                                                     {{ comment.user.worker_profile.full_name }}
-                                                {%     elif comment.user.vendor_profile and comment.user.vendor_profile.company_name %}
+                                                {% elif comment.user.vendor_profile and comment.user.vendor_profile.company_name %}
                                                     {{ comment.user.vendor_profile.company_name }}
                                                 {% else %}
                                                     {{ comment.user.username }}
