@@ -189,60 +189,73 @@ import pytz
 @login_required
 @csrf_protect
 def send_message(request):
-    if request.method == 'POST':
-        # 1. Data extraction (FormData support)
-        receiver_id = request.POST.get('receiver_id')
-        content = request.POST.get('content', '').strip()
-        image = request.FILES.get('image')
-        document = request.FILES.get('document')
+  if request.method == 'POST':
+    # 1. Data extraction (POST & Request FILES)
+    receiver_id = request.POST.get('receiver_id')
+    content = request.POST.get('content', '').strip()
+    image = request.FILES.get('image')
+    document = request.FILES.get('document')
 
-        # 2. Basic Validation
-        if not receiver_id:
-            return JsonResponse({'status': 'error', 'message': 'Receiver ID missing'}, status=400)
-        
-        try:
-            receiver = User.objects.get(id=receiver_id)
-        except User.DoesNotExist:
-            return JsonResponse({'status': 'error', 'message': 'User not found'}, status=404)
-        
-        # FIX: Agar content khali hai par file bheji hai, toh error mat do
-        if not content and not image and not document:
-            return JsonResponse({'status': 'error', 'message': 'Message cannot be empty'}, status=400)
+    # Mobile view fallback check
+    if not receiver_id or receiver_id == 'None' or receiver_id == '':
+      return JsonResponse(
+          {'status': 'error', 'message': 'Receiver ID missing'}, status=400
+      )
 
-        # 3. Save Message
-        try:
-            with transaction.atomic():
-                msg = Message.objects.create(
-                    sender=request.user,
-                    receiver=receiver,
-                    content=content,
-                    image=image,      # Image field support
-                    document=document # Document field support
-                )
-                
-                # Notification
-                Notification.objects.create(
-                    user=receiver, 
-                    sender=request.user, 
-                    message="sent you a new message.",
-                    # link=f"/messaging/?user={request.user.username}"
-                    link=f"/messaging/?user={request.user.username}"
-                )
-                
-                # Success Response
-                return JsonResponse({
-                    'id': msg.id,
-                    'status': 'success',
-                    'content': msg.content,
-                    'timestamp': msg.timestamp.astimezone(pytz.timezone('Asia/Kolkata')).strftime("%I:%M %p"),
-                    'image_url': msg.image.url if msg.image else None,
-                    'doc_url': msg.document.url if msg.document else None,
-                    'doc_name': msg.document.name.split('/')[-1] if msg.document else None
-                })
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'message': f'Database error: {str(e)}'}, status=500)
-        
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+    try:
+      receiver = User.objects.get(id=receiver_id)
+    except (User.DoesNotExist, ValueError):
+      return JsonResponse(
+          {'status': 'error', 'message': 'User not found'}, status=404
+      )
+
+    # Content OR attachment validate
+    if not content and not image and not document:
+      return JsonResponse(
+          {'status': 'error', 'message': 'Message cannot be empty'}, status=400
+      )
+
+    # Save Message
+    try:
+      with transaction.atomic():
+        msg = Message.objects.create(
+            sender=request.user,
+            receiver=receiver,
+            content=content,
+            image=image,
+            document=document,
+        )
+
+        # Notification creation
+        Notification.objects.create(
+            user=receiver,
+            sender=request.user,
+            message='sent you a new message.',
+            link=f'/messaging/?user={request.user.username}',
+        )
+
+        return JsonResponse({
+            'id': msg.id,
+            'status': 'success',
+            'content': msg.content,
+            'timestamp': msg.timestamp.astimezone(
+                pytz.timezone('Asia/Kolkata')
+            ).strftime('%I:%M %p'),
+            'image_url': msg.image.url if msg.image else None,
+            'doc_url': msg.document.url if msg.document else None,
+            'doc_name': (
+                msg.document.name.split('/')[-1] if msg.document else None
+            ),
+        })
+    except Exception as e:
+      return JsonResponse(
+          {'status': 'error', 'message': f'Database error: {str(e)}'},
+          status=500,
+      )
+
+  return JsonResponse(
+      {'status': 'error', 'message': 'Invalid request method'}, status=405
+  )
 
 
 import urllib.parse
@@ -1639,3 +1652,4 @@ def delete_notification(request, id):
     notification = get_object_or_404(Notification, id=id, user=request.user)
     notification.delete()
     return JsonResponse({'status': 'success'})
+

@@ -463,7 +463,8 @@
                     <!-- Footer Chat Input Layer Controls -->
                     <div class="p-3 md:p-4 border-t bg-white flex-shrink-0 z-20">
                         <form id="chatForm" action="{% url 'send_message' %}" method="POST" enctype="multipart/form-data" 
-                              class="flex flex-col bg-[#f4f2ee] rounded-xl border border-gray-200 focus-within:border-gray-400 transition-all">
+                            onsubmit="handleSendMessage(event)"
+                            class="flex flex-col bg-[#f4f2ee] rounded-xl border border-gray-200 focus-within:border-gray-400 transition-all">
                             {% csrf_token %}
                             <input type="hidden" name="receiver_id" id="receiverIdHidden" value="{{ active_user.id }}">
                             
@@ -482,7 +483,8 @@
                                     <input type="file" name="image" id="imageInput" class="hidden" onchange="previewFile(this, 'image')">
                                     <input type="file" name="document" id="fileInput" class="hidden" onchange="previewFile(this, 'file')">
                                 </div>
-                                <button type="submit" id="submitBtn" class="bg-[#0a66c2] text-white px-5 py-1.5 rounded-full font-bold text-xs hover:bg-[#004182] transition-all cursor-pointer">Send</button>
+                                <!-- Mobile touch support fixed -->
+                                <button type="submit" id="submitBtn" class="bg-[#0a66c2] text-white px-5 py-2 rounded-full font-bold text-xs hover:bg-[#004182] active:scale-95 transition-all cursor-pointer touch-manipulation">Send</button>
                             </div>
                         </form>
                     </div>
@@ -850,6 +852,106 @@
                 }
             })
             .catch(err => console.error("Error loading messages:", err));
+        }
+        function handleSendMessage(e) {
+            if (e) e.preventDefault();
+
+            const form = document.getElementById('chatForm');
+            if (!form) return false;
+
+            const messageInput = document.getElementById('messageInput');
+            const textContent = messageInput ? messageInput.value.trim() : "";
+            const imgInput = document.getElementById('imageInput');
+            const fileInput = document.getElementById('fileInput');
+
+            if (!textContent && (!imgInput || !imgInput.files.length) && (!fileInput || !fileInput.files.length)) {
+                return false; 
+            }
+
+            let formData = new FormData(form);
+            let messageContainer = document.getElementById('messageContainer');
+            let submitBtn = document.getElementById('submitBtn');
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerText = "Sending...";
+            }
+
+            fetch("{% url 'send_message' %}", {
+                method: 'POST',
+                body: formData,
+                headers: { 
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'X-Requested-With': 'XMLHttpRequest' 
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Server error HTTP " + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success' || data.id) {
+                    lastMessageId = data.id; 
+                    let docHtml = "";
+                    
+                    if (data.doc_url) {
+                        docHtml = `
+                            <div class="mt-2 flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg w-full max-w-[280px] shadow-sm text-gray-900">
+                                <div class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded text-red-600 shrink-0">
+                                    <i class="fa-solid fa-file-pdf text-xl"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-semibold text-gray-900 truncate">${data.doc_name || 'Document'}</p>
+                                    <p class="text-[11px] text-gray-500 font-medium uppercase">PDF Document</p>
+                                </div>
+                                <a href="${data.doc_url}" target="_blank" class="text-gray-500 hover:text-blue-700 p-2 rounded-full shrink-0">
+                                    <i class="fa-solid fa-download text-lg"></i>
+                                </a>
+                            </div>`;
+                    }
+                    
+                    let imgHtml = data.image_url ? `<img src="${data.image_url}" onclick="openModal('${data.image_url}', 'image')" class="rounded-lg mb-2 max-h-60 border border-black/10 max-w-full object-contain cursor-pointer">` : "";
+                    
+                    let newMessage = `
+                        <div id="message-${data.id}" class="flex flex-col items-end group relative mb-2 animate-fade-in">
+                            <div class="flex items-center gap-2 flex-row-reverse max-w-[85%]">
+                                <div class="flex flex-col items-end min-w-0">
+                                    <div class="p-3 text-sm shadow-sm msg-bubble-me">
+                                        ${imgHtml}
+                                        ${data.content ? `<p class="break-words text-left">${data.content}</p>` : ""}
+                                        ${docHtml}
+                                    </div>
+                                    <span class="text-[9px] text-gray-400 mt-1 font-bold">${data.timestamp}</span>
+                                </div>
+                                <button type="button" 
+                                        onclick="deleteMessage('${data.id}')" 
+                                        class="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-600 transition-all duration-200 cursor-pointer shrink-0 p-1">
+                                    <i class="fa-solid fa-trash-can text-[12px]"></i>
+                                </button>
+                            </div>
+                        </div>`;
+                    
+                    if (messageContainer) {
+                        messageContainer.insertAdjacentHTML('beforeend', newMessage);
+                    }
+                    if (messageInput) messageInput.value = ""; 
+                    clearAttachments(); 
+                    scrollToBottom(); 
+                }
+            })
+            .catch(err => {
+                console.error("Error sending message:", err);
+            })
+            .finally(() => {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Send";
+                }
+            });
+
+            return false;
         }
     </script>
 </body>
