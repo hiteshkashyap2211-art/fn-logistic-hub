@@ -32,7 +32,7 @@
         .custom-scrollbar::-webkit-scrollbar { width: 5px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cfcfcf; border-radius: 10px; }
         
-        /* Premium LinkedIn Micro-Tailored Message Bubbles */
+        /* Premium Message Bubbles */
         .msg-bubble-me { 
             background-color: #0a66c2 !important; 
             color: white !important; 
@@ -57,7 +57,6 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Dynamic Engine Responsive States for Mobile viewports like LinkedIn App */
         @media (max-width: 767px) {
             .mobile-view-active .sidebar-panel-shield {
                 display: none !important;
@@ -269,7 +268,7 @@
 
         </div>
 
-        <!-- 💬 WhatsApp/LinkedIn Style Mobile Sub-Nav Bar -->
+        <!-- Mobile Sub-Nav Bar -->
         <div class="block md:hidden bg-white border-b overflow-x-auto no-scrollbar whitespace-nowrap px-3 py-2">
             <div class="flex items-center space-x-2 text-xs">
                 <button onclick="location.href='#'" class="bg-indigo-50 text-indigo-700 font-bold px-3 py-1.5 rounded-full border border-indigo-200 flex items-center gap-1.5 shrink-0 active:scale-95 transition-all">
@@ -286,25 +285,16 @@
                     <i class="fa-solid fa-warehouse text-blue-600"></i>
                     <span>Logistics Hub</span>
                 </a>
-                
-                {% for group in vendor_groups %}
-                    {% if group.name != "Dishu Group PVT" and group.name != "Logistics Hub" %}
-                    <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
-                        <i class="fa-solid fa-user-group text-slate-500"></i>
-                        <span>{{ group.name }}</span>
-                    </a>
-                    {% endif %}
-                {% endfor %}
             </div>
         </div>
     </nav>
 
     <!-- Main Full Height Layout Shield Matrix -->
-    <div class="messaging-wrapper max-w-6xl mx-auto w-full md:pt-4 md:pb-4 pb-0">
+    <div class="messaging-wrapper max-w-6xl mx-auto w-full md:py-4 pb-14 md:pb-0">
         <div id="coreLayoutMatrix" class="grid grid-cols-12 bg-white md:border md:border-gray-300 md:rounded-lg shadow-sm overflow-hidden w-full h-full {% if active_user %}mobile-view-active{% endif %}">
             
             <!-- Sidebar Contacts List Panel -->
-            <div class="sidebar-panel-shield col-span-12 md:col-span-4 border-r border-gray-200 bg-white flex flex-col h-full overflow-hidden pb-14 md:pb-0">
+            <div class="sidebar-panel-shield col-span-12 md:col-span-4 border-r border-gray-200 bg-white flex flex-col h-full overflow-hidden pb-16 md:pb-0">
                 <div class="p-4 border-b font-bold text-slate-800 flex justify-between items-center bg-white sticky top-0 z-10 flex-shrink-0">
                     <span class="text-lg">Messaging</span>
                     <i class="fa-solid fa-ellipsis text-gray-500 cursor-pointer"></i>
@@ -320,7 +310,7 @@
                 <div class="overflow-y-auto flex-1 custom-scrollbar">
                     {% for contact in contacts %}
                     <a href="{% url 'messaging' %}?user={{ contact.username }}" 
-                    class="p-4 flex gap-3 hover:bg-gray-50 cursor-pointer border-b transition relative {% if contact == active_user %} bg-gray-50 border-l-4 border-blue-600 {% endif %}">
+                    class="p-4 flex gap-3 hover:bg-gray-50 cursor-pointer border-b transition relative {% if active_user and contact.id == active_user.id %} bg-gray-50 border-l-4 border-blue-600 {% endif %}">
                         
                         <div class="relative flex-shrink-0">
                             {% if contact.role == 'vendor' and contact.vendor_profile.company_logo %}
@@ -363,7 +353,7 @@
             </div>
 
             <!-- Chat Thread Content Monitor Shield -->
-            <div class="chat-pane-shield col-span-12 md:col-span-8 flex flex-col bg-white h-full overflow-hidden">
+            <div class="chat-pane-shield col-span-12 md:col-span-8 flex flex-col bg-white h-full overflow-hidden relative">
                 {% if active_user %}
                     <div class="p-3 border-b flex items-center justify-between bg-white z-10 flex-shrink-0">
                         <div class="flex items-center gap-3 px-2 min-w-0">
@@ -399,7 +389,7 @@
                     </div>
 
                     <!-- Threads Stream Container -->
-                    <div class="flex-1 overflow-y-auto p-4 space-y-4 bg-white custom-scrollbar" id="messageContainer">
+                    <div class="flex-1 overflow-y-auto p-4 space-y-4 bg-white custom-scrollbar pb-24 md:pb-6" id="messageContainer">
                         <div id="loadMoreTrigger" class="text-center py-2">
                             <button onclick="loadMoreMessages()" class="text-xs text-blue-600 font-bold hover:underline">
                                 Load older messages
@@ -459,7 +449,7 @@
                     </div>
 
                     <!-- Footer Chat Input Layer Controls -->
-                    <div class="p-3 md:p-4 border-t bg-white flex-shrink-0 pb-16 md:pb-4">
+                    <div class="p-3 md:p-4 border-t bg-white flex-shrink-0 z-20">
                         <form id="chatForm" action="{% url 'send_message' %}" method="POST" enctype="multipart/form-data" 
                               class="flex flex-col bg-[#f4f2ee] rounded-xl border border-gray-200 focus-within:border-gray-400 transition-all">
                             {% csrf_token %}
@@ -638,7 +628,7 @@
                             </div>`;
                     }
                     
-                    let imgHtml = data.img_url ? `<img src="${data.img_url}" class="rounded-lg mb-2 max-h-60 border border-black/10 max-w-full object-contain">` : "";
+                    let imgHtml = data.image_url ? `<img src="${data.image_url}" class="rounded-lg mb-2 max-h-60 border border-black/10 max-w-full object-contain">` : "";
                     
                     let newMessage = `
                         <div id="message-${data.id}" class="flex flex-col items-end group relative mb-2 animate-fade-in">
@@ -719,7 +709,7 @@
                     fileInfo.classList.add('hidden');
                 } else {
                     imagePreview.classList.add('hidden');
-                    fileInfo.remove('hidden');
+                    fileInfo.classList.remove('hidden');
                     fileName.innerText = file.name;
                 }
             }
