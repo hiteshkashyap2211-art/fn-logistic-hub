@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
     <title>Messaging | WH Logistic Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -57,26 +57,40 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        @media (max-width: 767px) {
-            .mobile-view-active .sidebar-panel-shield {
-                display: none !important;
-            }
-            .mobile-view-active .chat-pane-shield {
-                display: flex !important;
-                width: 100% !important;
-                grid-column: span 12 / span 12 !important;
-            }
-            .sidebar-panel-shield {
-                width: 100% !important;
-                grid-column: span 12 / span 12 !important;
-            }
-            .chat-pane-shield {
-                display: none;
-            }
-            .mobile-bottom-nav {
-                box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+        /* Mobile Keyboard Safe Height Fix */
+        @supports (-webkit-touch-callout: none) {
+            body {
+                height: -webkit-fill-available;
             }
         }
+
+        @media (max-width: 767px) {
+        /* Mobile Toggle Logic: jab chat active na ho, chat pane hide rahe */
+        .chat-pane-shield {
+            display: none !important;
+        }
+
+        /* Jab active_user ho (mobile-view-active class trigger ho), tab Sidebar hide ho aur Chat show ho */
+        .mobile-view-active .sidebar-panel-shield {
+            display: none !important;
+        }
+        .mobile-view-active .chat-pane-shield {
+            display: flex !important;
+        }
+
+        body {
+            height: 100dvh;
+        }
+        
+        body:has(textarea:focus) .mobile-bottom-nav,
+        body:has(input:focus) .mobile-bottom-nav {
+            display: none !important;
+        }
+        
+        .messaging-wrapper {
+            padding-bottom: 0 !important;
+        }
+    }
     </style>
 </head>
 <body class="bg-[#f3f2ef]"> 
