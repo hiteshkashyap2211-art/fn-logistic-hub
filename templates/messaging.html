@@ -300,11 +300,11 @@
     </nav>
 
     <!-- Main Full Height Layout Shield Matrix -->
-    <div class="messaging-wrapper max-w-6xl mx-auto w-full md:pt-4 md:pb-4 pb-14">
+    <div class="messaging-wrapper max-w-6xl mx-auto w-full md:pt-4 md:pb-4 pb-0">
         <div id="coreLayoutMatrix" class="grid grid-cols-12 bg-white md:border md:border-gray-300 md:rounded-lg shadow-sm overflow-hidden w-full h-full {% if active_user %}mobile-view-active{% endif %}">
             
             <!-- Sidebar Contacts List Panel -->
-            <div class="sidebar-panel-shield col-span-12 md:col-span-4 border-r border-gray-200 bg-white flex flex-col h-full overflow-hidden">
+            <div class="sidebar-panel-shield col-span-12 md:col-span-4 border-r border-gray-200 bg-white flex flex-col h-full overflow-hidden pb-14 md:pb-0">
                 <div class="p-4 border-b font-bold text-slate-800 flex justify-between items-center bg-white sticky top-0 z-10 flex-shrink-0">
                     <span class="text-lg">Messaging</span>
                     <i class="fa-solid fa-ellipsis text-gray-500 cursor-pointer"></i>
@@ -459,7 +459,7 @@
                     </div>
 
                     <!-- Footer Chat Input Layer Controls -->
-                    <div class="p-3 md:p-4 border-t bg-white flex-shrink-0">
+                    <div class="p-3 md:p-4 border-t bg-white flex-shrink-0 pb-16 md:pb-4">
                         <form id="chatForm" action="{% url 'send_message' %}" method="POST" enctype="multipart/form-data" 
                               class="flex flex-col bg-[#f4f2ee] rounded-xl border border-gray-200 focus-within:border-gray-400 transition-all">
                             {% csrf_token %}
@@ -719,7 +719,7 @@
                     fileInfo.classList.add('hidden');
                 } else {
                     imagePreview.classList.add('hidden');
-                    fileInfo.classList.remove('hidden');
+                    fileInfo.remove('hidden');
                     fileName.innerText = file.name;
                 }
             }
