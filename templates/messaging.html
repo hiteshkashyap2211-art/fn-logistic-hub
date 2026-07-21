@@ -5,85 +5,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Messaging | WH Logistic Hub{% endblock %}</title>
-    <meta name="description" content="Find the best logistics and warehouse jobs in Farukhnagar. Join WH Logistic Hub.">
-
-    <meta property="og:title" content="WH Logistic Hub - Farukhnagar Job Portal">
-    <meta property="og:description" content="Hiring Pickers, Packers, and Warehouse Executives in Farukhnagar. Apply now!">
-    <meta property="og:image" content="{% static 'images/logo-share.png' %}"> 
-    <meta property="og:url" content="https://pgease.pythonanywhere.com/">
-    <meta property="og:type" content="website">
-
+    <title>Messaging | WH Logistic Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="icon" href="{% static 'images/favicon.ico' %}">
-    <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
     
     <style>
-        body > main { margin-top: 0 !important; padding-top: 0 !important; }
-
         body { 
             height: 100vh; 
             margin: 0; 
             overflow: hidden; 
             display: flex; 
             flex-direction: column; 
-            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Fira Sans", Ubuntu, Oxygen, "Oxygen Sans", Cantarell, "Droid Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Lucida Grande", Helvetica, Arial, sans-serif; 
+            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
             background: #f3f2ef;
         }
-
-        .card { background: white; border-radius: 8px; border: 1px solid #e0e0e0; box-shadow: 0 0 0 1px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.1); }
-        
-        .groups-sidebar {
-            background: #ffffff;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 15px;
-            width: 100%;
-            max-width: 300px;
-        }
-        .group-item {
-            padding: 10px;
-            border-bottom: 1px solid #f3f2ef;
-            cursor: pointer;
-            transition: background 0.3s;
-            display: flex;
-            align-items: center;
-        }
-        .group-item:hover {
-            background-color: #f3f2ef;
-            border-radius: 4px;
-        }
-        .group-item p {
-            margin: 0;
-            font-weight: 600;
-            color: #333;
-            font-size: 14px;
-        }
-        .group-header {
-            font-weight: bold;
-            color: #5f5f5f;
-            margin-bottom: 10px;
-            font-size: 12px;
-            text-transform: uppercase;
-        }
-
-        #toast-box {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 25px;
-            background: #333;
-            color: white;
-            border-radius: 8px;
-            display: none; 
-            z-index: 1000;
-        }
-
-        .btn-apply { transition: 0.3s; font-weight: bold; }
-        .btn-apply:hover { transform: translateY(-1px); opacity: 0.95; }
         
         .messaging-wrapper {
             flex: 1;
@@ -91,19 +29,8 @@
             overflow: hidden;
         }
 
-        .custom-scrollbar {
-            scrollbar-width: thin; 
-            scrollbar-color: #cfcfcf transparent;
-        }
         .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { 
-            background: #cfcfcf; 
-            border-radius: 10px;
-            border: 1px solid transparent;
-            background-clip: content-box;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #004182; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cfcfcf; border-radius: 10px; }
         
         /* Premium Message Bubbles */
         .msg-bubble-me { 
@@ -127,31 +54,10 @@
         .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
 
-        .animate-scale-in { animation: scaleIn 0.15s cubic-bezier(0, 0, 0.2, 1); transform-origin: top right; }
-        @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-        .delete-menu {
-            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
-            border: 1px solid rgba(0,0,0,0.1);
-        }
-        
-        .comment-bubble:hover {
-            background-color: #ebebeb !important;
-            transition: background-color 0.2s ease;
-        }
-
-        textarea:focus {
-            border-color: rgba(0,0,0,0.4) !important;
-            box-shadow: 0 0 0 1px rgba(0,0,0,0.4) !important;
-        }
-
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
         @media (max-width: 767px) {
-            .mobile-bottom-nav {
-                box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
-            }
             .mobile-view-active .sidebar-panel-shield {
                 display: none !important;
             }
@@ -167,38 +73,14 @@
             .chat-pane-shield {
                 display: none;
             }
-            nav .flex.items-center.space-x-4,
-            nav a.flex.flex-col,
-            nav #meDropdownContainer button {
-                display: none !important;
-            }
-
-            nav .max-w-6xl {
-                display: flex !important;
-                justify-content: space-between !important;
-                align-items: center !important;
-                width: 100% !important;
-                padding-left: 1rem !important;
-                padding-right: 1rem !important;
-            }
-
-            nav #meDropdownContainer {
-                display: flex !important;
-                align-items: center !important;
-            }
-
-            nav #meDropdownContainer a {
-                display: block !important;
-                width: 2rem !important;
-                height: 2rem !important;
-                border-radius: 9999px !important;
+            .mobile-bottom-nav {
+                box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
             }
         }
     </style>
 </head>
 <body class="bg-[#f3f2ef]"> 
     
-    {% if not is_onboarding %}
     <!-- 📱 Responsive Dual-Layer Navigation Grid -->
     <nav class="bg-white border-b sticky top-0 z-50 flex-shrink-0">
         <div class="max-w-6xl mx-auto px-3 sm:px-4 flex justify-between items-center h-14 gap-2">
@@ -208,9 +90,9 @@
                 <div class="bg-orange-600 text-white font-black px-2.5 py-1 rounded text-base sm:text-lg italic tracking-tighter shrink-0 cursor-pointer">WH</div>
                 
                 <!-- 🖥️ Desktop Search -->
-                <div class="hidden md:flex items-center bg-[#edf3f8] px-3 py-1.5 rounded-md border border-transparent focus-within:bg-white focus-within:border-gray-500 focus-within:ring-1 focus-within:ring-gray-500 transition-all w-72">
+                <div class="hidden md:flex items-center bg-[#edf3f8] px-3 py-1.5 rounded-md border border-transparent focus-within:bg-white focus-within:border-gray-500 transition-all w-72">
                     <i class="fa-solid fa-magnifying-glass text-gray-600 text-sm mr-2"></i>
-                    <input type="text" id="searchInput" placeholder="Search Farukhnagar Jobs..." class="bg-transparent border-none outline-none text-sm w-full text-gray-900 placeholder-gray-500 font-normal">
+                    <input type="text" placeholder="Search Farukhnagar Jobs..." class="bg-transparent border-none outline-none text-sm w-full text-gray-900 placeholder-gray-500 font-normal">
                 </div>
 
                 <!-- 📱 Mobile Search Bar -->
@@ -223,30 +105,30 @@
             <!-- 🖥️ Desktop Navigation Links Row -->
             <div class="hidden md:flex items-center justify-end space-x-4 md:space-x-8 flex-1 py-1">
                 <a href="{% url 'community_hub' %}" class="flex flex-col items-center text-slate-500 hover:text-indigo-600 transition shrink-0">
-                    <i class="fa-solid fa-comments text-lg sm:text-xl"></i>
+                    <i class="fa-solid fa-comments text-xl"></i>
                     <span class="text-[10px] font-bold mt-1">Hub</span>
                 </a>
                 
                 <a href="{% url 'home' %}" class="flex flex-col items-center group text-gray-500 hover:text-black transition-all shrink-0">
-                    <i class="fa-solid fa-house text-lg sm:text-xl"></i>
+                    <i class="fa-solid fa-house text-xl"></i>
                     <span class="text-[10px] font-bold mt-1">Home</span>
                 </a>
 
                 {% if request.user.role == 'vendor' %}
                 <a href="{% url 'find_worker' %}" class="flex flex-col items-center group text-gray-500 hover:text-black transition-all shrink-0">
-                    <i class="fa-solid fa-user-group text-lg sm:text-xl"></i>
+                    <i class="fa-solid fa-user-group text-xl"></i>
                     <span class="text-[10px] font-bold mt-1">Find Workers</span>
                 </a>
                 {% endif %}
 
                 <a href="{% url 'job_list' %}" class="flex flex-col items-center group text-gray-500 hover:text-black transition-all shrink-0">
-                    <i class="fa-solid fa-briefcase text-lg sm:text-xl"></i>
+                    <i class="fa-solid fa-briefcase text-xl"></i>
                     <span class="text-[10px] font-bold mt-1">Jobs</span>
                 </a>
 
                 <a href="{% url 'messaging' %}" class="flex flex-col items-center group text-gray-500 hover:text-black relative transition-all shrink-0">
                     <div class="relative">
-                        <i class="fa-solid fa-comment-dots text-lg sm:text-xl"></i>
+                        <i class="fa-solid fa-comment-dots text-xl"></i>
                         {% if msg_count > 0 %}
                         <span class="absolute -top-1.5 -right-2 bg-red-600 text-white text-[8px] px-1 rounded-full border border-white font-bold">{{ msg_count }}</span>
                         {% endif %}
@@ -256,16 +138,16 @@
 
                 <a href="{% url 'notifications' %}" class="flex flex-col items-center group text-gray-500 hover:text-black relative transition-all shrink-0">
                     <div class="relative">
-                        <i class="fa-solid fa-bell text-lg sm:text-xl"></i>
-                        {% if notif_count and notif_count > 0 %}
+                        <i class="fa-solid fa-bell text-xl"></i>
+                        {% if notif_count > 0 %}
                         <span class="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[8px] px-1 rounded-full border border-white font-bold">{{ notif_count }}</span>
                         {% endif %}
                     </div>
                     <span class="text-[10px] font-bold mt-1">Notifications</span>
                 </a>
 
-                <!-- Desktop Custom Dropdown Container -->
-                <div class="relative flex items-center shrink-0 desktopMeContainer" id="meDropdownContainer">
+                <!-- Desktop Me Dropdown Avatar -->
+                <div class="relative flex items-center shrink-0 desktopMeContainer">
                     <div class="flex flex-col items-center">
                         <a href="{% if request.user.role == 'vendor' %}{% url 'vendor_dashboard' %}{% else %}{% url 'worker_dashboard' %}{% endif %}" class="w-6 h-6 rounded-full overflow-hidden border border-gray-200 hover:border-black transition-all">
                             {% if request.user.role == 'vendor' and request.user.vendor_profile.company_logo %}
@@ -328,7 +210,6 @@
                             <p class="px-3 pt-1 text-[13px] font-semibold text-gray-900">Account</p>
                             <a href="#" class="block px-3 py-1 text-[12px] text-orange-600 font-semibold hover:underline"> Try Premium for Free</a>
                             <a href="{% if request.user.role == 'vendor' %}{% url 'vendor_dashboard' %}{% else %}{% url 'worker_dashboard' %}{% endif %}" class="block px-3 py-1 text-[12px] text-gray-500 hover:bg-gray-100 transition-colors">Settings & Privacy</a>
-                            <a href="#" class="block px-3 py-1 text-[12px] text-gray-500 hover:bg-gray-100 transition-colors">Help & Language</a>
                         </div>
                         <div class="p-1 bg-white">
                             <form action="{% url 'logout' %}" method="post" class="m-0 p-0">
@@ -372,10 +253,8 @@
                     <div class="p-2 border-b border-[#f3f2ef] flex flex-col gap-1">
                         {% if request.user.role == 'vendor' %}
                             <a href="{% url 'vendor_dashboard' %}" class="block text-center w-full py-1 text-xs border border-[#0a66c2] text-[#0a66c2] font-bold rounded-full hover:bg-blue-50">Dashboard</a>
-                            <a href="{% url 'create_profile' %}" class="block text-center w-full py-1 text-xs border border-orange-600 text-orange-600 font-bold rounded-full hover:bg-orange-50">Edit Profile</a>
                         {% else %}
                             <a href="{% url 'worker_detail' request.user.worker_profile.pk|default:request.user.id %}" class="block text-center w-full py-1 text-xs border border-[#0a66c2] text-[#0a66c2] font-bold rounded-full hover:bg-blue-50">View Profile</a>
-                            <a href="{% url 'create_profile' %}" class="block text-center w-full py-1 text-xs border border-orange-600 text-orange-600 font-bold rounded-full hover:bg-orange-50">Edit Resume</a>
                         {% endif %}
                     </div>
                     <div class="p-1 bg-white">
@@ -406,43 +285,9 @@
                     <i class="fa-solid fa-warehouse text-blue-600"></i>
                     <span>Logistics Hub</span>
                 </a>
-
-                {% for group in vendor_groups %}
-                    {% if group.name != "Dishu Group PVT" and group.name != "Logistics Hub" %}
-                    <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
-                        <i class="fa-solid fa-user-group text-slate-500"></i>
-                        <span>{{ group.name }} {% if group.member_count %}({{ group.member_count }}){% endif %}</span>
-                    </a>
-                    {% endif %}
-                {% endfor %}
             </div>
         </div>
     </nav>
-    {% endif %}
-
-    <!-- AI Modal Layout -->
-    <div id="aiModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full border border-slate-100 shadow-2xl animate-scale-in mx-2">
-            <div class="flex justify-between items-start mb-6">
-                <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-200">
-                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 2a5 5 0 0 0-5 5v1a3 3 0 0 0-3 3v5a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3v-5a3 3 0 0 0-3-3H17a5 5 0 0 0-5-5Z" fill="white" fill-opacity="0.2"/>
-                        <circle cx="9" cy="11" r="1" fill="white"/>
-                        <circle cx="15" cy="11" r="1" fill="white"/>
-                        <path d="M9 16h6" stroke-width="2"/>
-                    </svg>
-                </div>
-                <button onclick="document.getElementById('aiModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-900 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <h3 class="font-black text-xl sm:text-2xl text-slate-900">AI Analysis Report</h3>
-            <p class="text-xs sm:text-sm text-slate-500 mt-1">Personalized insights based on your profile.</p>
-            
-            <div id="aiContent" class="mt-6 space-y-4">
-                <div class="h-4 bg-slate-100 rounded animate-pulse w-3/4"></div>
-                <div class="h-4 bg-slate-100 rounded animate-pulse w-full"></div>
-            </div>
-        </div>
-    </div>
 
     <!-- Main Full Height Layout Shield Matrix -->
     <div class="messaging-wrapper max-w-6xl mx-auto w-full md:py-4 pb-14 md:pb-0">
@@ -554,19 +399,19 @@
                         
                         {% for msg in chat_messages %}
                             <div id="message-{{ msg.id }}" class="flex flex-col {% if msg.sender == request.user %} items-end {% else %} items-start {% endif %} group relative mb-2">
-                                <div class="flex items-start gap-2 {% if msg.sender == request.user %} flex-row-reverse {% endif %} max-w-[85%]">
+                                <div class="flex items-center gap-2 {% if msg.sender == request.user %} flex-row-reverse {% endif %} max-w-[85%]">
                                     
-                                    <div class="flex flex-col {% if msg.sender == request.user %} items-end {% else %} items-start {% endif %}">
+                                    <div class="flex flex-col {% if msg.sender == request.user %} items-end {% else %} items-start {% endif %} min-w-0">
                                         <div class="p-3 text-sm shadow-sm transition-all {% if msg.sender == request.user %} msg-bubble-me {% else %} msg-bubble-them {% endif %}">
                                             
                                             {% if msg.image %}
-                                                <img src="{{ msg.image.url }}" class="rounded-lg mb-2 max-h-60 border border-black/10 max-w-full object-contain cursor-pointer" onclick="openModal('{{ msg.image.url }}', 'image')">
+                                                <img src="{{ msg.image.url }}" onclick="openModal('{{ msg.image.url }}', 'image')" class="rounded-lg mb-2 max-h-60 border border-black/10 max-w-full object-contain cursor-pointer">
                                             {% endif %}
 
                                             {% if msg.content %}<p class="break-words text-left">{{ msg.content }}</p>{% endif %}
 
                                             {% if msg.document %}
-                                                <div class="mt-2 flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg w-full max-w-[280px] hover:border-blue-400 transition-all shadow-sm">
+                                                <div class="mt-2 flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg w-full max-w-[280px] hover:border-blue-400 transition-all shadow-sm text-gray-900">
                                                     <div class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded text-red-600 shrink-0">
                                                         <i class="fa-solid fa-file-pdf text-xl"></i>
                                                     </div>
@@ -594,8 +439,8 @@
                                     {% if msg.sender == request.user %}
                                         <button type="button" 
                                                 onclick="deleteMessage('{{ msg.id }}')" 
-                                                class="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-600 transition-all duration-200 cursor-pointer z-50 ml-2 self-center">
-                                            <i class="fa-solid fa-trash-can text-[10px]"></i>
+                                                class="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-600 transition-all duration-200 cursor-pointer shrink-0 p-1">
+                                            <i class="fa-solid fa-trash-can text-[12px]"></i>
                                         </button>
                                     {% endif %}
                                 </div>
@@ -676,24 +521,13 @@
             <a href="{% url 'notifications' %}" class="flex flex-col items-center justify-center group text-gray-500 hover:text-[#0a66c2] relative transition-colors">
                 <div class="relative">
                     <i class="fa-solid fa-bell text-lg"></i>
-                    {% if notif_count and notif_count > 0 %}
+                    {% if notif_count > 0 %}
                     <span class="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[7px] px-1 rounded-full font-bold">{{ notif_count }}</span>
                     {% endif %}
                 </div>
                 <span class="text-[9px] font-medium mt-0.5">Notif</span>
             </a>
         </div>
-    </div>
-
-    <!-- Toast Notification Overlay -->
-    <div id="share-toast" class="hidden fixed bottom-20 left-1/2 -translate-x-1/2 bg-[#1d2226] text-white px-5 py-3 rounded-lg shadow-2xl z-[999] transition-all duration-300 transform translate-y-20 opacity-0 flex items-center justify-between min-w-[280px] sm:min-w-[320px]">
-        <div class="flex items-center gap-2">
-            <i class="fa-solid fa-circle-check text-green-400"></i>
-            <span class="text-xs sm:text-sm font-semibold">Link copied to clipboard!</span>
-        </div>
-        <button onclick="hideToast()" class="ml-4 text-gray-400 hover:text-white transition-colors">
-            <i class="fa-solid fa-xmark text-base"></i>
-        </button>
     </div>
 
     <!-- Lightbox Modals Shield -->
@@ -716,37 +550,37 @@
         function openModal(url, type) {
             const modal = document.getElementById('fileModal');
             const modalContent = document.getElementById('modalContent');
-            if(!modal || !modalContent) return;
             modal.classList.remove('hidden');
             if (type === 'image') {
-                modalContent.innerHTML = `<img src="${url}" class="w-full h-auto max-h-[80vh] object-contain">`;
+                modalContent.innerHTML = `<img src="${url}" class="w-full h-auto max-h-[80vh] object-contain mx-auto">`;
             } else {
-                modalContent.innerHTML = `<iframe src="${url}" class="w-full h-[80vh]">`;
+                modalContent.innerHTML = `<iframe src="${url}" class="w-full h-[80vh]"></iframe>`;
             }
         }
 
         function closeModal() {
-            const modal = document.getElementById('fileModal');
-            if(modal) modal.classList.add('hidden');
+            document.getElementById('fileModal').classList.add('hidden');
         }
 
         const container = document.getElementById('messageContainer');
-        function scrollToBottom() { if (container) { container.scrollTop = container.scrollHeight; } }
+        function scrollToBottom() { 
+            if (container) { 
+                container.scrollTop = container.scrollHeight; 
+            } 
+        }
         window.onload = scrollToBottom;
         
         function toggleMeMenu(event, menuId) {
             if (event) event.stopPropagation();
             const targetMenu = document.getElementById(menuId);
-            if(!targetMenu) return;
-            const isAlreadyOpen = !targetMenu.classList.contains('hidden');
+            const isAlreadyOpen = targetMenu && !targetMenu.classList.contains('hidden');
             
-            const desktopMenu = document.getElementById('meMenu');
-            const mobileMenu = document.getElementById('meMenuMobile');
+            const meMenu = document.getElementById('meMenu');
+            const meMenuMobile = document.getElementById('meMenuMobile');
+            if(meMenu) meMenu.classList.add('hidden');
+            if(meMenuMobile) meMenuMobile.classList.add('hidden');
             
-            if(desktopMenu) desktopMenu.classList.add('hidden');
-            if(mobileMenu) mobileMenu.classList.add('hidden');
-            
-            if (!isAlreadyOpen) {
+            if (!isAlreadyOpen && targetMenu) {
                 targetMenu.classList.remove('hidden');
             }
         }
@@ -786,13 +620,13 @@
                     
                     if (data.doc_url) {
                         docHtml = `
-                            <div class="mt-2 flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg w-full max-w-[280px] shadow-sm">
+                            <div class="mt-2 flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg w-full max-w-[280px] shadow-sm text-gray-900">
                                 <div class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded text-red-600 shrink-0">
                                     <i class="fa-solid fa-file-pdf text-xl"></i>
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <p class="text-sm font-semibold text-gray-900 truncate">${data.doc_name || 'Document'}</p>
-                                    <p class="text-[11px] text-gray-500 font-medium">PDF Document</p>
+                                    <p class="text-[11px] text-gray-500 font-medium uppercase">PDF Document</p>
                                 </div>
                                 <a href="${data.doc_url}" target="_blank" class="text-gray-500 hover:text-blue-700 p-2 rounded-full shrink-0">
                                     <i class="fa-solid fa-download text-lg"></i>
@@ -800,12 +634,12 @@
                             </div>`;
                     }
                     
-                    let imgHtml = data.image_url ? `<img src="${data.image_url}" class="rounded-lg mb-2 max-h-60 border border-black/10 max-w-full object-contain cursor-pointer" onclick="openModal('${data.image_url}', 'image')">` : "";
+                    let imgHtml = data.image_url ? `<img src="${data.image_url}" onclick="openModal('${data.image_url}', 'image')" class="rounded-lg mb-2 max-h-60 border border-black/10 max-w-full object-contain cursor-pointer">` : "";
                     
                     let newMessage = `
                         <div id="message-${data.id}" class="flex flex-col items-end group relative mb-2 animate-fade-in">
-                            <div class="flex items-start gap-2 flex-row-reverse max-w-[85%]">
-                                <div class="flex flex-col items-end">
+                            <div class="flex items-center gap-2 flex-row-reverse max-w-[85%]">
+                                <div class="flex flex-col items-end min-w-0">
                                     <div class="p-3 text-sm shadow-sm msg-bubble-me">
                                         ${imgHtml}
                                         ${data.content ? `<p class="break-words text-left">${data.content}</p>` : ""}
@@ -813,6 +647,11 @@
                                     </div>
                                     <span class="text-[9px] text-gray-400 mt-1 font-bold">${data.timestamp}</span>
                                 </div>
+                                <button type="button" 
+                                        onclick="deleteMessage('${data.id}')" 
+                                        class="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-600 transition-all duration-200 cursor-pointer shrink-0 p-1">
+                                    <i class="fa-solid fa-trash-can text-[12px]"></i>
+                                </button>
                             </div>
                         </div>`;
                     
@@ -840,10 +679,27 @@
             .then(data => {
                 if (data.messages && data.messages.length > 0) {
                     data.messages.forEach(msg => {
+                        let imgHtml = msg.image_url ? `<img src="${msg.image_url}" onclick="openModal('${msg.image_url}', 'image')" class="rounded-lg mb-2 max-h-60 border border-black/10 max-w-full object-contain cursor-pointer">` : "";
+                        let docHtml = msg.doc_url ? `
+                            <div class="mt-2 flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg w-full max-w-[280px] shadow-sm text-gray-900">
+                                <div class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded text-red-600 shrink-0">
+                                    <i class="fa-solid fa-file-pdf text-xl"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-semibold text-gray-900 truncate">${msg.doc_name || 'Document'}</p>
+                                    <p class="text-[11px] text-gray-500 font-medium uppercase">PDF Document</p>
+                                </div>
+                                <a href="${msg.doc_url}" target="_blank" class="text-gray-500 hover:text-blue-700 p-2 rounded-full shrink-0">
+                                    <i class="fa-solid fa-download text-lg"></i>
+                                </a>
+                            </div>` : "";
+
                         let newMessage = `
                             <div id="message-${msg.id}" class="flex flex-col items-start mb-2 group animate-fade-in">
                                 <div class="p-3 text-sm msg-bubble-them shadow-sm">
-                                    ${msg.content}
+                                    ${imgHtml}
+                                    ${msg.content ? `<p class="break-words text-left">${msg.content}</p>` : ""}
+                                    ${docHtml}
                                 </div>
                                 <span class="text-[9px] text-gray-400 mt-1 font-bold">
                                     ${msg.timestamp}
@@ -855,17 +711,16 @@
                     });
                     scrollToBottom();
                 }
-            });
+            })
+            .catch(err => console.error("Fetch Error:", err));
         }, 3000);
 
         function clearAttachments() {
-            const imgInp = document.getElementById('imageInput');
-            const fileInp = document.getElementById('fileInput');
-            if(imgInp) imgInp.value = "";
-            if(fileInp) fileInp.value = "";
-            document.getElementById('previewContainer')?.classList.add('hidden');
-            document.getElementById('imagePreview')?.classList.add('hidden');
-            document.getElementById('fileInfo')?.classList.add('hidden');
+            document.getElementById('imageInput').value = "";
+            document.getElementById('fileInput').value = "";
+            document.getElementById('previewContainer').classList.add('hidden');
+            document.getElementById('imagePreview').classList.add('hidden');
+            document.getElementById('fileInfo').classList.add('hidden');
         }
         
         function previewFile(input, type) {
@@ -876,15 +731,15 @@
             const fileName = document.getElementById('fileName');
 
             if (file) {
-                previewContainer?.classList.remove('hidden');
+                previewContainer.classList.remove('hidden');
                 if (type === 'image') {
                     imagePreview.src = URL.createObjectURL(file);
-                    imagePreview?.classList.remove('hidden');
-                    fileInfo?.classList.add('hidden');
+                    imagePreview.classList.remove('hidden');
+                    fileInfo.classList.add('hidden');
                 } else {
-                    imagePreview?.classList.add('hidden');
-                    fileInfo?.classList.remove('hidden');
-                    if(fileName) fileName.innerText = file.name;
+                    imagePreview.classList.add('hidden');
+                    fileInfo.classList.remove('hidden');
+                    fileName.innerText = file.name;
                 }
             }
         }
@@ -943,72 +798,9 @@
                 } else {
                     document.getElementById('loadMoreTrigger').innerHTML = '<span class="text-[10px] text-gray-400">No more messages</span>';
                 }
-            });
-        }
-
-        // --- UTILITY & HELPER JS FUNCTIONS ---
-        function toggleCommentBox(id) { 
-            const box = document.getElementById('comment-box-' + id);
-            if(box) box.classList.toggle('hidden');
-        }
-
-        function shareJob(jobId, jobTitle) {
-            const jobUrl = window.location.origin + '/apply/' + jobId + '/';
-
-            if (navigator.share) {
-                navigator.share({
-                    title: jobTitle,
-                    text: 'Check out this job at Farukhnagar Hub: ' + jobTitle,
-                    url: jobUrl,
-                }).catch((error) => console.log('Error sharing:', error));
-            } else {
-                navigator.clipboard.writeText(jobUrl).then(() => {
-                    const toast = document.getElementById('share-toast');
-                    if (toast) {
-                        toast.classList.remove('hidden');
-                        toast.classList.remove('opacity-0', 'translate-y-20');
-                        toast.classList.add('opacity-100', 'translate-y-0');
-                        setTimeout(hideToast, 3000);
-                    }
-                });
-            }
-        }
-
-        function hideToast() {
-            const toast = document.getElementById('share-toast');
-            if (toast) {
-                toast.classList.add('opacity-0', 'translate-y-20');
-                setTimeout(() => toast.classList.add('hidden'), 300);
-            }
-        }
-
-        const searchInput = document.getElementById('searchInput');
-        if (searchInput && searchInput.value) {
-            searchInput.focus();
-            let val = searchInput.value;
-            searchInput.value = '';
-            searchInput.value = val;
-        }
-
-        function runAiAnalysis() {
-            const modal = document.getElementById('aiModal');
-            const content = document.getElementById('aiContent');
-            if(modal && content) {
-                modal.classList.remove('hidden');
-                content.innerHTML = '<div class="text-indigo-600 font-bold flex items-center gap-2"><i class="fa-solid fa-spinner animate-spin"></i> Scanning your profile...</div>';
-                
-                setTimeout(() => {
-                    content.innerHTML = `
-                        <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
-                            <p class="text-xs font-bold text-indigo-900">🚀 Success! Your profile is 85% complete.</p>
-                            <p class="text-[12px] text-indigo-700 mt-1">To reach 100%, add a <b>'Warehouse Management'</b> certification. Recruiters are 3x more likely to contact profiles with certifications.</p>
-                        </div>
-                        <a href="{% url 'create_profile' %}" class="block text-center mt-4 w-full py-3 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-black transition-all">Update Profile Now</a>
-                    `;
-                }, 2000);
-            }
+            })
+            .catch(err => console.error("Error loading messages:", err));
         }
     </script>
-    {% block extra_js %}{% endblock %}
 </body>
 </html>
