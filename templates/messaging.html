@@ -65,32 +65,30 @@
         }
 
         @media (max-width: 767px) {
-        /* Mobile Toggle Logic: jab chat active na ho, chat pane hide rahe */
-        .chat-pane-shield {
-            display: none !important;
-        }
+            .chat-pane-shield {
+                display: none !important;
+            }
 
-        /* Jab active_user ho (mobile-view-active class trigger ho), tab Sidebar hide ho aur Chat show ho */
-        .mobile-view-active .sidebar-panel-shield {
-            display: none !important;
-        }
-        .mobile-view-active .chat-pane-shield {
-            display: flex !important;
-        }
+            .mobile-view-active .sidebar-panel-shield {
+                display: none !important;
+            }
+            .mobile-view-active .chat-pane-shield {
+                display: flex !important;
+            }
 
-        body {
-            height: 100dvh;
+            body {
+                height: 100dvh;
+            }
+            
+            body:has(textarea:focus) .mobile-bottom-nav,
+            body:has(input:focus) .mobile-bottom-nav {
+                display: none !important;
+            }
+            
+            .messaging-wrapper {
+                padding-bottom: 0 !important;
+            }
         }
-        
-        body:has(textarea:focus) .mobile-bottom-nav,
-        body:has(input:focus) .mobile-bottom-nav {
-            display: none !important;
-        }
-        
-        .messaging-wrapper {
-            padding-bottom: 0 !important;
-        }
-    }
     </style>
 </head>
 <body class="bg-[#f3f2ef]"> 
@@ -475,7 +473,7 @@
                                 <button type="button" onclick="clearAttachments()" class="text-red-500"><i class="fa-solid fa-xmark"></i></button>
                             </div>
 
-                            <textarea name="content" placeholder="Write a message..." class="w-full p-3 text-sm outline-none resize-none bg-transparent" rows="2"></textarea>
+                            <textarea name="content" id="messageInput" placeholder="Write a message..." class="w-full p-3 text-sm outline-none resize-none bg-transparent" rows="2"></textarea>
                             
                             <div class="flex justify-between items-center p-2.5 border-t border-gray-200">
                                 <div class="flex gap-5 text-gray-500 px-1">
@@ -484,7 +482,7 @@
                                     <input type="file" name="image" id="imageInput" class="hidden" onchange="previewFile(this, 'image')">
                                     <input type="file" name="document" id="fileInput" class="hidden" onchange="previewFile(this, 'file')">
                                 </div>
-                                <button type="submit" class="bg-[#0a66c2] text-white px-5 py-1.5 rounded-full font-bold text-xs hover:bg-[#004182] transition-all">Send</button>
+                                <button type="submit" id="submitBtn" class="bg-[#0a66c2] text-white px-5 py-1.5 rounded-full font-bold text-xs hover:bg-[#004182] transition-all cursor-pointer">Send</button>
                             </div>
                         </form>
                     </div>
@@ -556,7 +554,7 @@
     <script>
         function exitChatView(event) {
             if(event) event.preventDefault();
-            document.getElementById('coreLayoutMatrix').classList.remove('mobile-view-active');
+            document.getElementById('coreLayoutMatrix')?.classList.remove('mobile-view-active');
             const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
             window.location.href = cleanUrl; 
         }
@@ -564,16 +562,18 @@
         function openModal(url, type) {
             const modal = document.getElementById('fileModal');
             const modalContent = document.getElementById('modalContent');
-            modal.classList.remove('hidden');
-            if (type === 'image') {
-                modalContent.innerHTML = `<img src="${url}" class="w-full h-auto max-h-[80vh] object-contain mx-auto">`;
-            } else {
-                modalContent.innerHTML = `<iframe src="${url}" class="w-full h-[80vh]"></iframe>`;
+            if(modal && modalContent) {
+                modal.classList.remove('hidden');
+                if (type === 'image') {
+                    modalContent.innerHTML = `<img src="${url}" class="w-full h-auto max-h-[80vh] object-contain mx-auto">`;
+                } else {
+                    modalContent.innerHTML = `<iframe src="${url}" class="w-full h-[80vh]"></iframe>`;
+                }
             }
         }
 
         function closeModal() {
-            document.getElementById('fileModal').classList.add('hidden');
+            document.getElementById('fileModal')?.classList.add('hidden');
         }
 
         const container = document.getElementById('messageContainer');
@@ -616,66 +616,99 @@
             });
         });
 
-        document.getElementById('chatForm')?.addEventListener('submit', function(e) {
-            e.preventDefault();
-            let formData = new FormData(this);
-            let messageContainer = document.getElementById('messageContainer');
+        // Safe DOMContentLoaded binding to ensure button click works on page load
+        document.addEventListener("DOMContentLoaded", function() {
+            const chatForm = document.getElementById('chatForm');
+            if (chatForm) {
+                chatForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const textContent = document.querySelector('textarea[name="content"]').value.trim();
+                    const imgInput = document.getElementById('imageInput');
+                    const fileInput = document.getElementById('fileInput');
 
-            fetch("{% url 'send_message' %}", {
-                method: 'POST',
-                body: formData,
-                headers: { 'X-CSRFToken': '{{ csrf_token }}' }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if(data.status === 'success') {
-                    lastMessageId = data.id; 
-                    let docHtml = "";
-                    
-                    if (data.doc_url) {
-                        docHtml = `
-                            <div class="mt-2 flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg w-full max-w-[280px] shadow-sm text-gray-900">
-                                <div class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded text-red-600 shrink-0">
-                                    <i class="fa-solid fa-file-pdf text-xl"></i>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-semibold text-gray-900 truncate">${data.doc_name || 'Document'}</p>
-                                    <p class="text-[11px] text-gray-500 font-medium uppercase">PDF Document</p>
-                                </div>
-                                <a href="${data.doc_url}" target="_blank" class="text-gray-500 hover:text-blue-700 p-2 rounded-full shrink-0">
-                                    <i class="fa-solid fa-download text-lg"></i>
-                                </a>
-                            </div>`;
+                    if (!textContent && (!imgInput || !imgInput.files.length) && (!fileInput || !fileInput.files.length)) {
+                        return; // Empty message send block
                     }
-                    
-                    let imgHtml = data.image_url ? `<img src="${data.image_url}" onclick="openModal('${data.image_url}', 'image')" class="rounded-lg mb-2 max-h-60 border border-black/10 max-w-full object-contain cursor-pointer">` : "";
-                    
-                    let newMessage = `
-                        <div id="message-${data.id}" class="flex flex-col items-end group relative mb-2 animate-fade-in">
-                            <div class="flex items-center gap-2 flex-row-reverse max-w-[85%]">
-                                <div class="flex flex-col items-end min-w-0">
-                                    <div class="p-3 text-sm shadow-sm msg-bubble-me">
-                                        ${imgHtml}
-                                        ${data.content ? `<p class="break-words text-left">${data.content}</p>` : ""}
-                                        ${docHtml}
+
+                    let formData = new FormData(this);
+                    let messageContainer = document.getElementById('messageContainer');
+                    let submitBtn = document.getElementById('submitBtn');
+
+                    if(submitBtn) submitBtn.disabled = true;
+
+                    fetch("{% url 'send_message' %}", {
+                        method: 'POST',
+                        body: formData,
+                        headers: { 
+                            'X-CSRFToken': '{{ csrf_token }}',
+                            'X-Requested-With': 'XMLHttpRequest' 
+                        }
+                    })
+                    .then(response => {
+                        if(!response.ok) {
+                            throw new Error("Server responded with HTTP " + response.status);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if(data.status === 'success' || data.id) {
+                            lastMessageId = data.id; 
+                            let docHtml = "";
+                            
+                            if (data.doc_url) {
+                                docHtml = `
+                                    <div class="mt-2 flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg w-full max-w-[280px] shadow-sm text-gray-900">
+                                        <div class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded text-red-600 shrink-0">
+                                            <i class="fa-solid fa-file-pdf text-xl"></i>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-semibold text-gray-900 truncate">${data.doc_name || 'Document'}</p>
+                                            <p class="text-[11px] text-gray-500 font-medium uppercase">PDF Document</p>
+                                        </div>
+                                        <a href="${data.doc_url}" target="_blank" class="text-gray-500 hover:text-blue-700 p-2 rounded-full shrink-0">
+                                            <i class="fa-solid fa-download text-lg"></i>
+                                        </a>
+                                    </div>`;
+                            }
+                            
+                            let imgHtml = data.image_url ? `<img src="${data.image_url}" onclick="openModal('${data.image_url}', 'image')" class="rounded-lg mb-2 max-h-60 border border-black/10 max-w-full object-contain cursor-pointer">` : "";
+                            
+                            let newMessage = `
+                                <div id="message-${data.id}" class="flex flex-col items-end group relative mb-2 animate-fade-in">
+                                    <div class="flex items-center gap-2 flex-row-reverse max-w-[85%]">
+                                        <div class="flex flex-col items-end min-w-0">
+                                            <div class="p-3 text-sm shadow-sm msg-bubble-me">
+                                                ${imgHtml}
+                                                ${data.content ? `<p class="break-words text-left">${data.content}</p>` : ""}
+                                                ${docHtml}
+                                            </div>
+                                            <span class="text-[9px] text-gray-400 mt-1 font-bold">${data.timestamp}</span>
+                                        </div>
+                                        <button type="button" 
+                                                onclick="deleteMessage('${data.id}')" 
+                                                class="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-600 transition-all duration-200 cursor-pointer shrink-0 p-1">
+                                            <i class="fa-solid fa-trash-can text-[12px]"></i>
+                                        </button>
                                     </div>
-                                    <span class="text-[9px] text-gray-400 mt-1 font-bold">${data.timestamp}</span>
-                                </div>
-                                <button type="button" 
-                                        onclick="deleteMessage('${data.id}')" 
-                                        class="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-600 transition-all duration-200 cursor-pointer shrink-0 p-1">
-                                    <i class="fa-solid fa-trash-can text-[12px]"></i>
-                                </button>
-                            </div>
-                        </div>`;
-                    
-                    messageContainer.insertAdjacentHTML('beforeend', newMessage);
-                    document.querySelector('textarea[name="content"]').value = ""; 
-                    clearAttachments(); 
-                    scrollToBottom(); 
-                }
-            })
-            .catch(err => console.error("Error:", err));
+                                </div>`;
+                            
+                            if (messageContainer) {
+                                messageContainer.insertAdjacentHTML('beforeend', newMessage);
+                            }
+                            document.querySelector('textarea[name="content"]').value = ""; 
+                            clearAttachments(); 
+                            scrollToBottom(); 
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Error sending message:", err);
+                    })
+                    .finally(() => {
+                        if(submitBtn) submitBtn.disabled = false;
+                    });
+                });
+            }
         });
 
         let lastMessageId = "{{ chat_messages.last.id|default:'0' }}";
@@ -720,7 +753,7 @@
                                 </span>
                             </div>`;
                         
-                        document.getElementById('messageContainer').insertAdjacentHTML('beforeend', newMessage);
+                        document.getElementById('messageContainer')?.insertAdjacentHTML('beforeend', newMessage);
                         lastMessageId = msg.id;
                     });
                     scrollToBottom();
@@ -730,11 +763,13 @@
         }, 3000);
 
         function clearAttachments() {
-            document.getElementById('imageInput').value = "";
-            document.getElementById('fileInput').value = "";
-            document.getElementById('previewContainer').classList.add('hidden');
-            document.getElementById('imagePreview').classList.add('hidden');
-            document.getElementById('fileInfo').classList.add('hidden');
+            const imgInput = document.getElementById('imageInput');
+            const fileInput = document.getElementById('fileInput');
+            if(imgInput) imgInput.value = "";
+            if(fileInput) fileInput.value = "";
+            document.getElementById('previewContainer')?.classList.add('hidden');
+            document.getElementById('imagePreview')?.classList.add('hidden');
+            document.getElementById('fileInfo')?.classList.add('hidden');
         }
         
         function previewFile(input, type) {
@@ -745,15 +780,15 @@
             const fileName = document.getElementById('fileName');
 
             if (file) {
-                previewContainer.classList.remove('hidden');
+                previewContainer?.classList.remove('hidden');
                 if (type === 'image') {
                     imagePreview.src = URL.createObjectURL(file);
-                    imagePreview.classList.remove('hidden');
-                    fileInfo.classList.add('hidden');
+                    imagePreview?.classList.remove('hidden');
+                    fileInfo?.classList.add('hidden');
                 } else {
-                    imagePreview.classList.add('hidden');
-                    fileInfo.classList.remove('hidden');
-                    fileName.innerText = file.name;
+                    imagePreview?.classList.add('hidden');
+                    fileInfo?.classList.remove('hidden');
+                    if(fileName) fileName.innerText = file.name;
                 }
             }
         }
@@ -792,6 +827,7 @@
         function loadMoreMessages() {
             let receiverId = "{{ active_user.id }}";
             let container = document.getElementById('messageContainer');
+            if(!container) return;
             let previousScrollHeight = container.scrollHeight; 
 
             fetch(`/load-more-messages/${receiverId}/?offset=${offset}`)
