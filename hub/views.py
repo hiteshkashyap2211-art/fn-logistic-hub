@@ -1390,7 +1390,7 @@ def community_hub(request):
     
     context = {
         'active_user': active_user,
-        'active_group': Group.objects.filter(members=request.user).first(),
+        'active_group': None,
         'groups': Group.objects.none(),
         'messages': Message.objects.none(),
         'user_profile': None,
@@ -1398,6 +1398,7 @@ def community_hub(request):
     
     if request.user.is_authenticated:
         # Load user's groups
+        context['active_group'] = Group.objects.filter(members=request.user).first()
         context['groups'] = Group.objects.filter(members=request.user)
         
         # Load messages if active_user is valid
@@ -1606,10 +1607,13 @@ def create_group(request):
 
 def community_page(request):
     # Sirf wahi groups filter karein jahan user 'owner' hai
-    my_groups = Group.objects.filter(owner=request.user)
+    if request.user.is_authenticated:
+        my_groups = Group.objects.filter(owner=request.user)
+    else:
+        my_groups = Group.objects.none()
     
     # Debugging ke liye (Terminal mein check karein)
-    print(f"Logged in user: {request.user.username}")
+    print(f"Logged in user: {request.user.username if request.user.is_authenticated else 'Anonymous'}")
     print(f"Groups found: {my_groups.count()}")
     
     # 'my_groups' ko hi template mein pass karein
@@ -1666,4 +1670,3 @@ def delete_notification(request, id):
     notification = get_object_or_404(Notification, id=id, user=request.user)
     notification.delete()
     return JsonResponse({'status': 'success'})
-
