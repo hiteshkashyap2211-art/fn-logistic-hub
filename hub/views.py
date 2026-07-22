@@ -1550,14 +1550,29 @@ def get_workers_list(request):
         'has_next': worker_page.has_next()
     })
 
-from django.shortcuts import render, get_object_or_404
-from .models import Group
+from django.shortcuts import render
+from .models import Group, WorkerProfile, VendorProfile
 
-# hub/views.py
 def community_view(request):
-    # Sirf wahi group dikhayein jismein atleast ek member ho ya basic validation
     groups = Group.objects.all()
-    return render(request, 'community.html', {'groups': groups})
+    user_profile = None
+
+    if request.user.is_authenticated:
+        role = getattr(request.user, 'role', None)
+        if role == 'vendor':
+            user_profile = VendorProfile.objects.filter(user=request.user).first()
+        elif role == 'worker':
+            user_profile = WorkerProfile.objects.filter(user=request.user).first()
+        else:
+            # Fallback agar role set na ho
+            user_profile = WorkerProfile.objects.filter(user=request.user).first() or VendorProfile.objects.filter(user=request.user).first()
+
+    context = {
+        'groups': groups,
+        'user_profile': user_profile,
+    }
+    
+    return render(request, 'community.html', context)
 
 def group_detail(request, pk):
     # ग्रुप ढूँढने का कोड
