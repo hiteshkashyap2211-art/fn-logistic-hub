@@ -6,30 +6,78 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apply | {{ job.job_title }} | FN Logistic Hub</title>
     
+    <!-- Tailwind CSS & Essential Assets -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght=400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght=400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <style>
-        /* 🧠 LinkedIn Style Theme Integration */
-        body { font-family: 'Urbanist', -apple-system, system-ui, BlinkMacSystemFont, sans-serif; background: #f3f2ef; color: #1d2226; }
-        .card { background: white; border-radius: 12px; border: 1px solid #e0e0e0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .btn-submit { background-color: #0a66c2; color: white; transition: all 0.2s; font-weight: 700; }
-        .btn-submit:hover { background-color: #004182; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(10,102,194,0.25); }
-        .input-field:focus { border-color: #0a66c2 !important; ring: 2px #0a66c2; outline: none; }
-        
-        .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+        /* 🧠 LinkedIn-Inspired Professional Design Tokens */
+        :root {
+            --primary-blue: #0a66c2;
+            --primary-hover: #004182;
+            --bg-canvas: #f3f2ef;
+            --card-border: #e0e0e0;
+            --text-dark: #1d2226;
+        }
+
+        body { 
+            font-family: 'Urbanist', -apple-system, system-ui, BlinkMacSystemFont, sans-serif; 
+            background: var(--bg-canvas); 
+            color: var(--text-dark); 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .card { 
+            background: #ffffff; 
+            border-radius: 12px; 
+            border: 1px solid var(--card-border); 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+
+        .btn-submit { 
+            background-color: var(--primary-blue); 
+            color: white; 
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
+            font-weight: 700; 
+        }
+        .btn-submit:hover { 
+            background-color: var(--primary-hover); 
+            transform: translateY(-1px); 
+            box-shadow: 0 4px 14px rgba(10,102,194,0.3); 
+        }
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .input-field {
+            transition: all 0.2s ease-in-out;
+        }
+        .input-field:focus { 
+            border-color: var(--primary-blue) !important; 
+            box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.15);
+            outline: none; 
+            background-color: #ffffff !important;
+        }
+
+        .animate-fade-in { 
+            animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1); 
+        }
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(-6px) scale(0.98); } 
+            to { opacity: 1; transform: translateY(0) scale(1); } 
+        }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
         @media (max-width: 767px) {
-            .mobile-bottom-nav { box-shadow: 0 -2px 10px rgba(0,0,0,0.08); }
+            .mobile-bottom-nav { box-shadow: 0 -2px 12px rgba(0,0,0,0.08); }
         }
 
-        /* 🤖 AI Pulse & Gradient Styling */
+        /* 🤖 AI Pulse & Glassmorphism Styling */
         .ai-gradient-border {
             border: 1px solid transparent;
             background-image: linear-gradient(white, white), linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
@@ -37,62 +85,69 @@
             background-clip: padding-box, border-box;
         }
         .ai-glow {
-            box-shadow: 0 0 15px rgba(168, 85, 247, 0.2);
+            box-shadow: 0 0 18px rgba(168, 85, 247, 0.15);
+        }
+        .field-autofilled {
+            animation: highlightPulse 1.2s ease-out;
+        }
+        @keyframes highlightPulse {
+            0% { background-color: #f3e8ff; border-color: #a855f7; }
+            100% { background-color: #ffffff; }
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between">
+<body class="min-h-screen flex flex-col justify-between selection:bg-blue-100 selection:text-blue-900">
 
     <!-- 📱 Navigation Header Wrapper -->
-    <header class="sticky top-0 z-50 bg-white border-b">
-        <nav class="bg-white">
+    <header class="sticky top-0 z-50 bg-white border-b border-gray-200/80 backdrop-blur-md bg-white/95">
+        <nav class="bg-transparent" role="navigation" aria-label="Main Navigation">
             <div class="max-w-6xl mx-auto px-3 sm:px-4 flex justify-between items-center h-14 gap-2">
                 
                 <div class="flex items-center space-x-2 md:space-x-3 shrink-0 flex-1 md:flex-initial">
-                    <div class="bg-orange-600 text-white font-black px-2.5 py-1 rounded text-base sm:text-lg italic tracking-tighter shrink-0 cursor-pointer">WH</div>
+                    <div class="bg-orange-600 hover:bg-orange-700 text-white font-black px-2.5 py-1 rounded-md text-base sm:text-lg italic tracking-tighter shrink-0 cursor-pointer shadow-sm transition-colors">WH</div>
                     
                     <!-- 🖥️ Desktop Search -->
-                    <div class="hidden md:flex items-center bg-[#edf3f8] px-3 py-1.5 rounded-md border border-transparent focus-within:bg-white focus-within:border-gray-500 focus-within:ring-1 focus-within:ring-gray-500 transition-all w-72">
-                        <i class="fa-solid fa-magnifying-glass text-gray-600 text-sm mr-2"></i>
-                        <input type="text" id="searchInput" placeholder="Search Farukhnagar Jobs..." class="bg-transparent border-none outline-none text-sm w-full text-gray-900 placeholder-gray-500 font-normal">
+                    <div class="hidden md:flex items-center bg-[#edf3f8] px-3 py-1.5 rounded-md border border-transparent focus-within:bg-white focus-within:border-gray-400 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all w-72">
+                        <i class="fa-solid fa-magnifying-glass text-gray-500 text-sm mr-2.5"></i>
+                        <input type="text" id="searchInput" placeholder="Search Farukhnagar Jobs..." aria-label="Search Jobs" class="bg-transparent border-none outline-none text-sm w-full text-gray-900 placeholder-gray-500 font-medium">
                     </div>
 
                     <!-- 📱 Mobile Search Bar -->
-                    <div class="flex md:hidden flex-1 items-center bg-[#edf3f8] px-2.5 py-1.5 rounded border border-transparent focus-within:bg-white focus-within:border-gray-500 transition-all max-w-[220px]">
-                        <i class="fa-solid fa-magnifying-glass text-gray-500 text-xs mr-2"></i>
-                        <input type="text" placeholder="Search..." class="bg-transparent border-none outline-none text-xs w-full text-gray-900 placeholder-gray-500 font-normal">
+                    <div class="flex md:hidden flex-1 items-center bg-[#edf3f8] px-2.5 py-1.5 rounded-md border border-transparent focus-within:bg-white focus-within:border-gray-400 transition-all max-w-[220px]">
+                        <i class="fa-solid fa-magnifying-glass text-gray-400 text-xs mr-2"></i>
+                        <input type="text" placeholder="Search..." aria-label="Search Jobs Mobile" class="bg-transparent border-none outline-none text-xs w-full text-gray-900 placeholder-gray-500 font-medium">
                     </div>
                 </div>
 
                 <!-- 🖥️ Desktop Navigation Links Row -->
-                <div class="hidden md:flex items-center justify-end space-x-4 md:space-x-8 flex-1 py-1">
-                    <a href="{% url 'community_hub' %}" class="flex flex-col items-center text-slate-500 hover:text-indigo-600 transition shrink-0">
-                        <i class="fa-solid fa-comments text-lg sm:text-xl"></i>
+                <div class="hidden md:flex items-center justify-end space-x-4 md:space-x-7 flex-1 py-1">
+                    <a href="{% url 'community_hub' %}" class="flex flex-col items-center text-slate-500 hover:text-indigo-600 transition shrink-0 group">
+                        <i class="fa-solid fa-comments text-lg sm:text-xl group-hover:scale-110 transition-transform"></i>
                         <span class="text-[10px] font-bold mt-1">Hub</span>
                     </a>
                     
                     <a href="{% url 'home' %}" class="flex flex-col items-center group text-gray-500 hover:text-black transition-all shrink-0">
-                        <i class="fa-solid fa-house text-lg sm:text-xl"></i>
+                        <i class="fa-solid fa-house text-lg sm:text-xl group-hover:scale-110 transition-transform"></i>
                         <span class="text-[10px] font-bold mt-1">Home</span>
                     </a>
 
                     {% if request.user.role == 'vendor' %}
                     <a href="{% url 'find_worker' %}" class="flex flex-col items-center group text-gray-500 hover:text-black transition-all shrink-0">
-                        <i class="fa-solid fa-user-group text-lg sm:text-xl"></i>
+                        <i class="fa-solid fa-user-group text-lg sm:text-xl group-hover:scale-110 transition-transform"></i>
                         <span class="text-[10px] font-bold mt-1">Find Workers</span>
                     </a>
                     {% endif %}
 
-                    <a href="{% url 'job_list' %}" class="flex flex-col items-center group text-gray-500 hover:text-black transition-all shrink-0 text-[#0a66c2]">
-                        <i class="fa-solid fa-briefcase text-lg sm:text-xl"></i>
+                    <a href="{% url 'job_list' %}" class="flex flex-col items-center group text-[#0a66c2] transition-all shrink-0">
+                        <i class="fa-solid fa-briefcase text-lg sm:text-xl group-hover:scale-110 transition-transform"></i>
                         <span class="text-[10px] font-bold mt-1">Jobs</span>
                     </a>
 
                     <a href="{% url 'messages' %}" class="flex flex-col items-center group text-gray-500 hover:text-black relative transition-all shrink-0">
                         <div class="relative">
-                            <i class="fa-solid fa-comment-dots text-lg sm:text-xl"></i>
+                            <i class="fa-solid fa-comment-dots text-lg sm:text-xl group-hover:scale-110 transition-transform"></i>
                             {% if msg_count > 0 %}
-                            <span class="absolute -top-1.5 -right-2 bg-red-600 text-white text-[8px] px-1 rounded-full border border-white font-bold">{{ msg_count }}</span>
+                            <span class="absolute -top-1.5 -right-2 bg-red-600 text-white text-[8px] px-1.5 py-0.2 rounded-full border-2 border-white font-extrabold shadow-sm animate-pulse">{{ msg_count }}</span>
                             {% endif %}
                         </div>
                         <span class="text-[10px] font-bold mt-1">Messaging</span>
@@ -100,9 +155,9 @@
 
                     <a href="{% url 'notifications' %}" class="flex flex-col items-center group text-gray-500 hover:text-black relative transition-all shrink-0">
                         <div class="relative">
-                            <i class="fa-solid fa-bell text-lg sm:text-xl"></i>
+                            <i class="fa-solid fa-bell text-lg sm:text-xl group-hover:scale-110 transition-transform"></i>
                             {% if notif_count > 0 %}
-                            <span class="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[8px] px-1 rounded-full border border-white font-bold">{{ notif_count }}</span>
+                            <span class="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[8px] px-1.5 py-0.2 rounded-full border-2 border-white font-extrabold shadow-sm animate-pulse">{{ notif_count }}</span>
                             {% endif %}
                         </div>
                         <span class="text-[10px] font-bold mt-1">Notifications</span>
@@ -111,66 +166,71 @@
                     <!-- Desktop Custom Dropdown -->
                     <div class="relative flex items-center shrink-0 desktopMeContainer">
                         <div class="flex flex-col items-center">
-                            <a href="{% if request.user.role == 'vendor' %}{% url 'vendor_dashboard' %}{% else %}{% url 'worker_dashboard' %}{% endif %}" class="w-6 h-6 rounded-full overflow-hidden border border-gray-200 hover:border-black transition-all flex items-center justify-center bg-gray-100">
+                            <a href="{% if request.user.role == 'vendor' %}{% url 'vendor_dashboard' %}{% else %}{% url 'worker_dashboard' %}{% endif %}" class="w-6 h-6 rounded-full overflow-hidden border border-gray-300 hover:border-black transition-all flex items-center justify-center bg-gray-100 shadow-sm" aria-label="Profile Dashboard">
                                 {% if request.user.role == 'vendor' and request.user.vendor_profile.company_logo %}
-                                    <img src="{{ request.user.vendor_profile.company_logo.url }}" class="w-full h-full object-cover">
+                                    <img src="{{ request.user.vendor_profile.company_logo.url }}" alt="Company Logo" class="w-full h-full object-cover">
                                 {% elif request.user.role == 'vendor' and user_profile.company_logo %}
-                                    <img src="{{ user_profile.company_logo.url }}" class="w-full h-full object-cover">
+                                    <img src="{{ user_profile.company_logo.url }}" alt="Company Logo" class="w-full h-full object-cover">
                                 {% elif request.user.worker_profile.photo %}
-                                    <img src="{{ request.user.worker_profile.photo.url }}" class="w-full h-full object-cover">
+                                    <img src="{{ request.user.worker_profile.photo.url }}" alt="Worker Photo" class="w-full h-full object-cover">
                                 {% elif user_profile.photo %}
-                                    <img src="{{ user_profile.photo.url }}" class="w-full h-full object-cover">
+                                    <img src="{{ user_profile.photo.url }}" alt="Worker Photo" class="w-full h-full object-cover">
                                 {% else %}
-                                    <img src="https://ui-avatars.com/api/?name={{ request.user.username|urlencode }}&background=0a66c2&color=fff&bold=true" class="w-full h-full object-cover">
+                                    <img src="https://ui-avatars.com/api/?name={{ request.user.username|urlencode }}&background=0a66c2&color=fff&bold=true" alt="Avatar" class="w-full h-full object-cover">
                                 {% endif %}
                             </a>
-                            <button onclick="toggleMeMenu(event, 'meMenu')" class="flex items-center gap-0.5 mt-0.5 group focus:outline-none cursor-pointer bg-transparent border-none p-0">
-                                <span class="text-[11px] text-gray-500 font-medium group-hover:text-black">Me</span>
-                                <i class="fa-solid fa-caret-down text-[9px] text-gray-500 group-hover:text-black"></i>
+                            <button onclick="toggleMeMenu(event, 'meMenu')" aria-expanded="false" aria-haspopup="true" class="flex items-center gap-0.5 mt-0.5 group focus:outline-none cursor-pointer bg-transparent border-none p-0">
+                                <span class="text-[11px] text-gray-500 font-semibold group-hover:text-black">Me</span>
+                                <i class="fa-solid fa-caret-down text-[9px] text-gray-500 group-hover:text-black transition-transform"></i>
                             </button>
                         </div>
 
                         <!-- Dropdown Panel -->
-                        <div id="meMenu" class="hidden absolute right-0 mt-2 top-12 w-[280px] bg-white rounded-lg shadow-xl border border-[#e0e0e0] z-[100] overflow-hidden transition-all duration-150 origin-top-right animate-fade-in text-left">
-                            <div class="p-3 flex gap-3 border-b border-[#f3f2ef]">
-                                <div class="w-12 h-12 rounded-full overflow-hidden shrink-0 border border-gray-200">
+                        <div id="meMenu" class="hidden absolute right-0 mt-2 top-12 w-[280px] bg-white rounded-xl shadow-2xl border border-[#e0e0e0] z-[100] overflow-hidden transition-all duration-150 origin-top-right animate-fade-in text-left">
+                            <div class="p-3.5 flex gap-3 border-b border-[#f3f2ef] bg-slate-50/50">
+                                <div class="w-12 h-12 rounded-full overflow-hidden shrink-0 border border-gray-200 shadow-sm">
                                     {% if request.user.role == 'vendor' and request.user.vendor_profile.company_logo %}
-                                        <img src="{{ request.user.vendor_profile.company_logo.url }}" class="w-full h-full object-cover">
+                                        <img src="{{ request.user.vendor_profile.company_logo.url }}" alt="Company Logo" class="w-full h-full object-cover">
                                     {% elif request.user.role == 'vendor' and user_profile.company_logo %}
-                                        <img src="{{ user_profile.company_logo.url }}" class="w-full h-full object-cover">
+                                        <img src="{{ user_profile.company_logo.url }}" alt="Company Logo" class="w-full h-full object-cover">
                                     {% elif request.user.role == 'worker' and user_profile.photo %}
-                                        <img src="{{ user_profile.photo.url }}" class="w-full h-full object-cover">
+                                        <img src="{{ user_profile.photo.url }}" alt="Worker Photo" class="w-full h-full object-cover">
                                     {% else %}
-                                        <img src="https://ui-avatars.com/api/?name={{ request.user.username|urlencode }}&background=0a66c2&color=fff&bold=true" class="w-full h-full object-cover">
+                                        <img src="https://ui-avatars.com/api/?name={{ request.user.username|urlencode }}&background=0a66c2&color=fff&bold=true" alt="Avatar" class="w-full h-full object-cover">
                                     {% endif %}
                                 </div>
                                 <div class="flex flex-col justify-center overflow-hidden flex-1">
-                                    <p class="font-semibold text-[14px] text-gray-900 leading-tight truncate">
+                                    <p class="font-bold text-[14px] text-gray-900 leading-tight truncate">
                                         {% if request.user.role == 'vendor' %}{{ user_profile.company_name|default:request.user.username }}{% else %}{{ user_profile.full_name|default:request.user.username }}{% endif %}
                                     </p>
-                                    <p class="text-[12px] text-gray-600 mt-0.5 truncate font-normal">
+                                    <p class="text-[11px] text-gray-500 mt-0.5 truncate font-medium">
                                         {% if request.user.role == 'vendor' %}Logistics Vendor{% else %}{{ user_profile.work_category|default:"Logistics" }} Specialist{% endif %} at FN Hub
                                     </p>
                                 </div>
                             </div>
                             <div class="p-2 border-b border-[#f3f2ef]">
                                 {% if request.user.role == 'vendor' %}
-                                    <a href="{% url 'vendor_dashboard' %}" class="block w-full text-center py-1 border border-[#0a66c2] text-[#0a66c2] font-semibold rounded-full text-[14px] hover:bg-blue-50 transition-all mb-1.5">Manage Dashboard</a>
-                                    <a href="{% url 'create_profile' %}" class="block w-full text-center py-1 border border-orange-600 text-orange-600 font-semibold rounded-full text-[14px] hover:bg-orange-50 transition-all">Edit Company Profile</a>
+                                    <a href="{% url 'vendor_dashboard' %}" class="block w-full text-center py-1.5 border border-[#0a66c2] text-[#0a66c2] font-bold rounded-full text-[13px] hover:bg-blue-50/80 transition-all mb-1.5">Manage Dashboard</a>
+                                    <a href="{% url 'create_profile' %}" class="block w-full text-center py-1.5 border border-orange-600 text-orange-600 font-bold rounded-full text-[13px] hover:bg-orange-50/80 transition-all">Edit Company Profile</a>
                                 {% else %}
-                                    <a href="{% url 'worker_detail' request.user.worker_profile.pk|default:user_profile.id %}" class="block w-full text-center py-1 border border-[#0a66c2] text-[#0a66c2] font-semibold rounded-full text-[14px] hover:bg-blue-50 transition-all mb-1.5">View Profile</a>
-                                    <a href="{% url 'create_profile' %}" class="block w-full text-center py-1 border border-orange-600 text-orange-600 font-semibold rounded-full text-[14px] hover:bg-orange-50 transition-all">Edit Resume Info</a>
+                                    <a href="{% url 'worker_detail' request.user.worker_profile.pk|default:user_profile.id %}" class="block w-full text-center py-1.5 border border-[#0a66c2] text-[#0a66c2] font-bold rounded-full text-[13px] hover:bg-blue-50/80 transition-all mb-1.5">View Profile</a>
+                                    <a href="{% url 'create_profile' %}" class="block w-full text-center py-1.5 border border-orange-600 text-orange-600 font-bold rounded-full text-[13px] hover:bg-orange-50/80 transition-all">Edit Resume Info</a>
                                 {% endif %}
                             </div>
                             <div class="py-1 border-b border-[#f3f2ef]">
-                                <p class="px-3 pt-1 text-[13px] font-semibold text-gray-900">Account</p>
-                                <a href="#" class="block px-3 py-1 text-[12px] text-orange-600 font-semibold hover:underline"> Try Premium for Free</a>
-                                <a href="{% if request.user.role == 'vendor' %}{% url 'vendor_dashboard' %}{% else %}{% url 'worker_dashboard' %}{% endif %}" class="block px-3 py-1 text-[12px] text-gray-500 hover:bg-gray-100 transition-colors">Settings & Privacy</a>
+                                <p class="px-3 pt-1.5 text-[12px] font-bold text-gray-900 uppercase tracking-wider">Account</p>
+                                <a href="#" class="block px-3 py-1.5 text-[12px] text-amber-600 font-bold hover:bg-amber-50/50 transition-colors flex items-center justify-between">
+                                    <span>Try Premium for Free</span>
+                                    <i class="fa-solid fa-crown text-amber-500 text-xs"></i>
+                                </a>
+                                <a href="{% if request.user.role == 'vendor' %}{% url 'vendor_dashboard' %}{% else %}{% url 'worker_dashboard' %}{% endif %}" class="block px-3 py-1.5 text-[12px] text-gray-600 hover:bg-gray-100 font-medium transition-colors">Settings & Privacy</a>
                             </div>
                             <div class="p-1 bg-white">
                                 <form action="{% url 'logout' %}" method="post" class="m-0 p-0">
                                     {% csrf_token %}
-                                    <button type="submit" class="block w-full text-left px-3 py-1.5 text-[12px] text-gray-500 hover:bg-gray-100 font-normal transition-colors border-0 bg-transparent cursor-pointer">Sign Out</button>
+                                    <button type="submit" class="block w-full text-left px-3 py-2 text-[12px] text-red-600 hover:bg-red-50 rounded font-semibold transition-colors border-0 bg-transparent cursor-pointer">
+                                        <i class="fa-solid fa-right-from-bracket mr-1.5"></i>Sign Out
+                                    </button>
                                 </form>
                             </div>
                         </div>
@@ -179,42 +239,42 @@
 
                 <!-- 📱 Mobile Layout Avatar -->
                 <div class="flex md:hidden items-center space-x-2 shrink-0 relative mobileMeContainer">
-                    <button onclick="toggleMeMenu(event, 'meMenuMobile')" class="w-7 h-7 rounded-full overflow-hidden border border-gray-300 focus:outline-none flex items-center justify-center bg-gray-100">
+                    <button onclick="toggleMeMenu(event, 'meMenuMobile')" aria-label="Toggle Mobile Menu" class="w-7 h-7 rounded-full overflow-hidden border border-gray-300 focus:outline-none flex items-center justify-center bg-gray-100 shadow-sm active:scale-95 transition-transform">
                         {% if request.user.role == 'vendor' and request.user.vendor_profile.company_logo %}
-                            <img src="{{ request.user.vendor_profile.company_logo.url }}" class="w-full h-full object-cover">
+                            <img src="{{ request.user.vendor_profile.company_logo.url }}" alt="Company Logo" class="w-full h-full object-cover">
                         {% elif request.user.role == 'vendor' and user_profile.company_logo %}
-                            <img src="{{ user_profile.company_logo.url }}" class="w-full h-full object-cover">
+                            <img src="{{ user_profile.company_logo.url }}" alt="Company Logo" class="w-full h-full object-cover">
                         {% elif request.user.worker_profile.photo %}
-                            <img src="{{ request.user.worker_profile.photo.url }}" class="w-full h-full object-cover">
+                            <img src="{{ request.user.worker_profile.photo.url }}" alt="Worker Photo" class="w-full h-full object-cover">
                         {% elif user_profile.photo %}
-                            <img src="{{ user_profile.photo.url }}" class="w-full h-full object-cover">
+                            <img src="{{ user_profile.photo.url }}" alt="Worker Photo" class="w-full h-full object-cover">
                         {% else %}
-                            <img src="https://ui-avatars.com/api/?name={{ request.user.username|urlencode }}&background=0a66c2&color=fff&bold=true" class="w-full h-full object-cover">
+                            <img src="https://ui-avatars.com/api/?name={{ request.user.username|urlencode }}&background=0a66c2&color=fff&bold=true" alt="Avatar" class="w-full h-full object-cover">
                         {% endif %}
                     </button>
 
                     <!-- Mobile Dropdown -->
-                    <div id="meMenuMobile" class="hidden absolute right-0 mt-2 top-10 w-[260px] bg-white rounded-lg shadow-xl border border-[#e0e0e0] z-[100] text-left overflow-hidden animate-fade-in">
-                        <div class="p-3 flex gap-2 border-b border-[#f3f2ef] bg-gray-50">
+                    <div id="meMenuMobile" class="hidden absolute right-0 mt-2 top-10 w-[260px] bg-white rounded-xl shadow-2xl border border-[#e0e0e0] z-[100] text-left overflow-hidden animate-fade-in">
+                        <div class="p-3 flex gap-2 border-b border-[#f3f2ef] bg-gray-50/80">
                             <div class="flex flex-col justify-center overflow-hidden flex-1">
                                 <p class="font-bold text-xs text-gray-900 leading-tight truncate">
                                     {% if request.user.role == 'vendor' %}{{ user_profile.company_name|default:request.user.username }}{% else %}{{ user_profile.full_name|default:request.user.username }}{% endif %}
                                 </p>
                             </div>
                         </div>
-                        <div class="p-2 border-b border-[#f3f2ef] flex flex-col gap-1">
+                        <div class="p-2 border-b border-[#f3f2ef] flex flex-col gap-1.5">
                             {% if request.user.role == 'vendor' %}
-                                <a href="{% url 'vendor_dashboard' %}" class="block text-center w-full py-1 text-xs border border-[#0a66c2] text-[#0a66c2] font-bold rounded-full hover:bg-blue-50">Dashboard</a>
-                                <a href="{% url 'create_profile' %}" class="block text-center w-full py-1 text-xs border border-orange-600 text-orange-600 font-bold rounded-full hover:bg-orange-50">Edit Profile</a>
+                                <a href="{% url 'vendor_dashboard' %}" class="block text-center w-full py-1.5 text-xs border border-[#0a66c2] text-[#0a66c2] font-bold rounded-full hover:bg-blue-50">Dashboard</a>
+                                <a href="{% url 'create_profile' %}" class="block text-center w-full py-1.5 text-xs border border-orange-600 text-orange-600 font-bold rounded-full hover:bg-orange-50">Edit Profile</a>
                             {% else %}
-                                <a href="{% url 'worker_detail' request.user.worker_profile.pk|default:user_profile.id %}" class="block text-center w-full py-1 text-xs border border-[#0a66c2] text-[#0a66c2] font-bold rounded-full hover:bg-blue-50">View Profile</a>
-                                <a href="{% url 'create_profile' %}" class="block text-center w-full py-1 text-xs border border-orange-600 text-orange-600 font-bold rounded-full hover:bg-orange-50">Edit Resume</a>
+                                <a href="{% url 'worker_detail' request.user.worker_profile.pk|default:user_profile.id %}" class="block text-center w-full py-1.5 text-xs border border-[#0a66c2] text-[#0a66c2] font-bold rounded-full hover:bg-blue-50">View Profile</a>
+                                <a href="{% url 'create_profile' %}" class="block text-center w-full py-1.5 text-xs border border-orange-600 text-orange-600 font-bold rounded-full hover:bg-orange-50">Edit Resume</a>
                             {% endif %}
                         </div>
                         <div class="p-1 bg-white">
                             <form action="{% url 'logout' %}" method="post" class="m-0 p-0">
                                 {% csrf_token %}
-                                <button type="submit" class="block w-full text-left px-3 py-1.5 text-xs text-gray-500 hover:bg-gray-100 border-0 bg-transparent cursor-pointer">Sign Out</button>
+                                <button type="submit" class="block w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 rounded font-semibold border-0 bg-transparent cursor-pointer">Sign Out</button>
                             </form>
                         </div>
                     </div>
@@ -227,90 +287,90 @@
     <!-- 🏗️ Main Layout Container -->
     <main class="max-w-6xl mx-auto px-2 sm:px-4 mt-4 sm:mt-6 grid grid-cols-12 gap-4 sm:gap-6 pb-24 w-full">
         
-        
-
         <!-- 🎯 Center Main Form Area -->
-        <div class="col-span-12 md:col-span-8 lg:col-span-6 space-y-4">
+        <div class="col-span-12 md:col-span-8 lg:col-span-6 space-y-4 mx-auto w-full">
             
             <!-- 🤖 NEW AI FEATURE 1: Smart Match Badge -->
-            <div class="card p-3 bg-gradient-to-r from-purple-50 via-indigo-50 to-white border-purple-200 flex items-center justify-between shadow-sm ai-glow">
+            <div class="card p-3.5 bg-gradient-to-r from-purple-50/90 via-indigo-50/80 to-white border-purple-200/80 flex items-center justify-between shadow-sm ai-glow">
                 <div class="flex items-center space-x-3">
-                    <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center text-white text-sm shadow-md">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white text-base shadow-md shrink-0">
                         <i class="fa-solid fa-wand-magic-sparkles"></i>
                     </div>
                     <div>
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-xs font-black text-purple-900 uppercase tracking-wider">AI Smart Match Score</span>
-                            <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-purple-200">92% Match</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[11px] font-black text-purple-950 uppercase tracking-wider">AI Smart Match Score</span>
+                            <span class="bg-purple-100 text-purple-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-purple-200 shadow-2xs">92% Match</span>
                         </div>
-                        <p class="text-[11px] text-gray-600 font-medium">Your profile strongly matches requirement for <b>{{ job.job_title }}</b>.</p>
+                        <p class="text-[12px] text-gray-600 font-medium mt-0.5">Your profile strongly matches requirement for <b class="text-gray-900">{{ job.job_title }}</b>.</p>
                     </div>
                 </div>
             </div>
 
-            <div class="card overflow-hidden">
+            <div class="card overflow-hidden shadow-md">
                 <!-- Header Banner -->
-                <div class="p-5 sm:p-6 border-b border-gray-100 bg-gradient-to-r from-blue-50/50 to-transparent">
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="bg-blue-100 text-[#0a66c2] text-[10px] font-black uppercase px-2.5 py-1 rounded-full tracking-wider flex items-center gap-1">
-                            <i class="fa-solid fa-bolt"></i> Easy Apply
+                <div class="p-5 sm:p-6 border-b border-gray-100 bg-gradient-to-r from-blue-50/60 via-indigo-50/20 to-transparent">
+                    <div class="flex items-center justify-between mb-3.5">
+                        <span class="bg-blue-100/90 text-[#0a66c2] text-[10px] font-black uppercase px-2.5 py-1 rounded-full tracking-wider flex items-center gap-1.5 shadow-2xs">
+                            <i class="fa-solid fa-bolt text-amber-500"></i> Easy Apply
                         </span>
                         
                         <!-- 🤖 NEW AI Quick Fill Button -->
-                        <button type="button" onclick="autoFillWithAI()" class="text-xs text-purple-700 bg-purple-50 hover:bg-purple-100 font-bold px-2.5 py-1 rounded-lg border border-purple-200 transition-all flex items-center gap-1 shadow-sm">
-                            <i class="fa-solid fa-robot"></i> AI Autofill
+                        <button type="button" onclick="autoFillWithAI(event)" class="text-xs text-purple-700 bg-purple-50/80 hover:bg-purple-100 font-bold px-3 py-1.5 rounded-lg border border-purple-200/80 transition-all flex items-center gap-1.5 shadow-xs active:scale-95 cursor-pointer">
+                            <i class="fa-solid fa-robot text-purple-600"></i> <span>AI Autofill</span>
                         </button>
                     </div>
 
-                    <div class="flex items-center space-x-3.5 mt-2">
-                        <div class="w-12 h-12 bg-orange-100 border border-orange-200 flex items-center justify-center font-black text-orange-600 rounded-xl text-lg shrink-0 shadow-sm">
+                    <div class="flex items-center space-x-4 mt-2">
+                        <div class="w-13 h-13 bg-gradient-to-br from-orange-100 to-amber-100 border border-orange-200/80 flex items-center justify-center font-black text-orange-600 rounded-xl text-xl shrink-0 shadow-sm">
                             {{ job.company_name|slice:":1" }}
                         </div>
                         <div class="min-w-0">
-                            <h1 class="font-bold text-gray-900 text-base sm:text-lg leading-tight truncate">{{ job.job_title }}</h1>
-                            <p class="text-xs text-gray-600 font-medium mt-0.5 flex items-center gap-1 truncate">
-                                <span class="font-bold text-gray-800">{{ job.company_name }}</span> 
-                                <span>•</span> 
-                                <span>Farukhnagar Hub</span>
+                            <h1 class="font-bold text-gray-900 text-lg sm:text-xl leading-tight truncate">{{ job.job_title }}</h1>
+                            <p class="text-xs text-gray-600 font-semibold mt-1 flex items-center gap-1.5 truncate">
+                                <span class="text-gray-800">{{ job.company_name }}</span> 
+                                <span class="text-gray-300">•</span> 
+                                <span class="text-gray-500"><i class="fa-solid fa-location-dot text-red-500 mr-0.5"></i> Farukhnagar Hub</span>
                             </p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Form Section -->
-                <form method="POST" class="p-5 sm:p-6 space-y-5">
+                <form method="POST" id="applicationForm" onsubmit="handleFormSubmit(event)" class="p-5 sm:p-6 space-y-5">
                     {% csrf_token %}
                     
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5">Full Name</label>
+                        <label for="worker_name" class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5">Full Name <span class="text-red-500">*</span></label>
                         <div class="relative">
-                            <i class="fa-solid fa-user absolute left-3.5 top-3 text-gray-400 text-sm"></i>
+                            <i class="fa-solid fa-user absolute left-3.5 top-3.5 text-gray-400 text-sm"></i>
                             <input type="text" id="worker_name" name="worker_name" required 
-                                   class="input-field w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50/30 focus:bg-white transition-all"
+                                   class="input-field w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50/40 focus:bg-white text-gray-900 font-medium placeholder-gray-400"
                                    placeholder="e.g. Rahul Kumar">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5">Mobile Number</label>
+                        <label for="worker_phone" class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5">Mobile Number <span class="text-red-500">*</span></label>
                         <div class="relative">
-                            <i class="fa-solid fa-phone absolute left-3.5 top-3 text-gray-400 text-sm"></i>
-                            <input type="tel" id="worker_phone" name="worker_phone" required 
-                                   class="input-field w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50/30 focus:bg-white transition-all"
-                                   placeholder="10-digit number">
+                            <i class="fa-solid fa-phone absolute left-3.5 top-3.5 text-gray-400 text-sm"></i>
+                            <input type="tel" id="worker_phone" name="worker_phone" pattern="[0-9]{10}" maxlength="10" required 
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                                   class="input-field w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50/40 focus:bg-white text-gray-900 font-medium placeholder-gray-400"
+                                   placeholder="10-digit mobile number">
                         </div>
-                        <p class="text-[11px] text-gray-500 mt-2 flex items-center gap-1.5">
+                        <p class="text-[11px] text-gray-500 mt-2 flex items-center gap-1.5 font-medium">
                             <i class="fa-solid fa-circle-info text-blue-500"></i>
                             <span>Vendors will contact you directly on this number.</span>
                         </p>
                     </div>
 
                     <div class="pt-5 border-t border-gray-100 flex justify-between items-center gap-4">
-                        <a href="/" class="text-gray-500 font-bold text-xs sm:text-sm hover:text-black hover:underline transition-colors">
+                        <a href="/" class="text-gray-500 font-bold text-xs sm:text-sm hover:text-black hover:underline transition-colors px-2 py-1">
                             Cancel
                         </a>
-                        <button type="submit" class="btn-submit px-7 py-2.5 rounded-full text-xs sm:text-sm font-bold shadow-md">
-                            Submit Application
+                        <button type="submit" id="submitBtn" class="btn-submit px-8 py-2.5 rounded-full text-xs sm:text-sm font-bold shadow-md cursor-pointer flex items-center gap-2">
+                            <span>Submit Application</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
                         </button>
                     </div>
                 </form>
@@ -326,33 +386,33 @@
                     <i class="fa-solid fa-brain text-purple-600 text-sm"></i>
                     <h3 class="font-bold text-purple-950 text-xs uppercase tracking-wider">AI Hiring Assistant</h3>
                 </div>
-                <p class="text-[11px] text-gray-600 leading-relaxed mb-3">
-                    Applicants with active profile contact info get selected <b>3x faster</b> by hiring vendors.
+                <p class="text-[11px] text-gray-600 leading-relaxed mb-3 font-medium">
+                    Applicants with active profile contact info get selected <b class="text-purple-900">3x faster</b> by hiring vendors.
                 </p>
-                <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-100 text-[11px] text-purple-900 font-medium flex items-start gap-2">
+                <div class="bg-purple-50/80 p-2.5 rounded-xl border border-purple-100 text-[11px] text-purple-900 font-medium flex items-start gap-2 shadow-2xs">
                     <i class="fa-solid fa-sparkles text-purple-600 mt-0.5"></i>
-                    <span>AI Tip: Ensure your contact number is active on WhatsApp for direct call responses.</span>
+                    <span><b>AI Tip:</b> Ensure your contact number is active on WhatsApp for direct call responses.</span>
                 </div>
             </div>
 
-            <div class="card p-4 sticky top-20">
+            <div class="card p-4 sticky top-20 shadow-sm">
                 <div class="flex items-center gap-2 mb-3">
                     <i class="fa-solid fa-lightbulb text-amber-500"></i>
                     <h3 class="font-bold text-gray-800 text-xs uppercase tracking-wider">Logistic Insights</h3>
                 </div>
                 
-                <div class="space-y-3 text-xs text-gray-600">
-                    <div class="p-2.5 bg-gray-50 rounded-lg border border-gray-100 flex items-start gap-2">
-                        <i class="fa-solid fa-check text-green-600 mt-0.5"></i>
-                        <p>Apply daily to boost your visibility to warehouse vendors by <b>2x</b>.</p>
+                <div class="space-y-2.5 text-xs text-gray-600 font-medium">
+                    <div class="p-2.5 bg-gray-50 rounded-xl border border-gray-100 flex items-start gap-2.5">
+                        <i class="fa-solid fa-circle-check text-green-600 mt-0.5 text-sm"></i>
+                        <p>Apply daily to boost your visibility to warehouse vendors by <b class="text-gray-900">2x</b>.</p>
                     </div>
-                    <div class="p-2.5 bg-gray-50 rounded-lg border border-gray-100 flex items-start gap-2">
-                        <i class="fa-solid fa-shield text-blue-600 mt-0.5"></i>
+                    <div class="p-2.5 bg-gray-50 rounded-xl border border-gray-100 flex items-start gap-2.5">
+                        <i class="fa-solid fa-shield-halved text-blue-600 mt-0.5 text-sm"></i>
                         <p>100% Free & Direct applications for all workers.</p>
                     </div>
                 </div>
 
-                <div class="mt-5 pt-3 border-t text-[10px] text-gray-400 text-center font-bold">
+                <div class="mt-5 pt-3 border-t text-[10px] text-gray-400 text-center font-bold tracking-wider uppercase">
                     FN Logistic Hub © 2026
                 </div>
             </div>
@@ -362,16 +422,16 @@
 
     <!-- Modal overlay (if active) -->
     {% if show_modal %}
-        <div id="successModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[100] px-4 animate-fade-in">
+        <div id="successModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[100] px-4 animate-fade-in" role="dialog" aria-modal="true">
             <div class="bg-white rounded-2xl p-6 sm:p-8 max-w-sm w-full text-center shadow-2xl border border-gray-100 transform transition-all scale-100">
                 <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl shadow-inner">
                     <i class="fa-solid fa-check"></i>
                 </div>
                 <h3 class="text-xl font-black text-gray-900 mb-1">Application Sent!</h3>
-                <p class="text-gray-600 text-xs sm:text-sm mb-6 leading-relaxed">
+                <p class="text-gray-600 text-xs sm:text-sm mb-6 leading-relaxed font-medium">
                     Hitesh, your details have been successfully shared with <span class="font-bold text-gray-900">{{ job.company_name }}</span>.
                 </p>
-                <a href="/" class="block w-full bg-[#0a66c2] text-white font-bold py-3 rounded-full hover:bg-[#004182] transition-all text-xs sm:text-sm shadow-md">
+                <a href="/" class="block w-full bg-[#0a66c2] text-white font-bold py-3 rounded-full hover:bg-[#004182] transition-all text-xs sm:text-sm shadow-md active:scale-95">
                     Great, thanks!
                 </a>
             </div>
@@ -379,49 +439,49 @@
     {% endif %}
 
     <!-- 📱 Mobile Bottom Sticky Navigation -->
-    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 h-14 mobile-bottom-nav">
+    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 z-50 h-14 mobile-bottom-nav">
         <div class="grid grid-cols-5 h-full max-w-xl mx-auto items-center justify-center text-center">
             <a href="{% url 'home' %}" class="flex flex-col items-center justify-center text-gray-500 hover:text-[#0a66c2] transition-colors">
                 <i class="fa-solid fa-house text-lg"></i>
-                <span class="text-[9px] font-medium mt-0.5">Home</span>
+                <span class="text-[9px] font-semibold mt-0.5">Home</span>
             </a>
             {% if request.user.role == 'vendor' %}
             <a href="{% url 'find_worker' %}" class="flex flex-col items-center justify-center text-gray-500 hover:text-[#0a66c2] transition-colors">
                 <i class="fa-solid fa-user-group text-lg"></i>
-                <span class="text-[9px] font-medium mt-0.5">Workers</span>
+                <span class="text-[9px] font-semibold mt-0.5">Workers</span>
             </a>
             {% else %}
             <a href="{% url 'community_hub' %}" class="flex flex-col items-center justify-center text-gray-500 hover:text-[#0a66c2] transition-colors">
                 <i class="fa-solid fa-comments text-lg"></i>
-                <span class="text-[9px] font-medium mt-0.5">Hub</span>
+                <span class="text-[9px] font-semibold mt-0.5">Hub</span>
             </a>
             {% endif %}
             <a href="{% url 'job_list' %}" class="flex flex-col items-center justify-center text-[#0a66c2] transition-colors">
                 <i class="fa-solid fa-briefcase text-lg"></i>
-                <span class="text-[9px] font-medium mt-0.5">Jobs</span>
+                <span class="text-[9px] font-semibold mt-0.5">Jobs</span>
             </a>
             <a href="{% url 'messages' %}" class="flex flex-col items-center justify-center text-gray-500 hover:text-[#0a66c2] relative transition-colors">
                 <div class="relative">
                     <i class="fa-solid fa-comment-dots text-lg"></i>
                     {% if msg_count > 0 %}
-                    <span class="absolute -top-1.5 -right-2 bg-red-600 text-white text-[7px] px-1 rounded-full font-bold">{{ msg_count }}</span>
+                    <span class="absolute -top-1.5 -right-2 bg-red-600 text-white text-[7px] px-1 rounded-full font-bold shadow-2xs">{{ msg_count }}</span>
                     {% endif %}
                 </div>
-                <span class="text-[9px] font-medium mt-0.5">Messaging</span>
+                <span class="text-[9px] font-semibold mt-0.5">Messaging</span>
             </a>
             <a href="{% url 'notifications' %}" class="flex flex-col items-center justify-center text-gray-500 hover:text-[#0a66c2] relative transition-colors">
                 <div class="relative">
                     <i class="fa-solid fa-bell text-lg"></i>
                     {% if notif_count > 0 %}
-                    <span class="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[7px] px-1 rounded-full font-bold">{{ notif_count }}</span>
+                    <span class="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[7px] px-1 rounded-full font-bold shadow-2xs">{{ notif_count }}</span>
                     {% endif %}
                 </div>
-                <span class="text-[9px] font-medium mt-0.5">Notif</span>
+                <span class="text-[9px] font-semibold mt-0.5">Notif</span>
             </a>
         </div>
     </div>
 
-    <!-- Dropdown & AI Script -->
+    <!-- Dropdown, Form Guard, & AI Script -->
     <script>
         function toggleMeMenu(event, menuId) {
             if (event) event.stopPropagation();
@@ -431,30 +491,61 @@
             document.getElementById('meMenu').classList.add('hidden');
             document.getElementById('meMenuMobile').classList.add('hidden');
             
-            if (!isOpen) targetMenu.classList.remove('hidden');
+            if (!isOpen) {
+                targetMenu.classList.remove('hidden');
+            }
         }
 
         window.onclick = function(e) {
             if (!e.target.closest('.desktopMeContainer') && !e.target.closest('.mobileMeContainer')) {
-                document.getElementById('meMenu').classList.add('hidden');
-                document.getElementById('meMenuMobile').classList.add('hidden');
+                const meMenu = document.getElementById('meMenu');
+                const meMenuMobile = document.getElementById('meMenuMobile');
+                if (meMenu) meMenu.classList.add('hidden');
+                if (meMenuMobile) meMenuMobile.classList.add('hidden');
             }
         }
 
-        /* 🤖 NEW AI JavaScript Feature: Auto Fill from Django Session/Profile Data */
-        function autoFillWithAI() {
+        /* 🤖 NEW AI JavaScript Feature: Auto Fill with UI feedback */
+        function autoFillWithAI(event) {
             const defaultName = "{{ user_profile.full_name|default:request.user.username }}";
             const defaultPhone = "{{ user_profile.phone_number|default:'' }}";
             
-            if(defaultName) document.getElementById('worker_name').value = defaultName;
-            if(defaultPhone) document.getElementById('worker_phone').value = defaultPhone;
+            const nameInput = document.getElementById('worker_name');
+            const phoneInput = document.getElementById('worker_phone');
+
+            if (defaultName && nameInput) {
+                nameInput.value = defaultName;
+                nameInput.classList.add('field-autofilled');
+            }
+            if (defaultPhone && phoneInput) {
+                phoneInput.value = defaultPhone;
+                phoneInput.classList.add('field-autofilled');
+            }
             
-            // Visual Feedback
-            const btn = event.currentTarget;
-            btn.innerHTML = `<i class="fa-solid fa-check text-green-600"></i> Auto-filled!`;
-            setTimeout(() => {
-                btn.innerHTML = `<i class="fa-solid fa-robot"></i> AI Autofill`;
-            }, 2500);
+            // Visual Feedback for Button
+            const btn = event ? event.currentTarget : document.querySelector('button[onclick="autoFillWithAI()"]');
+            if (btn) {
+                const originalContent = btn.innerHTML;
+                btn.innerHTML = `<i class="fa-solid fa-circle-check text-green-600"></i> <span class="text-green-700">Filled!</span>`;
+                btn.classList.add('bg-green-50', 'border-green-200');
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalContent;
+                    btn.classList.remove('bg-green-50', 'border-green-200');
+                    if (nameInput) nameInput.classList.remove('field-autofilled');
+                    if (phoneInput) phoneInput.classList.remove('field-autofilled');
+                }, 2000);
+            }
+        }
+
+        /* 🔒 Prevents double-submission and displays loading state */
+        function handleFormSubmit(event) {
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Submitting...</span>`;
+                submitBtn.classList.add('opacity-80', 'cursor-not-allowed');
+            }
         }
     </script>
 </body>
