@@ -98,32 +98,68 @@
         <div class="groups-list space-y-1 overflow-y-auto p-2 flex-1 custom-scrollbar">
             {% if groups %}
                 {% for group in groups %}
-                    <div class="group-item flex items-center gap-3 p-2.5 hover:bg-slate-50 active:bg-blue-50/80 rounded-xl cursor-pointer transition-all border border-transparent hover:border-slate-200" 
-                        onclick="selectReceiver('{{ group.id }}', null, '{{ group.name|escapejs }}')">
-                        
-                        <div class="relative shrink-0">
-                            {% if group.profile_picture %}
-                                <img src="{{ group.profile_picture.url }}" class="w-11 h-11 rounded-xl object-cover border border-slate-200 shadow-xs">
-                            {% elif group.owner and group.owner.profile_picture %}
-                                <img src="{{ group.owner.profile_picture.url }}" class="w-11 h-11 rounded-xl object-cover border border-slate-200 shadow-xs">
-                            {% else %}
-                                <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-sm shadow-xs">
-                                    {{ group.name|slice:":2"|upper }}
+                    <!-- 🧠 IQ200 DYNAMIC USER-ROLE FILTER LOGIC -->
+                    {% if user.profile.role == 'vendor' or user.is_staff or user.is_superuser %}
+                        {# Vendor Case: Sirf vahi groups dikhenge jo Vendor ne CREATE kiye hain #}
+                        {% if group.owner == user or group.created_by == user %}
+                            <div class="group-item flex items-center gap-3 p-2.5 hover:bg-slate-50 active:bg-blue-50/80 rounded-xl cursor-pointer transition-all border border-transparent hover:border-slate-200" 
+                                onclick="selectReceiver('{{ group.id }}', null, '{{ group.name|escapejs }}')">
+                                
+                                <div class="relative shrink-0">
+                                    {% if group.profile_picture %}
+                                        <img src="{{ group.profile_picture.url }}" class="w-11 h-11 rounded-xl object-cover border border-slate-200 shadow-xs">
+                                    {% elif group.owner and group.owner.profile_picture %}
+                                        <img src="{{ group.owner.profile_picture.url }}" class="w-11 h-11 rounded-xl object-cover border border-slate-200 shadow-xs">
+                                    {% else %}
+                                        <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-sm shadow-xs">
+                                            {{ group.name|slice:":2"|upper }}
+                                        </div>
+                                    {% endif %}
+                                    <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full"></span>
                                 </div>
-                            {% endif %}
-                            <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full"></span>
-                        </div>
-                        
-                        <div class="flex flex-col min-w-0 flex-1">
-                            <div class="flex justify-between items-baseline mb-0.5">
-                                <p class="font-bold text-slate-800 text-sm truncate">{{ group.name }}</p>
-                                <span class="text-[10px] text-slate-400 font-medium">Active</span>
+                                
+                                <div class="flex flex-col min-w-0 flex-1">
+                                    <div class="flex justify-between items-baseline mb-0.5">
+                                        <p class="font-bold text-slate-800 text-sm truncate">{{ group.name }}</p>
+                                        <span class="text-[10px] text-slate-400 font-medium">Active</span>
+                                    </div>
+                                    <p class="text-[11px] text-slate-500 truncate flex items-center gap-1">
+                                        <i class="fa-solid fa-truck-ramp-box text-[10px] text-blue-600"></i> Logistics Channel
+                                    </p>
+                                </div>
                             </div>
-                            <p class="text-[11px] text-slate-500 truncate flex items-center gap-1">
-                                <i class="fa-solid fa-truck-ramp-box text-[10px] text-blue-600"></i> Logistics Channel
-                            </p>
-                        </div>
-                    </div>
+                        {% endif %}
+                    {% else %}
+                        {# Worker Case: Sirf vahi groups dikhenge jo Worker ne JOIN kiye hain #}
+                        {% if user in group.members.all or user in group.workers.all or group in user.joined_groups.all %}
+                            <div class="group-item flex items-center gap-3 p-2.5 hover:bg-slate-50 active:bg-blue-50/80 rounded-xl cursor-pointer transition-all border border-transparent hover:border-slate-200" 
+                                onclick="selectReceiver('{{ group.id }}', null, '{{ group.name|escapejs }}')">
+                                
+                                <div class="relative shrink-0">
+                                    {% if group.profile_picture %}
+                                        <img src="{{ group.profile_picture.url }}" class="w-11 h-11 rounded-xl object-cover border border-slate-200 shadow-xs">
+                                    {% elif group.owner and group.owner.profile_picture %}
+                                        <img src="{{ group.owner.profile_picture.url }}" class="w-11 h-11 rounded-xl object-cover border border-slate-200 shadow-xs">
+                                    {% else %}
+                                        <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-sm shadow-xs">
+                                            {{ group.name|slice:":2"|upper }}
+                                        </div>
+                                    {% endif %}
+                                    <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full"></span>
+                                </div>
+                                
+                                <div class="flex flex-col min-w-0 flex-1">
+                                    <div class="flex justify-between items-baseline mb-0.5">
+                                        <p class="font-bold text-slate-800 text-sm truncate">{{ group.name }}</p>
+                                        <span class="text-[10px] text-slate-400 font-medium">Active</span>
+                                    </div>
+                                    <p class="text-[11px] text-slate-500 truncate flex items-center gap-1">
+                                        <i class="fa-solid fa-truck-ramp-box text-[10px] text-blue-600"></i> Logistics Channel
+                                    </p>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endif %}
                 {% endfor %}
             {% else %}
                 <div class="text-center py-8 px-4 flex flex-col items-center justify-center h-full">
