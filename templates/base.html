@@ -335,32 +335,46 @@
 
         </div>
 
-        <!-- 📱 Mobile Sub-Nav WhatsApp Style Bar -->
+        <!-- 📱 Mobile Sub-Nav WhatsApp Style Bar (Dynamic Group Filtering & Membership Integration) -->
         <div class="block md:hidden bg-white border-b overflow-x-auto no-scrollbar whitespace-nowrap px-3 py-2">
             <div class="flex items-center space-x-2 text-xs">
-                <button onclick="location.href='#'" class="bg-indigo-50 text-indigo-700 font-bold px-3 py-1.5 rounded-full border border-indigo-200 flex items-center gap-1.5 shrink-0 active:scale-95 transition-all">
-                    <i class="fa-solid fa-circle-plus text-sm"></i>
-                    <span>Create Group</span>
-                </button>
-                <div class="h-4 w-[1px] bg-gray-300 shrink-0"></div>
+                {% if request.user.role == 'vendor' %}
+                    <button onclick="location.href='#'" class="bg-indigo-50 text-indigo-700 font-bold px-3 py-1.5 rounded-full border border-indigo-200 flex items-center gap-1.5 shrink-0 active:scale-95 transition-all">
+                        <i class="fa-solid fa-circle-plus text-sm"></i>
+                        <span>Create Group</span>
+                    </button>
+                    <div class="h-4 w-[1px] bg-gray-300 shrink-0"></div>
+                {% endif %}
                 
-                <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
-                    <i class="fa-solid fa-user-group text-orange-600"></i>
-                    <span>Dishu Group PVT</span>
-                </a>
-                <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
-                    <i class="fa-solid fa-warehouse text-blue-600"></i>
-                    <span>Logistics Hub</span>
-                </a>
-                
-                {% for group in vendor_groups %}
-                    {% if group.name != "Dishu Group PVT" and group.name != "Logistics Hub" %}
-                    <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
-                        <i class="fa-solid fa-user-group text-slate-500"></i>
-                        <span>{{ group.name }} {% if group.member_count %}({{ group.member_count }}){% endif %}</span>
-                    </a>
-                    {% endif %}
-                {% endfor %}
+                <!-- Dynamic Group Rendering logic for Vendors (Created) vs Workers (Joined) -->
+                {% if request.user.role == 'vendor' %}
+                    {% for group in created_groups %}
+                        <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
+                            <i class="fa-solid fa-user-group text-orange-600"></i>
+                            <span>{{ group.name }} {% if group.member_count %}({{ group.member_count }}){% endif %}</span>
+                        </a>
+                    {% empty %}
+                        {% if vendor_groups %}
+                            {% for group in vendor_groups %}
+                                <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
+                                    <i class="fa-solid fa-user-group text-orange-600"></i>
+                                    <span>{{ group.name }} {% if group.member_count %}({{ group.member_count }}){% endif %}</span>
+                                </a>
+                            {% endfor %}
+                        {% else %}
+                            <span class="text-xs text-gray-400 italic px-2">No created groups</span>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    {% for group in joined_groups %}
+                        <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
+                            <i class="fa-solid fa-warehouse text-blue-600"></i>
+                            <span>{{ group.name }}</span>
+                        </a>
+                    {% empty %}
+                        <span class="text-xs text-gray-400 italic px-2">No joined groups yet</span>
+                    {% endfor %}
+                {% endif %}
             </div>
         </div>
     </nav>
