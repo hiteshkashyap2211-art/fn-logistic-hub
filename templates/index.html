@@ -201,8 +201,10 @@
                                 <a href="{% url 'vendor_dashboard' %}" class="block w-full text-center py-1 border border-[#0a66c2] text-[#0a66c2] font-semibold rounded-full text-[14px] hover:bg-blue-50 transition-all mb-1.5">Manage Dashboard</a>
                                 <a href="{% url 'create_profile' %}" class="block w-full text-center py-1 border border-orange-600 text-orange-600 font-semibold rounded-full text-[14px] hover:bg-orange-50 transition-all">Edit Company Profile</a>
                             {% else %}
-                                {% if user_profile and user_profile.pk %}
-                                    <a href="{% url 'worker_detail' user_profile.pk %}" class="block w-full text-center py-1 border border-[#0a66c2] text-[#0a66c2] font-semibold rounded-full text-[14px] hover:bg-blue-50 transition-all mb-1.5">View Profile</a>
+                                {% if request.user.worker_profile %}
+                                    <a href="{% url 'worker_detail' request.user.worker_profile.id %}" class="block w-full text-center py-1 border border-[#0a66c2] text-[#0a66c2] font-semibold rounded-full text-[14px] hover:bg-blue-50 transition-all mb-1.5">View Profile</a>
+                                {% elif user_profile and user_profile.id %}
+                                    <a href="{% url 'worker_detail' user_profile.id %}" class="block w-full text-center py-1 border border-[#0a66c2] text-[#0a66c2] font-semibold rounded-full text-[14px] hover:bg-blue-50 transition-all mb-1.5">View Profile</a>
                                 {% else %}
                                     <a href="{% url 'create_profile' %}" class="block w-full text-center py-1 border border-[#0a66c2] text-[#0a66c2] font-semibold rounded-full text-[14px] hover:bg-blue-50 transition-all mb-1.5">Create Profile</a>
                                 {% endif %}
