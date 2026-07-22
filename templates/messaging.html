@@ -401,7 +401,7 @@
                     </div>
 
                     <!-- Threads Stream Container -->
-                    <div class="flex-1 overflow-y-auto p-4 space-y-4 bg-white custom-scrollbar pb-24 md:pb-6" id="messageContainer">
+                    <div class="flex-1 overflow-y-auto p-4 space-y-4 bg-white custom-scrollbar pb-28 md:pb-6" id="messageContainer">
                         <div id="loadMoreTrigger" class="text-center py-2">
                             <button onclick="loadMoreMessages()" class="text-xs text-blue-600 font-bold hover:underline">
                                 Load older messages
@@ -461,7 +461,7 @@
                     </div>
 
                     <!-- Footer Chat Input Layer Controls -->
-                    <div class="p-3 md:p-4 border-t bg-white flex-shrink-0 z-20">
+                    <div class="p-3 md:p-4 border-t bg-white flex-shrink-0 z-30 relative">
                         <form id="chatForm" action="{% url 'send_message' %}" method="POST" enctype="multipart/form-data" 
                             onsubmit="return handleSendMessage(event)"
                             class="flex flex-col bg-[#f4f2ee] rounded-xl border border-gray-200 focus-within:border-gray-400 transition-all">
@@ -483,7 +483,7 @@
                                     <input type="file" name="image" id="imageInput" class="hidden" onchange="previewFile(this, 'image')">
                                     <input type="file" name="document" id="fileInput" class="hidden" onchange="previewFile(this, 'file')">
                                 </div>
-                                <button type="submit" id="submitBtn" class="bg-[#0a66c2] text-white px-5 py-2 rounded-full font-bold text-xs hover:bg-[#004182] active:scale-95 transition-all cursor-pointer touch-manipulation">Send</button>
+                                <button type="button" id="submitBtn" onclick="triggerFormSend(event)" ontouchstart="triggerFormSend(event)" class="bg-[#0a66c2] text-white px-5 py-2 rounded-full font-bold text-xs hover:bg-[#004182] active:scale-95 transition-all cursor-pointer touch-manipulation z-50">Send</button>
                             </div>
                         </form>
                     </div>
@@ -501,7 +501,7 @@
     </div>
 
     <!-- 📱 Sticky Mobile Bottom Bar Layer Panel -->
-    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 h-14 mobile-bottom-nav">
+    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40 h-14 mobile-bottom-nav">
         <div class="grid grid-cols-5 h-full max-w-xl mx-auto items-center justify-center text-center">
             <a href="{% url 'home' %}" class="flex flex-col items-center justify-center group text-gray-500 hover:text-[#0a66c2] transition-colors">
                 <i class="fa-solid fa-house text-lg"></i>
@@ -555,6 +555,14 @@
     <script>
         let lastMessageId = "{{ chat_messages.last.id|default:'0' }}";
         let offset = 20;
+
+        function triggerFormSend(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            handleSendMessage();
+        }
 
         function exitChatView(event) {
             if(event) event.preventDefault();
