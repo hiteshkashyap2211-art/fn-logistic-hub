@@ -1,6 +1,7 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
+from django.views.generic import TemplateView
 
 urlpatterns = [
     # --- Auth ---
@@ -11,6 +12,7 @@ urlpatterns = [
     path('select-role/', views.select_role, name='select_role'),
 
     # --- Dashboards ---
+    path('google3c120d71fc732d2a.html', TemplateView.as_view(template_name='google3c120d71fc732d2a.html')),
     path('vendor-dashboard/', views.vendor_dashboard, name='vendor_dashboard'),
     path('my-dashboard/', views.worker_dashboard, name='worker_dashboard'),
     path('dashboard/', views.dashboard_router, name='dashboard_router'),
