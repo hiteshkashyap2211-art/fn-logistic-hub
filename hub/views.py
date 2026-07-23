@@ -1734,7 +1734,7 @@ from .models import Notification
 
 @login_required
 def delete_notification(request, id):
-    # Ensure 'user' is the correct field name in your Notification model
-    notification = get_object_or_404(Notification, id=id, user=request.user)
-    notification.delete()
-    return JsonResponse({'status': 'success'})
+  # Ensure 'user' is the correct field name in your Notification model
+  notification = get_object_or_404(Notification, id=id, user=request.user)
+  notification.delete()
+  return JsonResponse({'status': 'success'})
