@@ -268,37 +268,37 @@
 
         </div>
 
-        <!-- 📱 Mobile Sub-Nav Bar (Dynamic Group Filtering & Membership Logic) -->
+        <!-- 💬 Dynamic Vendor & Joined Groups Navigation Bar (UPGRADED Dynamic Filter Logic) -->
         <div class="block md:hidden bg-white border-b overflow-x-auto no-scrollbar whitespace-nowrap px-3 py-2">
             <div class="flex items-center space-x-2 text-xs">
                 {% if request.user.role == 'vendor' %}
-                    <button onclick="location.href='#'" class="bg-indigo-50 text-indigo-700 font-bold px-3 py-1.5 rounded-full border border-indigo-200 flex items-center gap-1.5 shrink-0 active:scale-95 transition-all">
-                        <i class="fa-solid fa-circle-plus text-sm"></i>
+                    <!-- Create Group Action Tab for Vendors -->
+                    <a href="{% url 'community_hub' %}" class="bg-indigo-50 text-indigo-700 font-bold px-3 py-1.5 rounded-full border border-indigo-200 flex items-center gap-1.5 shrink-0 active:scale-95 transition-all hover:bg-indigo-100 shadow-sm">
+                        <i class="fa-solid fa-circle-plus text-sm text-indigo-600"></i>
                         <span>Create Group</span>
-                    </button>
+                    </a>
                     <div class="h-4 w-[1px] bg-gray-300 shrink-0"></div>
-                    
-                    <!-- Vendor Profile: Sirf wahi groups jo Vendor ne Create kiye hain -->
-                    {% for group in vendor_created_groups %}
-                    <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
-                        <i class="fa-solid fa-user-group text-orange-600"></i>
-                        <span>{{ group.name }} {% if group.member_count %}({{ group.member_count }}){% endif %}</span>
-                    </a>
-                    {% empty %}
-                    <span class="text-gray-400 text-xs italic px-1">No groups created yet</span>
-                    {% endfor %}
-
-                {% else %}
-                    <!-- Worker Profile: Sirf wahi groups jo Worker ne Join kiye hain -->
-                    {% for group in joined_groups %}
-                    <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
-                        <i class="fa-solid fa-warehouse text-blue-600"></i>
-                        <span>{{ group.name }}</span>
-                    </a>
-                    {% empty %}
-                    <span class="text-gray-400 text-xs italic px-1">No joined groups yet</span>
-                    {% endfor %}
                 {% endif %}
+
+                <!-- Dynamic Groups List: Filters groups created by THIS vendor OR joined by THIS worker -->
+                {% for group in user_groups %}
+                    <a href="{% if group.get_absolute_url %}{{ group.get_absolute_url }}{% else %}{% url 'community_hub' %}?group={{ group.id|default:group.name|slugify }}{% endif %}" 
+                       class="bg-gradient-to-r from-orange-50 to-orange-100/60 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 shrink-0 border border-orange-200/80 hover:bg-orange-200/80 active:scale-95 transition-all shadow-sm">
+                        <i class="fa-solid fa-user-group text-orange-600 text-xs"></i>
+                        <span class="text-gray-900">{{ group.name }}</span>
+                        {% if group.is_active or group.status == 'active' %}
+                            <span class="bg-orange-500 text-white text-[9px] px-1.5 py-0.2 rounded-full font-extrabold">Active</span>
+                        {% elif group.member_count %}
+                            <span class="bg-gray-200 text-gray-700 text-[9px] px-1.5 py-0.2 rounded-full font-bold">({{ group.member_count }})</span>
+                        {% endif %}
+                    </a>
+                {% empty %}
+                    {% if request.user.role == 'vendor' %}
+                        <span class="text-gray-400 italic text-[11px] px-2">You haven't created any group yet.</span>
+                    {% else %}
+                        <span class="text-gray-400 italic text-[11px] px-2">You haven't joined any group yet.</span>
+                    {% endif %}
+                {% endfor %}
             </div>
         </div>
     </nav>
