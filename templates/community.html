@@ -98,8 +98,8 @@
         <div class="groups-list space-y-1 overflow-y-auto p-2 flex-1 custom-scrollbar">
             {% if groups %}
                 {% for group in groups %}
-                    <!-- 🧠 IQ200 DYNAMIC USER-ROLE FILTER LOGIC -->
-                    {% if user.profile.role == 'vendor' or user.is_staff or user.is_superuser %}
+                    <!-- 🧠 SAFELY HANDLED DYNAMIC USER-ROLE FILTER LOGIC -->
+                    {% if user.role == 'vendor' or user.profile.role == 'vendor' or user.is_staff or user.is_superuser %}
                         {# Vendor Case: Sirf vahi groups dikhenge jo Vendor ne CREATE kiye hain #}
                         {% if group.owner == user or group.created_by == user %}
                             <div class="group-item flex items-center gap-3 p-2.5 hover:bg-slate-50 active:bg-blue-50/80 rounded-xl cursor-pointer transition-all border border-transparent hover:border-slate-200" 
@@ -131,7 +131,7 @@
                         {% endif %}
                     {% else %}
                         {# Worker Case: Sirf vahi groups dikhenge jo Worker ne JOIN kiye hain #}
-                        {% if user in group.members.all or user in group.workers.all or group in user.joined_groups.all %}
+                        {% if user in group.members.all or user in group.workers.all or user.joined_groups and group in user.joined_groups.all %}
                             <div class="group-item flex items-center gap-3 p-2.5 hover:bg-slate-50 active:bg-blue-50/80 rounded-xl cursor-pointer transition-all border border-transparent hover:border-slate-200" 
                                 onclick="selectReceiver('{{ group.id }}', null, '{{ group.name|escapejs }}')">
                                 
@@ -238,7 +238,7 @@
             
             <input type="text" id="messageInput" placeholder="Type a message..." class="flex-1 bg-slate-100/80 border border-slate-200 focus:border-blue-500 focus:bg-white rounded-full px-4 py-2.5 text-xs sm:text-sm focus:outline-none transition-all font-medium text-slate-800" required disabled>
             
-            <input type="hidden" id="receiverIdHidden" value="{{ active_group.id }}">
+            <input type="hidden" id="receiverIdHidden" value="{{ active_group.id|default:'' }}">
             <input type="hidden" id="workerIdHidden" value="">
             
             <button type="submit" id="sendBtn" class="bg-blue-600 text-white h-10 w-10 rounded-full hover:bg-blue-700 transition-all flex items-center justify-center shadow-md disabled:opacity-50 shrink-0" disabled>

@@ -198,7 +198,7 @@
                     <span class="text-[10px] font-bold mt-1">Home</span>
                 </a>
 
-                {% if request.user.role == 'vendor' %}
+                {% if request.user.role == 'vendor' or request.user.profile.role == 'vendor' %}
                 <a href="{% url 'find_worker' %}" class="flex flex-col items-center group text-gray-500 hover:text-black transition-all shrink-0">
                     <i class="fa-solid fa-user-group text-lg sm:text-xl"></i>
                     <span class="text-[10px] font-bold mt-1">Find Workers</span>
@@ -213,7 +213,7 @@
                 <a href="{% url 'messages' %}" class="flex flex-col items-center group text-gray-500 hover:text-black relative transition-all shrink-0">
                     <div class="relative">
                         <i class="fa-solid fa-comment-dots text-lg sm:text-xl"></i>
-                        {% if msg_count > 0 %}
+                        {% if msg_count and msg_count > 0 %}
                         <span class="absolute -top-1.5 -right-2 bg-red-600 text-white text-[8px] px-1 rounded-full border border-white font-bold">{{ msg_count }}</span>
                         {% endif %}
                     </div>
@@ -233,10 +233,12 @@
                 <!-- Desktop Custom Dropdown Container -->
                 <div class="relative flex items-center shrink-0 desktopMeContainer" id="meDropdownContainer">
                     <div class="flex flex-col items-center">
-                        <a href="{% if request.user.role == 'vendor' %}{% url 'vendor_dashboard' %}{% else %}{% url 'worker_dashboard' %}{% endif %}" class="w-6 h-6 rounded-full overflow-hidden border border-gray-200 hover:border-black transition-all">
-                            {% if request.user.role == 'vendor' and user_profile.company_logo %}
+                        <a href="{% if request.user.role == 'vendor' or request.user.profile.role == 'vendor' %}{% url 'vendor_dashboard' %}{% else %}{% url 'worker_dashboard' %}{% endif %}" class="w-6 h-6 rounded-full overflow-hidden border border-gray-200 hover:border-black transition-all">
+                            {% if user_profile and user_profile.company_logo %}
                                 <img src="{{ user_profile.company_logo.url }}" class="w-full h-full object-cover">
-                            {% elif request.user.worker_profile.photo %}
+                            {% elif user_profile and user_profile.photo %}
+                                <img src="{{ user_profile.photo.url }}" class="w-full h-full object-cover">
+                            {% elif request.user.worker_profile and request.user.worker_profile.photo %}
                                 <img src="{{ request.user.worker_profile.photo.url }}" class="w-full h-full object-cover">
                             {% else %}
                                 <img src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=0a66c2&color=fff" class="w-full h-full object-cover">
@@ -252,29 +254,37 @@
                     <div id="meMenu" class="hidden absolute right-0 mt-2 top-12 w-[280px] bg-white rounded-lg shadow-xl border border-[#e0e0e0] z-[100] overflow-hidden transition-all duration-150 origin-top-right animate-fade-in text-left">
                         <div class="p-3 flex gap-3 border-b border-[#f3f2ef]">
                             <div class="w-12 h-12 rounded-full overflow-hidden shrink-0 border border-gray-200">
-                                {% if request.user.role == 'vendor' and user_profile.company_logo %}
+                                {% if user_profile and user_profile.company_logo %}
                                     <img src="{{ user_profile.company_logo.url }}" class="w-full h-full object-cover">
-                                {% elif request.user.role == 'worker' and user_profile.photo %}
+                                {% elif user_profile and user_profile.photo %}
                                     <img src="{{ user_profile.photo.url }}" class="w-full h-full object-cover">
+                                {% elif request.user.worker_profile and request.user.worker_profile.photo %}
+                                    <img src="{{ request.user.worker_profile.photo.url }}" class="w-full h-full object-cover">
                                 {% else %}
                                     <img src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=0a66c2&color=fff&bold=true" class="w-full h-full object-cover">
                                 {% endif %}
                             </div>
                             <div class="flex flex-col justify-center overflow-hidden flex-1">
                                 <p class="font-semibold text-[14px] text-gray-900 leading-tight truncate">
-                                    {% if request.user.role == 'vendor' %}{{ user_profile.company_name|default:request.user.username }}{% else %}{{ user_profile.full_name|default:request.user.username }}{% endif %}
+                                    {% if user_profile and user_profile.company_name %}
+                                        {{ user_profile.company_name }}
+                                    {% elif user_profile and user_profile.full_name %}
+                                        {{ user_profile.full_name }}
+                                    {% else %}
+                                        {{ request.user.username }}
+                                    {% endif %}
                                 </p>
                                 <p class="text-[12px] text-gray-600 mt-0.5 truncate font-normal">
-                                    {% if request.user.role == 'vendor' %}Logistics Vendor{% else %}{{ user_profile.work_category|default:"Logistics" }} Specialist{% endif %} at WH Hub
+                                    {% if request.user.role == 'vendor' or request.user.profile.role == 'vendor' %}Logistics Vendor{% else %}{{ user_profile.work_category|default:"Logistics" }} Specialist{% endif %} at WH Hub
                                 </p>
                             </div>
                         </div>
                         <div class="p-2 border-b border-[#f3f2ef]">
-                            {% if request.user.role == 'vendor' %}
+                            {% if request.user.role == 'vendor' or request.user.profile.role == 'vendor' %}
                                 <a href="{% url 'vendor_dashboard' %}" class="block w-full text-center py-1 border border-[#0a66c2] text-[#0a66c2] font-semibold rounded-full text-[14px] hover:bg-blue-50 transition-all mb-1.5">Manage Dashboard</a>
                                 <a href="{% url 'create_profile' %}" class="block w-full text-center py-1 border border-orange-600 text-orange-600 font-semibold rounded-full text-[14px] hover:bg-orange-50 transition-all">Edit Company Profile</a>
                             {% else %}
-                                {% if request.user.worker_profile %}
+                                {% if request.user.worker_profile and request.user.worker_profile.id %}
                                     <a href="{% url 'worker_detail' request.user.worker_profile.id %}" class="block w-full text-center py-1 border border-[#0a66c2] text-[#0a66c2] font-semibold rounded-full text-[14px] hover:bg-blue-50 transition-all mb-1.5">View Profile</a>
                                 {% elif user_profile and user_profile.id %}
                                     <a href="{% url 'worker_detail' user_profile.id %}" class="block w-full text-center py-1 border border-[#0a66c2] text-[#0a66c2] font-semibold rounded-full text-[14px] hover:bg-blue-50 transition-all mb-1.5">View Profile</a>
@@ -287,7 +297,7 @@
                         <div class="py-1 border-b border-[#f3f2ef]">
                             <p class="px-3 pt-1 text-[13px] font-semibold text-gray-900">Account</p>
                             <a href="#" class="block px-3 py-1 text-[12px] text-orange-600 font-semibold hover:underline"> Try Premium for Free</a>
-                            <a href="{% if request.user.role == 'vendor' %}{% url 'vendor_dashboard' %}{% else %}{% url 'worker_dashboard' %}{% endif %}" class="block px-3 py-1 text-[12px] text-gray-500 hover:bg-gray-100 transition-colors">Settings & Privacy</a>
+                            <a href="{% if request.user.role == 'vendor' or request.user.profile.role == 'vendor' %}{% url 'vendor_dashboard' %}{% else %}{% url 'worker_dashboard' %}{% endif %}" class="block px-3 py-1 text-[12px] text-gray-500 hover:bg-gray-100 transition-colors">Settings & Privacy</a>
                             <a href="#" class="block px-3 py-1 text-[12px] text-gray-500 hover:bg-gray-100 transition-colors">Help & Language</a>
                         </div>
                         <div class="p-1 bg-white">
@@ -303,9 +313,11 @@
             <!-- 📱 Mobile Layout Avatar Layer -->
             <div class="flex md:hidden items-center space-x-2 shrink-0 relative mobileMeContainer">
                 <button onclick="toggleMeMenu(event, 'meMenuMobile')" class="w-7 h-7 rounded-full overflow-hidden border border-gray-300 focus:outline-none">
-                    {% if request.user.role == 'vendor' and user_profile.company_logo %}
+                    {% if user_profile and user_profile.company_logo %}
                         <img src="{{ user_profile.company_logo.url }}" class="w-full h-full object-cover">
-                    {% elif request.user.worker_profile.photo %}
+                    {% elif user_profile and user_profile.photo %}
+                        <img src="{{ user_profile.photo.url }}" class="w-full h-full object-cover">
+                    {% elif request.user.worker_profile and request.user.worker_profile.photo %}
                         <img src="{{ request.user.worker_profile.photo.url }}" class="w-full h-full object-cover">
                     {% else %}
                         <img src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=0a66c2&color=fff" class="w-full h-full object-cover">
@@ -317,16 +329,28 @@
                     <div class="p-3 flex gap-2 border-b border-[#f3f2ef] bg-gray-50">
                         <div class="flex flex-col justify-center overflow-hidden flex-1">
                             <p class="font-bold text-xs text-gray-900 leading-tight truncate">
-                                {% if request.user.role == 'vendor' %}{{ user_profile.company_name|default:request.user.username }}{% else %}{{ user_profile.full_name|default:request.user.username }}{% endif %}
+                                {% if user_profile and user_profile.company_name %}
+                                    {{ user_profile.company_name }}
+                                {% elif user_profile and user_profile.full_name %}
+                                    {{ user_profile.full_name }}
+                                {% else %}
+                                    {{ request.user.username }}
+                                {% endif %}
                             </p>
                         </div>
                     </div>
                     <div class="p-2 border-b border-[#f3f2ef] flex flex-col gap-1">
-                        {% if request.user.role == 'vendor' %}
+                        {% if request.user.role == 'vendor' or request.user.profile.role == 'vendor' %}
                             <a href="{% url 'vendor_dashboard' %}" class="block text-center w-full py-1 text-xs border border-[#0a66c2] text-[#0a66c2] font-bold rounded-full hover:bg-blue-50">Dashboard</a>
                             <a href="{% url 'create_profile' %}" class="block text-center w-full py-1 text-xs border border-orange-600 text-orange-600 font-bold rounded-full hover:bg-orange-50">Edit Profile</a>
                         {% else %}
-                            <a href="{% url 'worker_detail' request.user.worker_profile.pk|default:user_profile.id %}" class="block text-center w-full py-1 text-xs border border-[#0a66c2] text-[#0a66c2] font-bold rounded-full hover:bg-blue-50">View Profile</a>
+                            {% if request.user.worker_profile and request.user.worker_profile.pk %}
+                                <a href="{% url 'worker_detail' request.user.worker_profile.pk %}" class="block text-center w-full py-1 text-xs border border-[#0a66c2] text-[#0a66c2] font-bold rounded-full hover:bg-blue-50">View Profile</a>
+                            {% elif user_profile and user_profile.id %}
+                                <a href="{% url 'worker_detail' user_profile.id %}" class="block text-center w-full py-1 text-xs border border-[#0a66c2] text-[#0a66c2] font-bold rounded-full hover:bg-blue-50">View Profile</a>
+                            {% else %}
+                                <a href="{% url 'create_profile' %}" class="block text-center w-full py-1 text-xs border border-[#0a66c2] text-[#0a66c2] font-bold rounded-full hover:bg-blue-50">Create Profile</a>
+                            {% endif %}
                             <a href="{% url 'create_profile' %}" class="block text-center w-full py-1 text-xs border border-orange-600 text-orange-600 font-bold rounded-full hover:bg-orange-50">Edit Resume</a>
                         {% endif %}
                     </div>
@@ -344,7 +368,7 @@
         <!-- 📱 Mobile Sub-Nav WhatsApp Style Bar (Dynamic Group Filtering & Membership Integration) -->
         <div class="block md:hidden bg-white border-b overflow-x-auto no-scrollbar whitespace-nowrap px-3 py-2">
             <div class="flex items-center space-x-2 text-xs">
-                {% if request.user.role == 'vendor' %}
+                {% if request.user.role == 'vendor' or request.user.profile.role == 'vendor' %}
                     <button onclick="location.href='#'" class="bg-indigo-50 text-indigo-700 font-bold px-3 py-1.5 rounded-full border border-indigo-200 flex items-center gap-1.5 shrink-0 active:scale-95 transition-all">
                         <i class="fa-solid fa-circle-plus text-sm"></i>
                         <span>Create Group</span>
@@ -353,7 +377,7 @@
                 {% endif %}
                 
                 <!-- Dynamic Group Rendering logic for Vendors (Created) vs Workers (Joined) -->
-                {% if request.user.role == 'vendor' %}
+                {% if request.user.role == 'vendor' or request.user.profile.role == 'vendor' %}
                     {% for group in created_groups %}
                         <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
                             <i class="fa-solid fa-user-group text-orange-600"></i>
@@ -386,9 +410,6 @@
     </nav>
     {% endif %}
 
-    
-    
-
     <!-- AI Modal Layout -->
     <div id="aiModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
         <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full border border-slate-100 shadow-2xl animate-scale-in mx-2">
@@ -416,9 +437,6 @@
     <!-- Main Structural Layout -->
     <main class="max-w-6xl mx-auto px-2 sm:px-4 mt-4 sm:mt-6 grid grid-cols-12 gap-4 sm:gap-5 pb-20">
         
-        <!-- Left Sidebar (Desktop Only) -->
-        
-
         <!-- Dynamic Content / Main Feed Stream Container -->
         <div class="col-span-12 md:col-span-8 lg:col-span-6 space-y-4">
             {% block content %}{% endblock %}
@@ -483,7 +501,7 @@
                 <span class="text-[9px] font-medium mt-0.5">Home</span>
             </a>
 
-            {% if request.user.role == 'vendor' %}
+            {% if request.user.role == 'vendor' or request.user.profile.role == 'vendor' %}
             <a href="{% url 'find_worker' %}" class="flex flex-col items-center justify-center group text-gray-500 hover:text-[#0a66c2] transition-colors">
                 <i class="fa-solid fa-user-group text-lg"></i>
                 <span class="text-[9px] font-medium mt-0.5">Workers</span>
@@ -503,7 +521,7 @@
             <a href="{% url 'messages' %}" class="flex flex-col items-center justify-center group text-gray-500 hover:text-[#0a66c2] relative transition-colors">
                 <div class="relative">
                     <i class="fa-solid fa-comment-dots text-lg"></i>
-                    {% if msg_count > 0 %}
+                    {% if msg_count and msg_count > 0 %}
                     <span class="absolute -top-1.5 -right-2 bg-red-600 text-white text-[7px] px-1 rounded-full font-bold">{{ msg_count }}</span>
                     {% endif %}
                 </div>

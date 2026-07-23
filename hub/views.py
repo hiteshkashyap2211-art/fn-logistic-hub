@@ -1381,12 +1381,17 @@ import pytz
 from .models import Message, Notification, WorkerProfile, VendorProfile, Group
 from django.contrib.auth import get_user_model
 
+from django.shortcuts import render
+from django.contrib.auth import get_user_model
+from django.db.models import Q
+
 User = get_user_model()
 
 def community_hub(request):
     username = request.GET.get('user')
+    
     # Defaulting active_user to None if not found
-    active_user = User.objects.filter(username=username).first()
+    active_user = User.objects.filter(username=username).first() if username else None
     
     context = {
         'active_user': active_user,
@@ -1398,8 +1403,8 @@ def community_hub(request):
     
     if request.user.is_authenticated:
         # Load user's groups
-        context['active_group'] = Group.objects.filter(members=request.user).first()
         context['groups'] = Group.objects.filter(members=request.user)
+        context['active_group'] = context['groups'].first()
         
         # Load messages if active_user is valid
         if active_user:
@@ -1412,9 +1417,9 @@ def community_hub(request):
         # Optimized: Use getattr to safely check roles
         role = getattr(request.user, 'role', None)
         if role == 'vendor':
-            context['user_profile'] = VendorProfile.objects.filter(user=request.user).first()
+            context['user_profile'] = getattr(request.user, 'vendorprofile', None) or VendorProfile.objects.filter(user=request.user).first()
         elif role == 'worker':
-            context['user_profile'] = WorkerProfile.objects.filter(user=request.user).first()
+            context['user_profile'] = getattr(request.user, 'workerprofile', None) or WorkerProfile.objects.filter(user=request.user).first()
             
     return render(request, 'community.html', context)
 
