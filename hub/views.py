@@ -1589,34 +1589,21 @@ def group_detail(request, pk):
 
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
-from .models import Notification, Group
+from .models import Notification
 
 def accept_invite(request, notification_id):
-    # Fetch notification safely
-    notification = get_object_or_404(Notification, id=notification_id)
+    # 1. Fetch notification
+    notification = get_object_or_404(Notification, id=notification_id, user=request.user)
     
-    # Check if the associated group exists
-    group = notification.group
+    # 2. Add user to group
+    if notification.group:
+        notification.group.members.add(request.user)
     
-    if not group:
-        messages.error(request, "No group is associated with this notification or the group has been deleted.")
-        return redirect('notifications')
-
-    # Safely add member to group
-    try:
-        if hasattr(group, 'members'):
-            group.members.add(request.user)
-        
-        # Mark notification as read
-        notification.is_read = True
-        notification.save()
-        
-        messages.success(request, f"You have successfully joined the group '{group.name}'!")
-    except Exception as e:
-        messages.error(request, f"An error occurred while joining the group: {str(e)}")
-        return redirect('notifications')
-
-    # Redirect user to the community hub
+    # 3. Mark notification as read
+    notification.is_read = True
+    notification.save()
+    
+    # 4. Redirect to community/group page
     return redirect('community_hub')
 
 
