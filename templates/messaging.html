@@ -280,23 +280,42 @@
 
         </div>
 
-        <!-- Mobile Sub-Nav Bar -->
+        <!-- Mobile Sub-Nav Bar (Updated Dynamic Group Filter Logic) -->
         <div class="block md:hidden bg-white border-b overflow-x-auto no-scrollbar whitespace-nowrap px-3 py-2">
             <div class="flex items-center space-x-2 text-xs">
-                <button onclick="location.href='#'" class="bg-indigo-50 text-indigo-700 font-bold px-3 py-1.5 rounded-full border border-indigo-200 flex items-center gap-1.5 shrink-0 active:scale-95 transition-all">
-                    <i class="fa-solid fa-circle-plus text-sm"></i>
-                    <span>Create Group</span>
-                </button>
-                <div class="h-4 w-[1px] bg-gray-300 shrink-0"></div>
-                
-                <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
-                    <i class="fa-solid fa-user-group text-orange-600"></i>
-                    <span>Dishu Group PVT</span>
-                </a>
-                <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
-                    <i class="fa-solid fa-warehouse text-blue-600"></i>
-                    <span>Logistics Hub</span>
-                </a>
+                {% if request.user.role == 'vendor' %}
+                    <!-- Vendor View: Create Group Button + Only Groups Created by this Vendor -->
+                    <button onclick="location.href='#'" class="bg-indigo-50 text-indigo-700 font-bold px-3 py-1.5 rounded-full border border-indigo-200 flex items-center gap-1.5 shrink-0 active:scale-95 transition-all">
+                        <i class="fa-solid fa-circle-plus text-sm"></i>
+                        <span>Create Group</span>
+                    </button>
+                    <div class="h-4 w-[1px] bg-gray-300 shrink-0"></div>
+                    
+                    {% for group in created_groups %}
+                    <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
+                        <i class="fa-solid fa-user-group text-orange-600"></i>
+                        <span>{{ group.name }}</span>
+                    </a>
+                    {% empty %}
+                    <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
+                        <i class="fa-solid fa-warehouse text-blue-600"></i>
+                        <span>Logistics Hub</span>
+                    </a>
+                    {% endfor %}
+                {% else %}
+                    <!-- Worker View: Only Groups Joined by this Worker -->
+                    {% for group in joined_groups %}
+                    <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
+                        <i class="fa-solid fa-user-group text-orange-600"></i>
+                        <span>{{ group.name }}</span>
+                    </a>
+                    {% empty %}
+                    <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
+                        <i class="fa-solid fa-warehouse text-blue-600"></i>
+                        <span>Logistics Hub</span>
+                    </a>
+                    {% endfor %}
+                {% endif %}
             </div>
         </div>
     </nav>

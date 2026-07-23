@@ -256,7 +256,7 @@
 
             </div>
 
-            <!-- 💬 WhatsApp Style Mobile Sub-Nav Bar Layout -->
+            <!-- 💬 WhatsApp Style Mobile Sub-Nav Bar Layout (Dynamic Group Logic Added Here) -->
             <div class="block md:hidden bg-white border-t overflow-x-auto no-scrollbar whitespace-nowrap px-3 py-2">
                 <div class="flex items-center space-x-2 text-xs">
                     <button onclick="location.href='#'" class="bg-indigo-50 text-indigo-700 font-bold px-3 py-1.5 rounded-full border border-indigo-200 flex items-center gap-1.5 shrink-0 active:scale-95 transition-all">
@@ -274,14 +274,26 @@
                         <span>Logistics Hub</span>
                     </a>
                     
-                    {% for group in vendor_groups %}
-                        {% if group.name != "Dishu Group PVT" and group.name != "Logistics Hub" %}
-                        <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
-                            <i class="fa-solid fa-user-group text-slate-500"></i>
-                            <span>{{ group.name }} {% if group.member_count %}({{ group.member_count }}){% endif %}</span>
-                        </a>
-                        {% endif %}
-                    {% endfor %}
+                    <!-- 🔄 Dynamic Group Logic Integration -->
+                    {% if request.user.role == 'vendor' %}
+                        {% for group in created_groups|default:vendor_groups %}
+                            {% if group.name != "Dishu Group PVT" and group.name != "Logistics Hub" %}
+                            <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
+                                <i class="fa-solid fa-user-group text-slate-500"></i>
+                                <span>{{ group.name }} {% if group.member_count %}({{ group.member_count }}){% endif %}</span>
+                            </a>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        {% for group in joined_groups|default:user.groups.all %}
+                            {% if group.name != "Dishu Group PVT" and group.name != "Logistics Hub" %}
+                            <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
+                                <i class="fa-solid fa-user-group text-slate-500"></i>
+                                <span>{{ group.name }} {% if group.member_count %}({{ group.member_count }}){% endif %}</span>
+                            </a>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
                 </div>
             </div>
         </nav>
