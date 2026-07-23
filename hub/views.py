@@ -1414,9 +1414,9 @@ def community_hub(request):
             ).distinct()
             context['user_profile'] = getattr(request.user, 'vendorprofile', None) or VendorProfile.objects.filter(user=request.user).first()
         else:
-            # Workers see groups they belong to/joined
+            # Workers see groups they belong to/joined (FIXED: 'workers' removed, only 'members' used)
             context['groups'] = Group.objects.filter(
-                Q(members=request.user) | Q(workers=request.user)
+                Q(members=request.user)
             ).distinct()
             context['user_profile'] = getattr(request.user, 'workerprofile', None) or WorkerProfile.objects.filter(user=request.user).first()
             
