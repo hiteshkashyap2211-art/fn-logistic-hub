@@ -1389,11 +1389,10 @@ User = get_user_model()
 @login_required
 def community_hub(request):
     username = request.GET.get('user')
+    selected_group_id = request.GET.get('group_id') or request.GET.get('group')
     
-    # Active selected user resolution safely
     active_user = User.objects.filter(username=username).first() if username else None
     
-    # Base Context Structure
     context = {
         'active_user': active_user,
         'active_group': None,
@@ -1403,26 +1402,29 @@ def community_hub(request):
     }
     
     if request.user.is_authenticated:
-        # User role identification
         role = getattr(request.user, 'role', None)
         
-        # User Groups Retrieval based on Role
+        # Role-based groups fetch logic
         if role == 'vendor':
-            # Vendors see groups where they are owner or member
             context['groups'] = Group.objects.filter(
                 Q(owner=request.user) | Q(members=request.user)
             ).distinct()
             context['user_profile'] = getattr(request.user, 'vendorprofile', None) or VendorProfile.objects.filter(user=request.user).first()
         else:
-            # Workers see groups where they are member
+            # Workers see groups they belong to / were invited & joined
             context['groups'] = Group.objects.filter(
                 Q(members=request.user)
             ).distinct()
             context['user_profile'] = getattr(request.user, 'workerprofile', None) or WorkerProfile.objects.filter(user=request.user).first()
-            
-        context['active_group'] = context['groups'].first()
         
-        # Messages Loading Logic (1-on-1 Chat Context)
+        # 🟢 FIX: Request me aaye specific joined group ko active karo
+        if selected_group_id:
+            context['active_group'] = context['groups'].filter(id=selected_group_id).first()
+        
+        # Fallback to first group if none selected
+        if not context['active_group']:
+            context['active_group'] = context['groups'].first()
+        
         if active_user:
             context['messages'] = Message.objects.filter(
                 (Q(sender=request.user) & Q(receiver=active_user)) |
@@ -1601,49 +1603,52 @@ from django.contrib.auth.decorators import login_required
 
 @login_required
 def accept_invite(request, notification_id):
-    # 🟢 FIX: 'recipient' ko replace karke 'user' kar diya hai
+    # Safe notification retrieval using 'user' field
     notification = get_object_or_404(Notification, id=notification_id, user=request.user)
     
     group = notification.group
     if group:
-        # User ko group member banayein (Bina kisi purani detail ko touch kiye)
+        # User ko group me member add karein
         group.members.add(request.user)
         
         # Notification ko read mark karein
         notification.is_read = True
         notification.save()
         
-        # User ko direct group URL par redirect karein
-        return redirect(f'/community/?group={group.id}')
+        # 🟢 Active group parameter ke saath redirect karein
+        return redirect(f'/community/?group_id={group.id}')
     
-    # Fallback agar group exist nahi karta
     return redirect('community_hub')
 
 
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 import json
-from .models import Group # Apna model import karein
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_protect
+from .models import Group
 
 @login_required
-@csrf_exempt
+@csrf_protect
 def create_group(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            group_name = data.get('group_name')
+            group_name = data.get('group_name', '').strip()
             
-            if group_name:
-                # Yahan new_group object banayein
-                new_group = Group.objects.create(name=group_name, owner=request.user)
-                new_group.members.add(request.user)
-                new_group.save()
-                
-                return JsonResponse({'status': 'success', 'message': 'Group created'})
+            if not group_name:
+                return JsonResponse({'status': 'error', 'message': 'Group name is required'}, status=400)
             
-            return JsonResponse({'status': 'error', 'message': 'Name missing'}, status=400)
+            # Create group and assign owner & member
+            new_group = Group.objects.create(name=group_name, owner=request.user)
+            new_group.members.add(request.user)
+            
+            return JsonResponse({'status': 'success', 'message': 'Group created successfully!', 'group_id': new_group.id})
+        except json.JSONDecodeError:
+            return JsonResponse({'status': 'error', 'message': 'Invalid JSON format'}, status=400)
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+            
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
 
 # hub/views.py
 

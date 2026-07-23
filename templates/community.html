@@ -611,9 +611,13 @@
 
     async function handleCreateGroup() {
         const btn = document.getElementById('createGroupBtn');
-        const groupName = document.getElementById('newGroupName').value;
+        const groupNameInput = document.getElementById('newGroupName');
+        const groupName = groupNameInput.value.trim();
         
-        if (!groupName) return alert("Please enter a group name");
+        if (!groupName) {
+            alert("Please enter a group name");
+            return;
+        }
 
         btn.innerText = "Creating...";
         btn.disabled = true;
@@ -639,18 +643,23 @@
                     location.reload(); 
                 }, 500);
             } else {
-                alert(data.message);
+                alert(data.message || "Failed to create group.");
                 btn.innerText = "Create Group";
                 btn.disabled = false;
+                btn.classList.remove('opacity-50');
             }
         } catch (e) {
+            console.error("Create Group Error:", e);
+            alert("An error occurred while creating the group.");
             btn.innerText = "Create Group";
             btn.disabled = false;
+            btn.classList.remove('opacity-50');
         }
     }
 
     function closeGroupModal() {
         document.getElementById('createGroupModal').classList.add('hidden');
+        document.getElementById('newGroupName').value = '';
     }
 
     function showToast(message, type) {
