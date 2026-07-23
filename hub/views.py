@@ -1601,19 +1601,19 @@ from django.contrib.auth.decorators import login_required
 
 @login_required
 def accept_invite(request, notification_id):
-    # Notification fetch karein
-    notification = get_object_or_404(Notification, id=notification_id, recipient=request.user)
+    # 🟢 FIX: 'recipient' ko replace karke 'user' kar diya hai
+    notification = get_object_or_404(Notification, id=notification_id, user=request.user)
     
     group = notification.group
     if group:
         # User ko group member banayein (Bina kisi purani detail ko touch kiye)
-        group.members.add(request.user) # Yahan apne Group model ke according field name rakhein (e.g., members.add ya GroupMember.objects.get_or_create)
+        group.members.add(request.user)
         
         # Notification ko read mark karein
         notification.is_read = True
         notification.save()
         
-        # 🟢 FIX: User ko direct usi Group ke ID/Slug ke sath Redirect karein
+        # User ko direct group URL par redirect karein
         return redirect(f'/community/?group={group.id}')
     
     # Fallback agar group exist nahi karta
