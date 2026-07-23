@@ -351,9 +351,8 @@
 
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden divide-y divide-gray-100">
                 {% for n in notifications %}
-                <a href="{% url 'mark_notification_read' n.id %}" 
-                   data-category="{{ n.notification_type|default:'all' }}"
-                   class="notif-item notif-card relative flex items-start gap-3 sm:gap-4 p-4 hover:bg-[#f3f6f8] transition-all {% if not n.is_read %}unread-state{% endif %}">
+                <div data-category="{{ n.notification_type|default:'all' }}"
+                     class="notif-item notif-card relative flex items-start gap-3 sm:gap-4 p-4 hover:bg-[#f3f6f8] transition-all {% if not n.is_read %}unread-state{% endif %}">
                     
                     <!-- Avatar Layer Panel -->
                     <div class="flex-shrink-0">
@@ -368,29 +367,31 @@
                         </div>
                     </div>
                     
-                    <!-- Body Content Meta Matrix -->
+                    <!-- Body Content Meta Matrix (LinkedIn Style Formatting) -->
                     <div class="flex-1 pr-6 min-w-0">
                         <p class="text-[13px] sm:text-[14px] text-gray-800 leading-[1.5] break-words">
-                            <span class="font-bold text-gray-900 hover:text-blue-700 hover:underline">
+                            <span class="font-bold text-gray-900 hover:text-blue-700 hover:underline cursor-pointer">
                                 {% if n.sender.role == 'worker' %}
                                     {{ n.sender.worker_profile.full_name|default:"Worker Profile" }}
                                 {% elif n.sender.role == 'vendor' %}
-                                    {{ n.sender.vendor_profile.company_name|default:"Company Name" }}
+                                    {{ n.sender.vendor_profile.company_name|default:n.sender.username }}
                                 {% else %}
                                     FN Hub System
                                 {% endif %}
                             </span> 
                             <span class="text-gray-600 font-normal ml-0.5">
-                                {{ n.message|safe|cut:"from 9992618341" }}
+                                {{ n.message|safe }}
                             </span>
                         </p>
 
-                        {% if n.notification_type == 'group_invite' %}
-                        <div class="mt-2" id="invite-box-{{ n.id }}">
+                        <!-- LinkedIn-Style Active Action Button Layer -->
+                        {% if 'invited you' in n.message or n.notification_type == 'group_invite' %}
+                        <div class="mt-2 flex items-center gap-2" id="invite-box-{{ n.id }}">
                             <button type="button" 
-                                    onclick="acceptInvite('{{ n.group.id }}', '{{ n.id }}', this, event)" 
-                                    class="bg-[#0a66c2] hover:bg-[#004182] text-white text-[12px] font-bold px-4 py-1.5 rounded-full transition-all relative z-10 shadow-sm">
-                                Accept Join
+                                    onclick="acceptInvite('{{ n.group.id|default:1 }}', '{{ n.id }}', this, event)" 
+                                    class="bg-[#0a66c2] hover:bg-[#004182] text-white text-[12px] font-bold px-4 py-1.5 rounded-full transition-all active:scale-95 shadow-sm flex items-center gap-1.5">
+                                <i class="fa-solid fa-user-plus text-[10px]"></i>
+                                <span>Join Group</span>
                             </button>
                         </div>
                         {% endif %}
@@ -417,7 +418,7 @@
                             </button>
                         </div>
                     </div>
-                </a>
+                </div>
                 {% empty %}
                 <div class="p-12 text-center bg-white">
                     <div class="w-16 h-16 bg-gray-50 border border-dashed border-gray-300 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -559,24 +560,13 @@
 
         // --- 4. ASYNCHRONOUS ACTION ACTION FLOWS ---
         async function acceptInvite(groupId, notificationId, buttonElement, event) {
-            if (event) { e.preventDefault(); e.stopPropagation(); }
+            if (event) { event.preventDefault(); event.stopPropagation(); }
             buttonElement.innerText = "Joining...";
             buttonElement.disabled = true;
 
             try {
-                const response = await fetch('/api/accept-invitation/', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
-                    body: JSON.stringify({ 'group_id': groupId, 'notification_id': notificationId })
-                });
-                const data = await response.json();
-                if (data.status === 'success') {
-                    buttonElement.innerText = "Joined!";
-                    buttonElement.className = "bg-green-600 text-white text-[12px] font-bold px-4 py-1.5 rounded-full";
-                    setTimeout(() => buttonElement.style.display = 'none', 2000);
-                } else {
-                    alert(data.message || "Error joining group.");
-                }
+                // Direct redirect to backend accept_invite URL fallback
+                window.location.href = `/accept-invite/${notificationId}/`;
             } catch (e) {
                 alert("Network error.");
             }
