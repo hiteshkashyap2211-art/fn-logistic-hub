@@ -125,7 +125,7 @@
                     <a href="{% url 'messages' %}" class="flex flex-col items-center group text-gray-500 hover:text-black relative transition-all shrink-0">
                         <div class="relative">
                             <i class="fa-solid fa-comment-dots text-lg sm:text-xl"></i>
-                            {% if msg_count > 0 %}
+                            {% if msg_count and msg_count > 0 %}
                             <span class="absolute -top-1.5 -right-2 bg-red-600 text-white text-[8px] px-1 rounded-full border border-white font-bold">{{ msg_count }}</span>
                             {% endif %}
                         </div>
@@ -135,7 +135,7 @@
                     <a href="{% url 'notifications' %}" class="flex flex-col items-center group text-gray-500 hover:text-black relative transition-all shrink-0">
                         <div class="relative">
                             <i class="fa-solid fa-bell text-lg sm:text-xl"></i>
-                            {% if notif_count > 0 %}
+                            {% if notif_count and notif_count > 0 %}
                             <span class="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[8px] px-1 rounded-full border border-white font-bold">{{ notif_count }}</span>
                             {% endif %}
                         </div>
@@ -256,7 +256,7 @@
 
             </div>
 
-            <!-- 💬 WhatsApp Style Mobile Sub-Nav Bar Layout (Dynamic Group Logic Added Here) -->
+            <!-- 💬 WhatsApp Style Mobile Sub-Nav Bar Layout (Fixed Safe Template Syntax) -->
             <div class="block md:hidden bg-white border-t overflow-x-auto no-scrollbar whitespace-nowrap px-3 py-2">
                 <div class="flex items-center space-x-2 text-xs">
                     <button onclick="location.href='#'" class="bg-indigo-50 text-indigo-700 font-bold px-3 py-1.5 rounded-full border border-indigo-200 flex items-center gap-1.5 shrink-0 active:scale-95 transition-all">
@@ -274,9 +274,9 @@
                         <span>Logistics Hub</span>
                     </a>
                     
-                    <!-- 🔄 Dynamic Group Logic Integration -->
-                    {% if request.user.role == 'vendor' %}
-                        {% for group in created_groups|default:vendor_groups %}
+                    <!-- 🔄 Fixed Safe Dynamic Group Logic -->
+                    {% if created_groups %}
+                        {% for group in created_groups %}
                             {% if group.name != "Dishu Group PVT" and group.name != "Logistics Hub" %}
                             <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
                                 <i class="fa-solid fa-user-group text-slate-500"></i>
@@ -284,8 +284,8 @@
                             </a>
                             {% endif %}
                         {% endfor %}
-                    {% else %}
-                        {% for group in joined_groups|default:user.groups.all %}
+                    {% elif joined_groups %}
+                        {% for group in joined_groups %}
                             {% if group.name != "Dishu Group PVT" and group.name != "Logistics Hub" %}
                             <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
                                 <i class="fa-solid fa-user-group text-slate-500"></i>
@@ -489,7 +489,7 @@
                         <span id="comment-count-{{ job.id }}">Comment ({{ job.comments.all.count }})</span>
                     </button>
 
-                    {% if job.id in applied_job_ids %}
+                    {% if applied_job_ids and job.id in applied_job_ids %}
                         <button class="px-4 sm:px-8 py-1.5 bg-gray-100 text-gray-500 font-bold rounded-full text-xs flex items-center gap-2 border flex-1 sm:flex-none justify-center" disabled>
                             <i class="fa-solid fa-check text-green-600"></i> Applied
                         </button>
@@ -629,7 +629,7 @@
             <a href="{% url 'messages' %}" class="flex flex-col items-center justify-center text-gray-500 hover:text-[#0a66c2] relative transition-colors">
                 <div class="relative">
                     <i class="fa-solid fa-comment-dots text-lg"></i>
-                    {% if msg_count > 0 %}
+                    {% if msg_count and msg_count > 0 %}
                     <span class="absolute -top-1.5 -right-2 bg-red-600 text-white text-[7px] px-1 rounded-full font-bold">{{ msg_count }}</span>
                     {% endif %}
                 </div>
@@ -638,7 +638,7 @@
             <a href="{% url 'notifications' %}" class="flex flex-col items-center justify-center text-gray-500 hover:text-[#0a66c2] relative transition-colors">
                 <div class="relative">
                     <i class="fa-solid fa-bell text-lg"></i>
-                    {% if notif_count > 0 %}
+                    {% if notif_count and notif_count > 0 %}
                     <span class="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[7px] px-1 rounded-full font-bold">{{ notif_count }}</span>
                     {% endif %}
                 </div>
