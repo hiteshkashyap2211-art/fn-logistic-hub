@@ -1587,17 +1587,36 @@ def group_detail(request, pk):
     group = get_object_or_404(Group, pk=pk)
     return render(request, 'group_detail.html', {'group': group})
 
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from .models import Notification, Group
+
 def accept_invite(request, notification_id):
-    notification = Notification.objects.get(id=notification_id)
-    group = notification.group # मान लीजिए नोटिफिकेशन में ग्रुप लिंक है
+    # Fetch notification safely
+    notification = get_object_or_404(Notification, id=notification_id)
     
-    # यूजर को ग्रुप का मेंबर बनाएं
-    group.members.add(request.user)
-    group.save()
+    # Check if the associated group exists
+    group = notification.group
     
-    # नोटिफिकेशन हटा दें या 'accepted' मार्क कर दें
-    notification.delete() 
-    
+    if not group:
+        messages.error(request, "No group is associated with this notification or the group has been deleted.")
+        return redirect('notifications')
+
+    # Safely add member to group
+    try:
+        if hasattr(group, 'members'):
+            group.members.add(request.user)
+        
+        # Mark notification as read
+        notification.is_read = True
+        notification.save()
+        
+        messages.success(request, f"You have successfully joined the group '{group.name}'!")
+    except Exception as e:
+        messages.error(request, f"An error occurred while joining the group: {str(e)}")
+        return redirect('notifications')
+
+    # Redirect user to the community hub
     return redirect('community_hub')
 
 
