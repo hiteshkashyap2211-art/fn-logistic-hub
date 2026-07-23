@@ -263,72 +263,75 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from .models import JobPost, Application, Notification
+from .models import Application, JobPost, Notification
+
 
 @login_required
 def apply_for_job(request, job_id):
-    """
-    Handles job application submission for workers, creates notifications,
-    and redirects the user to WhatsApp with a formatted application alert.
-    """
-    job = get_object_or_404(JobPost, id=job_id)
-    
-    # 1. Check if the user has already applied for this job
-    already_applied = Application.objects.filter(job=job, applicant=request.user).exists()
-    if already_applied:
-        messages.info(request, f"You have already applied for {job.company_name}.")
-        return redirect('worker_dashboard')
+  """Handles job application submission for workers, creates notifications, and redirects the user to WhatsApp with a formatted application alert."""
+  job = get_object_or_404(JobPost, id=job_id)
 
-    if request.method == 'POST':
-        # 2. Create the job application entry
-        application = Application.objects.create(
-            job=job,
-            applicant=request.user,
-            status='submitted'
-        )
-        
-        # Create an in-app notification for the job owner (vendor)
-        Notification.objects.create(
-            user=job.vendor_user,
-            message=f"🚀 {request.user.username.title()} applied for your '{job.job_title}' position.",
-            link=f"/job-detail/{job.id}/" 
-        )
-        
-        # 3. WhatsApp Message Dispatch Logic
-        # Fetch vendor phone number (default fallback if missing)
-        vendor_phone = job.vendor_user.phone_number if job.vendor_user and job.vendor_user.phone_number else "9027522164"
-        
-        # Clean up phone number (Extract 10 digits if country code or zero is prepended)
-        if len(vendor_phone) > 10:
-            vendor_phone = vendor_phone[-10:]
-            
-        worker_name = request.user.username.title()
-        
-        # Dynamically build full working URL for the vendor dashboard
-        # This auto-detects active host domain (e.g., fn-logistic-hub.onrender.com or localhost)
-        vendor_dashboard_url = request.build_absolute_uri(reverse('vendor_dashboard'))
-        
-        # Construct raw WhatsApp notification message
-        raw_msg = (
-            f"🚀 *New Job Application Alert!*\n\n"
-            f"📌 *Job Title:* {job.job_title}\n"
-            f"🏢 *Company:* {job.company_name}\n"
-            f"👤 *Applicant:* {worker_name}\n"
-            f"📍 *Location:* {job.location}\n\n"
-            f"Check details on FN Logistic Hub: {vendor_dashboard_url}"
-        )
-        
-        # Encode message text for URL redirection
-        encoded_msg = urllib.parse.quote(raw_msg)
-        whatsapp_url = f"https://wa.me/91{vendor_phone}?text={encoded_msg}"
+  # 1. Check if the user has already applied for this job
+  already_applied = Application.objects.filter(
+      job=job, applicant=request.user
+  ).exists()
+  if already_applied:
+    messages.info(request, f"You have already applied for {job.company_name}.")
+    return redirect("worker_dashboard")
 
-        # Display success message in Django messages framework
-        messages.success(request, f"Success! Applied for {job.company_name}.")
-        
-        # Redirect directly to WhatsApp Web/App
-        return redirect(whatsapp_url)
-    
-    return render(request, 'apply_form.html', {'job': job})
+  if request.method == "POST":
+    # 2. Create the job application entry
+    application = Application.objects.create(
+        job=job, applicant=request.user, status="submitted"
+    )
+
+    # 🟢 FIX: Fetch candidate's Full Name from WorkerProfile instead of username (phone number)
+    applicant_name = request.user.username.title()
+    if hasattr(request.user, "worker_profile") and request.user.worker_profile:
+      if request.user.worker_profile.full_name:
+        applicant_name = request.user.worker_profile.full_name.strip()
+
+    # Create an in-app notification for the job owner (vendor)
+    Notification.objects.create(
+        user=job.vendor_user,
+        message=(
+            f"🚀 {applicant_name} applied for your '{job.job_title}' position."
+        ),
+        link=f"/job-detail/{job.id}/",
+    )
+
+    # 3. WhatsApp Message Dispatch Logic
+    vendor_phone = (
+        job.vendor_user.phone_number
+        if job.vendor_user and job.vendor_user.phone_number
+        else "9027522164"
+    )
+
+    # Clean up phone number (Extract 10 digits)
+    if len(vendor_phone) > 10:
+      vendor_phone = vendor_phone[-10:]
+
+    vendor_dashboard_url = request.build_absolute_uri(
+        reverse("vendor_dashboard")
+    )
+
+    # Construct raw WhatsApp notification message using full applicant name
+    raw_msg = (
+        f"🚀 *New Job Application Alert!*\n\n"
+        f"📌 *Job Title:* {job.job_title}\n"
+        f"🏢 *Company:* {job.company_name}\n"
+        f"👤 *Applicant:* {applicant_name}\n"
+        f"📍 *Location:* {job.location}\n\n"
+        f"Check details on FN Logistic Hub: {vendor_dashboard_url}"
+    )
+
+    encoded_msg = urllib.parse.quote(raw_msg)
+    whatsapp_url = f"https://wa.me/91{vendor_phone}?text={encoded_msg}"
+
+    messages.success(request, f"Success! Applied for {job.company_name}.")
+    return redirect(whatsapp_url)
+
+  return render(request, "apply_form.html", {"job": job})
 
 # 3. Vendor Dashboard
 from django.shortcuts import render, redirect
