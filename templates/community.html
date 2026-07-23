@@ -734,5 +734,26 @@
     function generateRequirementsTemplate() {
         triggerQuickSmartReply("📦 Requirement: Urgent hiring for Warehouse Executive at Farukhnagar Hub.");
     }
+    async function joinGroup(groupId) {
+        try {
+            const response = await fetch(`/join-group/${groupId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (response.ok) {
+                // Join hone ke baad page reload karein taaki updated UI dikhe
+                window.location.reload(); 
+            } else {
+                alert("Group join karne me samasya aai.");
+            }
+        } catch (error) {
+            console.error("Error joining group:", error);
+        }
+    }
 </script>
 {% endblock %}

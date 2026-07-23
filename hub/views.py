@@ -1620,6 +1620,27 @@ def accept_invite(request, notification_id):
     
     return redirect('community_hub')
 
+from django.shortcuts import redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from .models import Group
+
+@login_required
+def join_group(request, group_id):
+    group = get_object_or_404(Group, id=group_id)
+    
+    # Check karein ki user already member toh nahi hai
+    if request.user not in group.members.all():
+        group.members.add(request.user)  # 👈 Yeh line missing hone par user join nahi ho pata!
+        group.save()
+
+    # Agar AJAX/Fetch request hai:
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.content_type == 'application/json':
+        return JsonResponse({'status': 'success', 'message': 'Joined successfully'})
+    
+    # Agar direct link/form submission hai:
+    return redirect('community') # Aapke community page ka name
+
 
 import json
 from django.http import JsonResponse

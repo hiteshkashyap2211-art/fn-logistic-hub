@@ -234,7 +234,7 @@ class Group(models.Model):
         null=True, 
         blank=True
     )
-    members = models.ManyToManyField(User, related_name='joined_groups') 
+    members = models.ManyToManyField(User, related_name='joined_groups', blank=True)
 
     def __str__(self):
         return self.name
