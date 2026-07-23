@@ -1384,18 +1384,16 @@ import pytz
 from .models import Message, Notification, WorkerProfile, VendorProfile, Group
 from django.contrib.auth import get_user_model
 
-from django.shortcuts import render
-from django.contrib.auth import get_user_model
-from django.db.models import Q
-
 User = get_user_model()
 
+@login_required
 def community_hub(request):
     username = request.GET.get('user')
     
-    # Defaulting active_user to None if not found
+    # Active selected user resolution safely
     active_user = User.objects.filter(username=username).first() if username else None
     
+    # Base Context Structure
     context = {
         'active_user': active_user,
         'active_group': None,
@@ -1405,24 +1403,31 @@ def community_hub(request):
     }
     
     if request.user.is_authenticated:
-        # Load user's groups
-        context['groups'] = Group.objects.filter(members=request.user)
+        # User role identification
+        role = getattr(request.user, 'role', None)
+        
+        # User Groups Retrieval based on Role
+        if role == 'vendor':
+            # Vendors see groups they created/own or belong to
+            context['groups'] = Group.objects.filter(
+                Q(owner=request.user) | Q(created_by=request.user) | Q(members=request.user)
+            ).distinct()
+            context['user_profile'] = getattr(request.user, 'vendorprofile', None) or VendorProfile.objects.filter(user=request.user).first()
+        else:
+            # Workers see groups they belong to/joined
+            context['groups'] = Group.objects.filter(
+                Q(members=request.user) | Q(workers=request.user)
+            ).distinct()
+            context['user_profile'] = getattr(request.user, 'workerprofile', None) or WorkerProfile.objects.filter(user=request.user).first()
+            
         context['active_group'] = context['groups'].first()
         
-        # Load messages if active_user is valid
+        # Messages Loading Logic (1-on-1 Chat Context)
         if active_user:
             context['messages'] = Message.objects.filter(
                 (Q(sender=request.user) & Q(receiver=active_user)) |
                 (Q(sender=active_user) & Q(receiver=request.user))
             ).order_by('timestamp')
-            
-        # Profile Fetching
-        # Optimized: Use getattr to safely check roles
-        role = getattr(request.user, 'role', None)
-        if role == 'vendor':
-            context['user_profile'] = getattr(request.user, 'vendorprofile', None) or VendorProfile.objects.filter(user=request.user).first()
-        elif role == 'worker':
-            context['user_profile'] = getattr(request.user, 'workerprofile', None) or WorkerProfile.objects.filter(user=request.user).first()
             
     return render(request, 'community.html', context)
 
@@ -1590,20 +1595,28 @@ def group_detail(request, pk):
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from .models import Notification
+from django.shortcuts import redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+# Import your models (Notification, Group, GroupMember, etc.)
 
+@login_required
 def accept_invite(request, notification_id):
-    # 1. Fetch notification
-    notification = get_object_or_404(Notification, id=notification_id, user=request.user)
+    # Notification fetch karein
+    notification = get_object_or_404(Notification, id=notification_id, recipient=request.user)
     
-    # 2. Add user to group
-    if notification.group:
-        notification.group.members.add(request.user)
+    group = notification.group
+    if group:
+        # User ko group member banayein (Bina kisi purani detail ko touch kiye)
+        group.members.add(request.user) # Yahan apne Group model ke according field name rakhein (e.g., members.add ya GroupMember.objects.get_or_create)
+        
+        # Notification ko read mark karein
+        notification.is_read = True
+        notification.save()
+        
+        # 🟢 FIX: User ko direct usi Group ke ID/Slug ke sath Redirect karein
+        return redirect(f'/community/?group={group.id}')
     
-    # 3. Mark notification as read
-    notification.is_read = True
-    notification.save()
-    
-    # 4. Redirect to community/group page
+    # Fallback agar group exist nahi karta
     return redirect('community_hub')
 
 

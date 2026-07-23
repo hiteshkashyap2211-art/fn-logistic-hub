@@ -28,6 +28,9 @@
     .custom-scrollbar::-webkit-scrollbar-thumb:hover {
         background: #94a3b8;
     }
+    /* Hide horizontal scrollbar for clean filter display */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 </style>
 
 <!-- Main Container (Desktop Fixed Viewport & Mobile Responsive Alignment) -->
@@ -220,6 +223,17 @@
                     <i class="fa-solid fa-lock text-slate-400 text-[10px]"></i> Messages are securely transmitted within FN Hub operations.
                 </div>
             </div>
+            
+            {% if messages %}
+                {% for msg in messages %}
+                    <div class="flex {% if msg.sender == request.user %}justify-end{% else %}justify-start{% endif %} mb-2.5">
+                        <div class="max-w-[80%] {% if msg.sender == request.user %}msg-bubble-me border border-emerald-200/60{% else %}msg-bubble-them border border-slate-200{% endif %} p-2.5 text-xs shadow-2xs">
+                            <p class="leading-relaxed font-medium">{{ msg.content }}</p>
+                            <div class="text-[9px] mt-1 text-right font-bold opacity-60">{{ msg.timestamp|time:"H:i" }}</div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
         </div>
 
         <!-- Toast Notification Container -->
