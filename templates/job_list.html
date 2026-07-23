@@ -256,7 +256,7 @@
 
             </div>
 
-            <!-- 💬 WhatsApp Style Mobile Sub-Nav Bar Layout (Fixed Safe Template Syntax) -->
+            <!-- 💬 WhatsApp Style Mobile Sub-Nav Bar Layout (Dynamic Group Filtering Logic Integrated) -->
             <div class="block md:hidden bg-white border-t overflow-x-auto no-scrollbar whitespace-nowrap px-3 py-2">
                 <div class="flex items-center space-x-2 text-xs">
                     <button onclick="location.href='#'" class="bg-indigo-50 text-indigo-700 font-bold px-3 py-1.5 rounded-full border border-indigo-200 flex items-center gap-1.5 shrink-0 active:scale-95 transition-all">
@@ -265,33 +265,38 @@
                     </button>
                     <div class="h-4 w-[1px] bg-gray-300 shrink-0"></div>
                     
-                    <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
-                        <i class="fa-solid fa-user-group text-orange-600"></i>
-                        <span>Dishu Group PVT</span>
-                    </a>
-                    <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
-                        <i class="fa-solid fa-warehouse text-blue-600"></i>
-                        <span>Logistics Hub</span>
-                    </a>
-                    
-                    <!-- 🔄 Fixed Safe Dynamic Group Logic -->
-                    {% if created_groups %}
+                    <!-- 🔄 Role-based Dynamic Group Logic Implementation -->
+                    {% if request.user.role == 'vendor' %}
                         {% for group in created_groups %}
-                            {% if group.name != "Dishu Group PVT" and group.name != "Logistics Hub" %}
-                            <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
-                                <i class="fa-solid fa-user-group text-slate-500"></i>
-                                <span>{{ group.name }} {% if group.member_count %}({{ group.member_count }}){% endif %}</span>
-                            </a>
-                            {% endif %}
+                        <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
+                            <i class="fa-solid fa-user-group text-orange-600"></i>
+                            <span>{{ group.name }} {% if group.member_count %}({{ group.member_count }}){% endif %}</span>
+                        </a>
+                        {% empty %}
+                        <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
+                            <i class="fa-solid fa-user-group text-orange-600"></i>
+                            <span>Dishu Group PVT</span>
+                        </a>
+                        <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
+                            <i class="fa-solid fa-warehouse text-blue-600"></i>
+                            <span>Logistics Hub</span>
+                        </a>
                         {% endfor %}
-                    {% elif joined_groups %}
+                    {% else %}
                         {% for group in joined_groups %}
-                            {% if group.name != "Dishu Group PVT" and group.name != "Logistics Hub" %}
-                            <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
-                                <i class="fa-solid fa-user-group text-slate-500"></i>
-                                <span>{{ group.name }} {% if group.member_count %}({{ group.member_count }}){% endif %}</span>
-                            </a>
-                            {% endif %}
+                        <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
+                            <i class="fa-solid fa-user-group text-blue-600"></i>
+                            <span>{{ group.name }} {% if group.member_count %}({{ group.member_count }}){% endif %}</span>
+                        </a>
+                        {% empty %}
+                        <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
+                            <i class="fa-solid fa-user-group text-orange-600"></i>
+                            <span>Dishu Group PVT</span>
+                        </a>
+                        <a href="#" class="bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shrink-0 hover:bg-gray-200 transition-all">
+                            <i class="fa-solid fa-warehouse text-blue-600"></i>
+                            <span>Logistics Hub</span>
+                        </a>
                         {% endfor %}
                     {% endif %}
                 </div>
