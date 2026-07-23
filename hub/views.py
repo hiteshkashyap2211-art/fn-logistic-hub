@@ -1408,13 +1408,13 @@ def community_hub(request):
         
         # User Groups Retrieval based on Role
         if role == 'vendor':
-            # Vendors see groups they created/own or belong to
+            # Vendors see groups where they are owner or member
             context['groups'] = Group.objects.filter(
-                Q(owner=request.user) | Q(created_by=request.user) | Q(members=request.user)
+                Q(owner=request.user) | Q(members=request.user)
             ).distinct()
             context['user_profile'] = getattr(request.user, 'vendorprofile', None) or VendorProfile.objects.filter(user=request.user).first()
         else:
-            # Workers see groups they belong to/joined (FIXED: 'workers' removed, only 'members' used)
+            # Workers see groups where they are member
             context['groups'] = Group.objects.filter(
                 Q(members=request.user)
             ).distinct()
