@@ -47,7 +47,7 @@
     }
 </style>
 
-<div class="max-w-6xl mx-auto px-2 sm:px-4 mt-4 sm:mt-6 pb-20">
+<div class="max-w-6xl mx-auto px-3 sm:px-6 mt-4 sm:mt-6 pb-20">
 
     <!-- Top AI Smart Insights Banner Section -->
     <div class="bg-white rounded-2xl sm:rounded-[24px] p-4 sm:p-6 border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 overflow-hidden relative mb-6">
@@ -108,11 +108,11 @@
         </div>
     </div>
 
-    <!-- Desktop Responsive Grid Layout (12 Columns) -->
-    <div class="grid grid-cols-12 gap-4 sm:gap-6">
+    <!-- Correct Desktop Responsive Grid Structure -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-        <!-- Main Feed & Stream Container (Center Stream) -->
-        <div class="col-span-12 lg:col-span-8 space-y-4">
+        <!-- Main Feed Stream Container (Center - 8 Columns) -->
+        <main class="lg:col-span-8 space-y-4">
             {% for worker in workers %}
             <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-5" id="worker-card-{{ worker.pk }}">
                 
@@ -219,20 +219,21 @@
                 </div>
             </div>
             {% empty %}
-            <div class="bg-white rounded-xl border p-8 text-center text-gray-500 font-medium">
+            <div class="bg-white rounded-xl border border-gray-200 p-8 text-center text-gray-500 font-medium shadow-sm">
                 <i class="fa-solid fa-user-slash text-2xl text-gray-300 block mb-2"></i> No active workers found in the portal currently.
             </div>
             {% endfor %}
-        </div>
+        </main>
 
-        <!-- Desktop Right Sidebar Container -->
-        <div class="hidden lg:block lg:col-span-4 space-y-4">
-            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm sticky top-20">
+        <!-- Right Sidebar Stack (Desktop - 4 Columns) -->
+        <aside class="hidden lg:block lg:col-span-4 space-y-4 sticky top-20">
+            <!-- Hub News Widget -->
+            <div class="bg-white p-4.5 rounded-xl border border-gray-200 shadow-sm">
                 <div class="flex justify-between items-center mb-3">
                     <h3 class="font-bold text-slate-800 text-sm">Hub News</h3>
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Live •••</span>
                 </div>
-                <ul class="space-y-2.5 text-xs text-slate-600 mb-5">
+                <ul class="space-y-2.5 text-xs text-slate-600">
                     <li class="flex items-center gap-2 hover:text-blue-600 cursor-pointer transition-colors">
                         <span class="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0"></span>
                         <span class="truncate">Flipkart hiring 500+ workers soon.</span>
@@ -247,7 +248,7 @@
                     </li>
                 </ul>
 
-                <hr class="my-3 border-gray-100">
+                <hr class="my-4 border-gray-100">
 
                 <div class="text-[11px] text-gray-400 flex flex-wrap gap-2 justify-center pt-1">
                     <a href="#" class="hover:underline hover:text-gray-600">About</a>
@@ -258,7 +259,7 @@
                     <p class="w-full text-center mt-3 font-bold text-orange-600 opacity-80">FN Logistic Hub © 2026</p>
                 </div>
             </div>
-        </div>
+        </aside>
 
     </div>
 </div>
