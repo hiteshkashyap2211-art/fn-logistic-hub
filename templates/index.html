@@ -302,9 +302,9 @@
                     </a>
                 {% empty %}
                     {% if request.user.role == 'vendor' %}
-                        <span class="text-gray-400 italic text-[11px] px-2">Aapne abhi koi group nahi banaya hai.</span>
+                        <span class="text-gray-400 italic text-[11px] px-2">You haven't created any group yet.</span>
                     {% else %}
-                        <span class="text-gray-400 italic text-[11px] px-2">Aapne abhi koi group join nahi kiya hai.</span>
+                        <span class="text-gray-400 italic text-[11px] px-2">You haven't joined any group yet.</span>
                     {% endif %}
                 {% endfor %}
             </div>
